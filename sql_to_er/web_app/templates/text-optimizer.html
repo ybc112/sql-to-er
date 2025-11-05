@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO优化 -->
+    <title>AI文本优化器 - 智能去AI痕迹工具 | 文本重写与优化平台</title>
+    <meta name="description" content="专业的AI文本优化工具，智能重写文本内容，降低AI生成痕迹，保持原意不变。支持长文本分段处理，前后对比展示，一键优化文章内容。">
+    <meta name="keywords" content="AI文本优化,文本重写,去AI痕迹,文章优化,智能改写,文本润色,内容优化,文本处理">
+    <meta name="author" content="智能文档处理平台">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="AI文本优化器 - 智能去AI痕迹工具">
+    <meta property="og:description" content="专业的文本优化工具，智能重写内容，降低AI生成痕迹">
+    <meta property="og:type" content="website">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* 现代企业级配色方案 */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-200: #bfdbfe;
+            --primary-300: #93c5fd;
+            --primary-400: #60a5fa;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-800: #1e40af;
+            --primary-900: #1e3a8a;
+            
+            /* 成功色系 */
+            --success-50: #ecfdf5;
+            --success-100: #d1fae5;
+            --success-500: #10b981;
+            --success-600: #059669;
+            --success-700: #047857;
+            
+            /* 警告色系 */
+            --warning-50: #fffbeb;
+            --warning-100: #fef3c7;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            
+            /* 错误色系 */
+            --danger-50: #fef2f2;
+            --danger-100: #fee2e2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            
+            /* 中性色系 */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* 阴影系统 */
+            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            /* 高光颜色 */
+            --highlight-add: var(--success-50);
+            --highlight-add-border: var(--success-500);
+            --highlight-remove: var(--danger-50);
+            --highlight-remove-border: var(--danger-500);
+            --highlight-modify: var(--warning-50);
+            --highlight-modify-border: var(--warning-500);
+            
+            /* 边框半径 */
+            --radius-xs: 0.25rem;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* 间距系统 */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Toast 提示样式 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--primary-500);
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: var(--success-500);
+            color: var(--success-700);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning-500);
+            color: var(--warning-700);
+        }
+
+        .toast.danger {
+            border-left-color: var(--danger-500);
+            color: var(--danger-700);
+        }
+
+        .toast.info {
+            border-left-color: var(--primary-500);
+            color: var(--primary-700);
+        }
+
+        /* 登录弹窗样式增强 */
+        .modal-content {
+            border: none;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--gray-200);
+            padding: 1rem 1.5rem;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 现代化头部设计 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gray-200);
+            padding: var(--space-lg) 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xl);
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+        }
+
+        .logo-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin: 0;
+            line-height: 1.2;
+            letter-spacing: -0.025em;
+        }
+
+        .header-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--gray-600);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-lg);
+            transition: all 0.2s ease;
+            border: 1px solid var(--gray-200);
+            background: white;
+        }
+
+        .nav-back:hover {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-color: var(--primary-200);
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .user-balance {
+            background: var(--gray-100);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        /* 精美的使用说明卡片 */
+        .info-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+            border: 1px solid var(--primary-200);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--success-500));
+        }
+
+        .info-card h6 {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-lg);
+        }
+
+        .info-card ul {
+            margin: 0;
+            padding-left: var(--space-lg);
+            color: var(--gray-700);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-sm);
+        }
+
+        .info-card li {
+            margin-bottom: var(--space-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .info-card li::marker {
+            color: var(--primary-500);
+        }
+
+        /* 现代化工作区域 */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .work-panel {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .work-panel:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, var(--gray-50), white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .panel-body {
+            padding: var(--space-xl);
+        }
+
+        /* 精美的表单控件 */
+        .form-control {
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 4px var(--primary-100);
+            background: var(--primary-50);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+            font-weight: 400;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: var(--space-sm);
+            font-size: 0.875rem;
+        }
+
+        .form-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--space-sm);
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        /* 现代化按钮系统 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-xl);
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline-success {
+            background: white;
+            color: var(--success-600);
+            border: 2px solid var(--success-500);
+        }
+
+        .btn-outline-success:hover:not(:disabled) {
+            background: var(--success-500);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline-success:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-lg {
+            padding: var(--space-lg) var(--space-2xl);
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .btn-sm {
+            padding: var(--space-sm) var(--space-md);
+            font-size: 0.75rem;
+        }
+
+        /* 精美的进度条 */
+        .progress-area {
+            margin-top: var(--space-lg);
+            padding: var(--space-lg);
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+        }
+
+        .progress {
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-500), var(--success-500));
+            height: 100%;
+            border-radius: var(--radius-sm);
+            transition: width 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, 0.2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 1rem 1rem;
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+
+        @keyframes progress-bar-stripes {
+            0% { background-position: 1rem 0; }
+            100% { background-position: 0 0; }
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: var(--space-md);
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            font-weight: 600;
+        }
+
+        /* 精美的统计信息 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-lg);
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--gray-50), white);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-600);
+            margin-bottom: var(--space-xs);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* 精美的对比展示区域 */
+        .comparison-section {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .comparison-header {
+            background: linear-gradient(135deg, var(--warning-50), var(--warning-100));
+            border-bottom: 1px solid var(--warning-200);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .comparison-header h5 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .comparison-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .comparison-panel {
+            border-right: 1px solid var(--gray-200);
+        }
+
+        .comparison-panel:last-child {
+            border-right: none;
+        }
+
+        .comparison-panel-header {
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+            padding: var(--space-md) var(--space-lg);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .comparison-panel-body {
+            padding: var(--space-lg);
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.8;
+            background: var(--gray-50);
+        }
+
+        /* 高光显示样式 */
+        .highlight-add {
+            background: var(--highlight-add);
+            border-left: 4px solid var(--highlight-add-border);
+            padding: var(--space-xs) var(--space-sm);
+            margin: var(--space-xs) 0;
+            border-radius: var(--radius-sm);
+            position: relative;
+        }
+
+        .highlight-add::before {
+            content: '+ ';
+            color: var(--highlight-add-border);
+            font-weight: bold;
+        }
+
+        .highlight-remove {
+            background: var(--highlight-remove);
+            border-left: 4px solid var(--highlight-remove-border);
+            padding: var(--space-xs) var(--space-sm);
+            margin: var(--space-xs) 0;
+            border-radius: var(--radius-sm);
+            text-decoration: line-through;
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .highlight-remove::before {
+            content: '- ';
+            color: var(--highlight-remove-border);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .highlight-modify {
+            background: var(--highlight-modify);
+            border-left: 4px solid var(--highlight-modify-border);
+            padding: var(--space-xs) var(--space-sm);
+            margin: var(--space-xs) 0;
+            border-radius: var(--radius-sm);
+            position: relative;
+        }
+
+        .highlight-modify::before {
+            content: '~ ';
+            color: var(--highlight-modify-border);
+            font-weight: bold;
+        }
+
+        /* 精美的滚动条 */
+        .comparison-panel-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .comparison-panel-body::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: var(--radius-sm);
+        }
+
+        .comparison-panel-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--gray-300), var(--gray-400));
+            border-radius: var(--radius-sm);
+        }
+
+        .comparison-panel-body::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--gray-400), var(--gray-500));
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .comparison-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--gray-200);
+            }
+            
+            .comparison-panel:last-child {
+                border-bottom: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: var(--space-md);
+            }
+            
+            .header-container {
+                padding: 0 var(--space-md);
+                flex-direction: column;
+                gap: var(--space-md);
+                align-items: flex-start;
+            }
+            
+            .header-left {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+
+            .info-card ul {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 精美的动画效果 */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 加载状态 */
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 精美的提示消息 */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg) var(--space-xl);
+            box-shadow: var(--shadow-2xl);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            max-width: 420px;
+            animation: slideInRight 0.4s ease-out;
+            backdrop-filter: blur(20px);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success-500);
+            color: var(--success-700);
+            background: linear-gradient(135deg, white, var(--success-50));
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning-500);
+            color: var(--warning-700);
+            background: linear-gradient(135deg, white, var(--warning-50));
+        }
+
+        .toast.danger {
+            border-left: 4px solid var(--danger-500);
+            color: var(--danger-700);
+            background: linear-gradient(135deg, white, var(--danger-50));
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--primary-500);
+            color: var(--primary-700);
+            background: linear-gradient(135deg, white, var(--primary-50));
+        }
+
+        /* 脉冲动画 */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 现代化头部 -->
+    <header class="header">
+        <div class="header-container">
+            <div class="header-left">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div class="header-title">
+                        <h1>AI文本优化器</h1>
+                        <p class="header-subtitle">智能重写文本内容，降低AI生成痕迹</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                {% if user_info %}
+                <div class="user-info">
+                    <i class="fas fa-user"></i>
+                    <span>{{ user_info.username }}</span>
+                    <div class="user-balance">
+                        余额: ¥{{ "%.2f"|format(user_info.balance) }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <a href="/" class="nav-back">
+                    <i class="fas fa-arrow-left"></i>
+                    返回首页
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <!-- 使用说明（可折叠） -->
+        <div class="info-card slide-up" id="usageCard">
+            <div class="d-flex align-items-center justify-content-between">
+                <h6 class="m-0"><i class="fas fa-lightbulb"></i> 使用说明</h6>
+                <button id="toggleUsageBtn" class="btn btn-sm btn-outline-success" type="button">
+                    <i class="fas fa-chevron-up me-1"></i> 收起
+                </button>
+            </div>
+            <div id="usageBody" class="mt-3">
+                <ul>
+                    <li>支持最大5万字符的长文本优化处理</li>
+                    <li>自动智能分段处理，保持上下文连贯性</li>
+                    <li>深度重写句式结构，降低AI生成特征</li>
+                    <li>严格保护专业术语和核心观点不变</li>
+                    <li>提供实时前后对比和高光显示修改</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 工作区域 -->
+        <div class="workspace">
+            <!-- 输入区域 -->
+            <div class="work-panel slide-up">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <i class="fas fa-edit"></i>
+                        输入文本
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="mb-3">
+                        <label for="textInput" class="form-label">请粘贴需要优化的文本内容：</label>
+                        <textarea id="textInput" class="form-control" rows="15" 
+                            placeholder="在此粘贴您要优化的文本内容...&#10;&#10;支持类型：&#10;• 学术论文和研究报告&#10;• 技术文档和说明书&#10;• 商业文案和营销材料&#10;• 其他中文文本内容"></textarea>
+                        <div class="form-text">
+                            <span>当前字符数: <span id="inputCount" class="fw-bold">0</span></span>
+                            <span class="text-muted">建议单次处理5万字符以内</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button id="optimizeBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                            开始智能优化
+                        </button>
+                    </div>
+                    
+                    <!-- 进度显示 -->
+                    <div id="progressArea" class="progress-area" style="display: none;">
+                        <div class="progress">
+                            <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <small id="progressText">准备中...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输出区域 -->
+            <div class="work-panel slide-up">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <i class="fas fa-check-circle"></i>
+                        优化结果
+                    </h5>
+                    <div class="result-toolbar d-flex gap-2">
+                        <button id="copyBtn" class="btn btn-outline-success btn-sm" disabled>
+                            <i class="fas fa-copy"></i> 复制
+                        </button>
+                        <button id="downloadBtn" class="btn btn-outline-success btn-sm" disabled>
+                            <i class="fas fa-file-arrow-down"></i> 下载
+                        </button>
+                        <button id="compareBtn" class="btn btn-outline-success btn-sm" disabled>
+                            <i class="fas fa-code-compare"></i> 对比
+                        </button>
+                        <button id="cleanBtn" class="btn btn-outline-success btn-sm" disabled>
+                            <i class="fas fa-broom"></i> 清理格式
+                        </button>
+                        <button id="fullscreenBtn" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-maximize"></i> 全屏
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <textarea id="textOutput" class="form-control" rows="15" 
+                        placeholder="优化后的文本将在这里显示...&#10;&#10;处理特点：&#10;• 句式多样化重构&#10;• 保持专业术语准确&#10;• 增强自然语言特征&#10;• 保留原文核心观点" readonly></textarea>
+                    <div class="form-text">
+                        <span>优化后字符数: <span id="outputCount" class="fw-bold">0</span></span>
+                        <span id="optimizationInfo" class="text-muted"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 优化统计 -->
+        <div id="statsArea" class="stats-grid fade-in" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-number" id="statSegments">0</div>
+                <div class="stat-label">处理片段</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="statOriginal">0</div>
+                <div class="stat-label">原文字符</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="statOptimized">0</div>
+                <div class="stat-label">优化后字符</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="statChange">0%</div>
+                <div class="stat-label">长度变化</div>
+            </div>
+        </div>
+
+        <!-- 智能对比展示 -->
+        <div id="comparisonArea" class="comparison-section fade-in" style="display: none;">
+            <div class="comparison-header">
+                <i class="fas fa-code-compare"></i>
+                <h5>智能对比分析</h5>
+            </div>
+            <div class="comparison-content">
+                <div class="comparison-panel">
+                    <div class="comparison-panel-header">
+                        <i class="fas fa-file-alt"></i> 原始文本
+                    </div>
+                    <div id="originalPreview" class="comparison-panel-body"></div>
+                </div>
+                <div class="comparison-panel">
+                    <div class="comparison-panel-header">
+                        <i class="fas fa-file-check"></i> 优化文本（高光显示修改）
+                    </div>
+                    <div id="optimizedPreview" class="comparison-panel-body"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部浮动操作条 + 辅助样式 -->
+    <style>
+      .result-toolbar .btn { white-space: nowrap; }
+      .work-panel.fullscreen {
+        position: fixed; inset: 72px 16px 72px 16px; z-index: 1500; margin: 0 !important; width:auto !important; height:auto !important;
+      }
+      .work-panel.fullscreen .panel-body textarea { height: calc(100vh - 210px) !important; }
+      .action-bar { position: fixed; bottom: 12px; left: 0; right: 0; z-index: 1400; pointer-events: none; }
+      .action-bar-inner {
+        max-width: 1400px; margin: 0 auto; background: rgba(255,255,255,0.9); border:1px solid var(--gray-200);
+        border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); padding: 10px 16px; display:flex; align-items:center; justify-content:space-between;
+        pointer-events: all; backdrop-filter: blur(10px);
+      }
+      .action-bar .hint { color: var(--gray-600); font-size: 12px; display: none; }
+
+      /* 左侧悬浮快捷键徽标 */
+      .shortcut-badge{
+        position: fixed;
+        left: 12px;
+        bottom: 96px; /* 避开底部操作条 */
+        z-index: 1450;
+        background: rgba(255,255,255,0.95);
+        border: 1px solid var(--gray-200);
+        border-radius: 999px;
+        box-shadow: var(--shadow-xl);
+        padding: 6px 12px;
+        font-size: 12px;
+        color: var(--gray-700);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(10px);
+      }
+      @media (max-width: 768px){
+        .shortcut-badge{ left: 8px; bottom: 80px; font-size: 11px; }
+      }
+    </style>
+
+    <div id="actionBar" class="action-bar" style="display:none;">
+      <div class="action-bar-inner">
+        <div class="left">
+          <span class="hint"><i class="fas fa-bolt text-warning me-1"></i> 快捷键：Ctrl/Cmd + Enter 开始优化</span>
+        </div>
+        <div class="right d-flex gap-2">
+          <button id="startBtnBottom" class="btn btn-primary btn-sm">
+            <i class="fas fa-wand-magic-sparkles"></i> 开始优化
+          </button>
+          <button id="copyBtnBottom" class="btn btn-outline-success btn-sm" disabled>
+            <i class="fas fa-copy"></i> 复制结果
+          </button>
+          <button id="toTopBtn" class="btn btn-outline-success btn-sm">
+            <i class="fas fa-arrow-up"></i> 回到顶部
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="shortcutBadge" class="shortcut-badge">
+        <i class="fas fa-keyboard"></i> 快捷键：Ctrl/Cmd + Enter 开始优化
+    </div>
+    <!-- 登录提示弹窗 -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">
+                        <i class="fas fa-lock text-warning"></i> 需要登录
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-3x text-primary mb-3"></i>
+                        <h6>使用文本优化功能需要登录</h6>
+                        <p class="text-muted">登录后即可享受AI智能文本优化服务</p>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="/login" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> 立即登录
+                        </a>
+                        <a href="/register" class="btn btn-outline-secondary">
+                            <i class="fas fa-user-plus"></i> 注册新账户
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <small class="text-muted">
+                        <i class="fas fa-gift"></i> 新用户注册即送10元体验额度
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const textInput = document.getElementById('textInput');
+            const textOutput = document.getElementById('textOutput');
+            const optimizeBtn = document.getElementById('optimizeBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const progressArea = document.getElementById('progressArea');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const inputCount = document.getElementById('inputCount');
+            const outputCount = document.getElementById('outputCount');
+            const optimizationInfo = document.getElementById('optimizationInfo');
+            const comparisonArea = document.getElementById('comparisonArea');
+            const statsArea = document.getElementById('statsArea');
+
+            // 使用说明折叠
+            const toggleUsageBtn = document.getElementById('toggleUsageBtn');
+            const usageBody = document.getElementById('usageBody');
+
+            // 工具栏与底部操作条
+            const downloadBtn = document.getElementById('downloadBtn');
+            const compareBtn = document.getElementById('compareBtn');
+            const cleanBtn = document.getElementById('cleanBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const actionBar = document.getElementById('actionBar');
+            const startBtnBottom = document.getElementById('startBtnBottom');
+            const copyBtnBottom = document.getElementById('copyBtnBottom');
+            const toTopBtn = document.getElementById('toTopBtn');
+            
+            // 字符计数功能
+            textInput.addEventListener('input', function() {
+                const count = this.value.length;
+                inputCount.textContent = count.toLocaleString();
+                inputCount.style.color = count > 50000 ? 'var(--danger-500)' : 'var(--primary-600)';
+            });
+            
+            // 优化按钮点击事件
+            optimizeBtn.addEventListener('click', function() {
+                const text = textInput.value.trim();
+                if (!text) {
+                    showToast('请先输入要优化的文本内容', 'warning');
+                    return;
+                }
+                
+                if (text.length > 50000) {
+                    showToast('文本长度超出限制，请控制在5万字符以内', 'danger');
+                    return;
+                }
+                
+                optimizeText(text);
+            });
+            
+            // 复制按钮事件
+            copyBtn.addEventListener('click', function() {
+                textOutput.select();
+                document.execCommand('copy');
+                showToast('优化结果已复制到剪贴板', 'success');
+            });
+
+            // 使用说明折叠交互
+            if (toggleUsageBtn && usageBody) {
+                toggleUsageBtn.addEventListener('click', () => {
+                    const collapsed = usageBody.style.display === 'none';
+                    usageBody.style.display = collapsed ? 'block' : 'none';
+                    toggleUsageBtn.innerHTML = collapsed ? '<i class="fas fa-chevron-up me-1"></i> 收起' : '<i class="fas fa-chevron-down me-1"></i> 展开';
+                });
+                // 首屏默认折叠以扩大可用区域
+                usageBody.style.display = 'none';
+                toggleUsageBtn.innerHTML = '<i class="fas fa-chevron-down me-1"></i> 展开';
+            }
+
+            // 底部操作条与辅助按钮
+            actionBar.style.display = 'block';
+            startBtnBottom.addEventListener('click', () => optimizeBtn.click());
+            copyBtnBottom.addEventListener('click', () => copyBtn.click());
+            toTopBtn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+            // 工具栏按钮
+            downloadBtn.addEventListener('click', () => {
+                const text = textOutput.value || '';
+                const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'optimized.txt'; a.click();
+                URL.revokeObjectURL(url);
+            });
+            compareBtn.addEventListener('click', () => {
+                comparisonArea.style.display = comparisonArea.style.display === 'none' ? 'block' : 'none';
+            });
+            cleanBtn.addEventListener('click', () => {
+                let t = textOutput.value || '';
+                t = t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n'); // 清理多余空格与空行
+                textOutput.value = t;
+                outputCount.textContent = t.length.toLocaleString();
+                showToast('已清理多余空行与空格', 'success');
+            });
+            fullscreenBtn.addEventListener('click', () => {
+                const panel = document.getElementById('textOutput').closest('.work-panel');
+                panel.classList.toggle('fullscreen');
+                fullscreenBtn.innerHTML = panel.classList.contains('fullscreen') ? '<i class="fas fa-minimize"></i> 退出全屏' : '<i class="fas fa-maximize"></i> 全屏';
+            });
+
+            // 文本优化主函数
+            async function optimizeText(text) {
+                let timeoutId = null;
+                
+                try {
+                    // 显示进度
+                    showProgress(true);
+                    updateProgress(10, '正在分析文本结构...');
+                    optimizeBtn.disabled = true;
+                    optimizeBtn.innerHTML = '<span class="loading-spinner"></span> 优化中...';
+                    
+                    // 清空之前的结果
+                    textOutput.value = '';
+                    outputCount.textContent = '0';
+                    optimizationInfo.textContent = '';
+                    comparisonArea.style.display = 'none';
+                    statsArea.style.display = 'none';
+                    
+                    updateProgress(30, '正在连接优化服务...');
+                    
+                    // 使用Promise.race来实现超时控制，避免AbortController的问题
+                    const fetchPromise = fetch('/api/optimize-text', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            options: {
+                                preserve_structure: true,
+                                enhance_readability: true,
+                                reduce_ai_traces: true
+                            }
+                        })
+                    });
+                    
+                    const timeoutPromise = new Promise((_, reject) => {
+                        timeoutId = setTimeout(() => {
+                            reject(new Error('请求超时，请稍后重试'));
+                        }, 600000); // 10分钟超时
+                    });
+                    
+                    // 发送优化请求
+                    const response = await Promise.race([fetchPromise, timeoutPromise]);
+                    
+                    clearTimeout(timeoutId);
+                    updateProgress(60, '正在处理优化结果...');
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('API响应错误:', errorText);
+                        
+                        // 特别处理401未授权错误
+                        if (response.status === 401) {
+                            // 尝试解析错误消息
+                            try {
+                                const errorData = JSON.parse(errorText);
+                                if (errorData.message && errorData.message.includes('登录')) {
+                                    throw new Error('UNAUTHORIZED_LOGIN_REQUIRED');
+                                }
+                            } catch (parseError) {
+                                // 如果解析失败，仍然抛出401错误
+                                throw new Error('UNAUTHORIZED_LOGIN_REQUIRED');
+                            }
+                        }
+                        
+                        throw new Error(`服务器错误 ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    // 尝试解析JSON响应
+                    let result;
+                    const responseText = await response.text();
+                    console.log('API原始响应:', responseText);
+                    
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error('JSON解析失败:', parseError);
+                        // 如果不是JSON，可能直接返回了优化后的文本
+                        if (responseText && responseText.trim()) {
+                            result = { optimized_text: responseText.trim() };
+                        } else {
+                            throw new Error('API返回空响应');
+                        }
+                    }
+                    
+                    // 检查是否有错误信息
+                    if (result.error) {
+                        throw new Error(result.error);
+                    }
+                    
+                    updateProgress(90, '正在生成对比分析...');
+                    
+                    // 处理API返回的数据结构 - 更全面的兼容性处理
+                    let optimizedText = '';
+                    
+                    // 优先使用 optimized 字段（这是实际的API返回格式）
+                    if (result.optimized) {
+                        optimizedText = result.optimized;
+                    } else if (result.optimized_text) {
+                        optimizedText = result.optimized_text;
+                    } else if (result.result) {
+                        optimizedText = result.result;
+                    } else if (result.final_result) {
+                        optimizedText = result.final_result;
+                    } else if (result.content) {
+                        optimizedText = result.content;
+                    } else if (result.data) {
+                        optimizedText = result.data;
+                    } else if (typeof result === 'string') {
+                        optimizedText = result;
+                    } else if (result.success && result.text) {
+                        optimizedText = result.text;
+                    } else {
+                        console.error('未知的API响应格式:', result);
+                        console.error('可用的字段:', Object.keys(result));
+                        // 不要抛出错误，给出更友好的提示
+                        showToast('服务响应格式异常，请稍后重试', 'warning');
+                        return;
+                    }
+                    
+                    // 验证优化结果
+                    if (!optimizedText || typeof optimizedText !== 'string') {
+                        throw new Error('优化结果为空或格式错误');
+                    }
+                    
+                    if (optimizedText.length === 0) {
+                        throw new Error('优化后文本为空，请重试');
+                    }
+                    
+                    // 更新结果
+                    updateProgress(100, '优化完成！');
+                    textOutput.value = optimizedText;
+                    outputCount.textContent = optimizedText.length.toLocaleString();
+                    
+                    // 显示统计信息 - 使用API返回的详细信息
+                    const stats = {
+                        segments: result.segments || result.segment_count || (result.processing_info ? parseInt(result.processing_info.match(/\d+/)?.[0]) || 1 : 1),
+                        original_length: result.original_length || text.length,
+                        optimized_length: result.optimized_length || optimizedText.length,
+                        change_percentage: result.change_percentage || ((optimizedText.length - text.length) / text.length * 100).toFixed(1)
+                    };
+                    
+                    // 显示处理信息
+                    if (result.processing_info) {
+                        optimizationInfo.textContent = result.processing_info;
+                    }
+                    
+                    showStats(stats);
+                    
+                    // 显示对比
+                    showComparison(text, optimizedText);
+                    
+                    // 启用复制按钮与工具栏、底部按钮
+                    copyBtn.disabled = false;
+                    copyBtnBottom.disabled = false;
+                    downloadBtn.disabled = false;
+                    compareBtn.disabled = false;
+                    cleanBtn.disabled = false;
+                    
+                    showToast('文本优化完成！', 'success');
+                    
+                } catch (error) {
+                    console.error('优化失败详细信息:', error);
+                    
+                    let errorMessage = '优化失败';
+                    
+                    // 检查是否是401未授权错误
+                    if (error.message && (error.message.includes('401') || error.message.includes('UNAUTHORIZED_LOGIN_REQUIRED'))) {
+                        // 显示登录提示弹窗
+                        showLoginModal();
+                        return;
+                    }
+                    
+                    // 更好的错误分类处理
+                    if (error.message && error.message.includes('超时')) {
+                        errorMessage = '请求超时，文本可能过长，请尝试缩短文本';
+                    } else if (error.message && error.message.includes('Failed to fetch')) {
+                        errorMessage = '网络连接失败，请检查网络后重试';
+                    } else if (error.message && error.message.includes('JSON')) {
+                        errorMessage = '服务器响应格式错误，请稍后重试';
+                    } else if (error.message && error.message.includes('服务器错误')) {
+                        errorMessage = '服务器暂时不可用，请稍后重试';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    
+                    showToast(errorMessage, 'danger');
+                    
+                    // 重置UI状态
+                    textOutput.value = '';
+                    outputCount.textContent = '0';
+                    
+                } finally {
+                    // 清理资源
+                    if (timeoutId) {
+                        clearTimeout(timeoutId);
+                        timeoutId = null;
+                    }
+                    showProgress(false);
+                    optimizeBtn.disabled = false;
+                    optimizeBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> 开始智能优化';
+                }
+            }
+            
+            // 显示进度
+            function showProgress(show) {
+                progressArea.style.display = show ? 'block' : 'none';
+                if (!show) {
+                    progressBar.style.width = '0%';
+                    progressText.textContent = '准备中...';
+                }
+            }
+            
+            // 更新进度
+            function updateProgress(percent, text) {
+                progressBar.style.width = percent + '%';
+                progressText.textContent = text;
+            }
+            
+            // 显示统计信息
+            function showStats(stats) {
+                document.getElementById('statSegments').textContent = stats.segments || 1;
+                document.getElementById('statOriginal').textContent = (stats.original_length || 0).toLocaleString();
+                document.getElementById('statOptimized').textContent = (stats.optimized_length || 0).toLocaleString();
+                
+                const changePercent = parseFloat(stats.change_percentage || 0);
+                const changeElement = document.getElementById('statChange');
+                changeElement.textContent = (changePercent >= 0 ? '+' : '') + changePercent + '%';
+                changeElement.style.color = changePercent >= 0 ? 'var(--success-600)' : 'var(--danger-600)';
+                
+                statsArea.style.display = 'grid';
+                statsArea.classList.add('fade-in');
+            }
+            
+            // 显示对比分析
+            function showComparison(originalText, optimizedText) {
+                const originalPreview = document.getElementById('originalPreview');
+                const optimizedPreview = document.getElementById('optimizedPreview');
+                
+                // 智能文本对比和高光显示
+                const originalSentences = splitIntoSentences(originalText);
+                const optimizedSentences = splitIntoSentences(optimizedText);
+                
+                // 显示原文
+                originalPreview.innerHTML = originalSentences.map(sentence => 
+                    `<div style="margin-bottom: 0.5rem;">${escapeHtml(sentence)}</div>`
+                ).join('');
+                
+                // 显示优化文本并高光修改
+                optimizedPreview.innerHTML = optimizedSentences.map((sentence, index) => {
+                    const originalSentence = originalSentences[index] || '';
+                    let className = '';
+                    
+                    if (!originalSentence && sentence) {
+                        className = 'highlight-add';
+                    } else if (originalSentence && !sentence) {
+                        className = 'highlight-remove';
+                    } else if (originalSentence !== sentence && sentence) {
+                        // 计算相似度
+                        const similarity = calculateSimilarity(originalSentence, sentence);
+                        if (similarity < 0.7) {
+                            className = 'highlight-modify';
+                        }
+                    }
+                    
+                    return `<div class="${className}" style="margin-bottom: 0.5rem;">${escapeHtml(sentence)}</div>`;
+                }).join('');
+                
+                comparisonArea.style.display = 'block';
+                comparisonArea.classList.add('fade-in');
+            }
+            
+            // 智能分句函数
+            function splitIntoSentences(text) {
+                return text.split(/[。！？；\n]/).filter(s => s.trim().length > 0);
+            }
+            
+            // 计算文本相似度
+            function calculateSimilarity(str1, str2) {
+                const longer = str1.length > str2.length ? str1 : str2;
+                const shorter = str1.length > str2.length ? str2 : str1;
+                
+                if (longer.length === 0) return 1.0;
+                
+                const editDistance = levenshteinDistance(longer, shorter);
+                return (longer.length - editDistance) / longer.length;
+            }
+            
+            // 计算编辑距离
+            function levenshteinDistance(str1, str2) {
+                const matrix = [];
+                
+                for (let i = 0; i <= str2.length; i++) {
+                    matrix[i] = [i];
+                }
+                
+                for (let j = 0; j <= str1.length; j++) {
+                    matrix[0][j] = j;
+                }
+                
+                for (let i = 1; i <= str2.length; i++) {
+                    for (let j = 1; j <= str1.length; j++) {
+                        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
+                }
+                
+                return matrix[str2.length][str1.length];
+            }
+            
+            // HTML转义函数
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // 显示提示消息
+            function showToast(message, type = 'info') {
+                // 移除现有的toast
+                const existingToast = document.querySelector('.toast');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+                
+                // 创建新的toast
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const icon = type === 'success' ? 'check-circle' : 
+                           type === 'warning' ? 'exclamation-triangle' : 
+                           type === 'danger' ? 'exclamation-circle' : 'info-circle';
+                
+                toast.innerHTML = `
+                    <i class="fas fa-${icon}"></i>
+                    <span>${message}</span>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // 3秒后自动移除
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 3000);
+            }
+            
+            // 显示登录提示弹窗
+            function showLoginModal() {
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            }
+            
+            // 键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+Enter 开始优化
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!optimizeBtn.disabled && textInput.value.trim()) {
+                        optimizeBtn.click();
+                    }
+                }
+                
+                // Ctrl+C 复制结果（当焦点在输出区域时）
+                if (e.ctrlKey && e.key === 'c' && document.activeElement === textOutput) {
+                    if (!copyBtn.disabled) {
+                        copyBtn.click();
+                    }
+                }
+            });
+            
+            // 页面加载完成后的初始化
+            setTimeout(() => {
+                showToast('文本优化器已就绪，支持最大5万字符处理', 'info');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

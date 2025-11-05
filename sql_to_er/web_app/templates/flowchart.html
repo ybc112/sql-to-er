@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI论文流程图工具 - 学术流程图生成与编辑</title>
+    <meta name="description" content="基于DeepSeek的学术流程图生成与编辑工具，支持自然语言生成、拖拽编辑、标准符号与PNG/SVG导出。">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250107">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .editor-area { display: grid; grid-template-columns: 240px 1fr; gap: 16px; min-height: 70vh; }
+        .palette { background: #fff; border-radius: 10px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+        .palette h4 { margin: 4px 0 10px; font-size: 16px; }
+        .palette .item { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px dashed #e5e7eb; border-radius: 8px; margin-bottom: 8px; cursor: grab; }
+        .canvas-wrap { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+        #flowchart-canvas { width: 100%; height: 70vh; }
+        .desc-box { width: 100%; min-height: 80px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; }
+        .btn { padding: 8px 12px; border: 0; border-radius: 8px; cursor: pointer; color: #fff; background: #3b82f6; }
+        .btn.secondary { background: #10b981; }
+        .btn.gray { background: #6b7280; }
+        .btn.warn { background: #ef4444; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .title-input { width: 260px; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .status { font-size: 12px; color: #6b7280; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 style="margin: 10px 0 16px">AI论文流程图工具</h1>
+    <p class="status">支持：AI生成、拖拽编辑、标准符号库、PNG/SVG导出、保存/加载</p>
+
+    <div class="toolbar">
+        <input id="fc-title" class="title-input" placeholder="输入流程图标题（可选）" />
+        <button id="btn-generate" class="btn"><i class="fas fa-magic"></i> AI生成</button>
+        <button id="btn-export-png" class="btn secondary"><i class="fas fa-image"></i> 导出PNG</button>
+        <button id="btn-export-svg" class="btn secondary"><i class="fas fa-vector-square"></i> 导出SVG</button>
+        <button id="btn-save" class="btn gray"><i class="fas fa-save"></i> 保存</button>
+        <button id="btn-clear" class="btn warn"><i class="fas fa-trash"></i> 清空</button>
+    </div>
+
+    <textarea id="fc-desc" class="desc-box" placeholder="用自然语言描述您的论文流程（示例：开始 -> 收集数据 -> 数据预处理 -> 训练模型 -> 评估 -> 结束；或用段落形式说明流程）。"></textarea>
+
+    <div class="editor-area" style="margin-top:12px;">
+        <div class="palette">
+            <h4>流程图元素库</h4>
+            <div class="item" data-type="start"><i class="fas fa-circle"></i> 开始/结束（椭圆）</div>
+            <div class="item" data-type="process"><i class="fas fa-square"></i> 处理（矩形）</div>
+            <div class="item" data-type="decision"><i class="fas fa-diamond"></i> 判断（菱形）</div>
+            <div class="item" data-type="io"><i class="fas fa-parallelogram"></i> 输入/输出（平行四边形）</div>
+        </div>
+        <div class="canvas-wrap">
+            <div id="flowchart-canvas"></div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/flowchart-editor.js') }}?v=20250107"></script>
+<script>
+// CSRF获取（如果后续需要POST携带）
+async function getCsrfToken() {
+    try {
+        const res = await fetch('/api/csrf-token');
+        const data = await res.json();
+        return data.csrf_token;
+    } catch { return null; }
+}
+
+(function initPage(){
+    window.FlowchartEditor.init('#flowchart-canvas');
+
+    document.getElementById('btn-generate').addEventListener('click', async () => {
+        const desc = document.getElementById('fc-desc').value.trim();
+        if (!desc) { alert('请先输入流程描述'); return; }
+        document.getElementById('btn-generate').disabled = true;
+        try {
+            const res = await fetch('/api/flowchart/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: desc })
+            });
+            const data = await res.json();
+            if (data.success) {
+                FlowchartEditor.load(data.data);
+            } else {
+                alert(data.message || '生成失败');
+            }
+        } catch(e) {
+            alert('生成失败');
+        } finally {
+            document.getElementById('btn-generate').disabled = false;
+        }
+    });
+
+    document.getElementById('btn-export-png').addEventListener('click', () => FlowchartEditor.exportPNG());
+    document.getElementById('btn-export-svg').addEventListener('click', () => FlowchartEditor.exportSVG());
+    document.getElementById('btn-save').addEventListener('click', async () => {
+        const title = document.getElementById('fc-title').value.trim() || '未命名流程图';
+        const diagram = FlowchartEditor.getData();
+        const csrf = await getCsrfToken();
+        const res = await fetch('/api/flowcharts/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(csrf ? {'X-CSRF-Token': csrf} : {})
+            },
+            body: JSON.stringify({ title, diagram })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('保存成功，ID：' + data.flowchart_id);
+        } else {
+            alert(data.message || '保存失败');
+        }
+    });
+    document.getElementById('btn-clear').addEventListener('click', () => FlowchartEditor.clear());
+
+    // 简单拖放：从palette拖到画布创建节点
+    document.querySelectorAll('.palette .item').forEach(el => {
+        el.setAttribute('draggable', 'true');
+        el.addEventListener('dragstart', ev => {
+            ev.dataTransfer.setData('type', el.dataset.type);
+        });
+    });
+    const canvas = document.querySelector('#flowchart-canvas');
+    canvas.addEventListener('dragover', ev => ev.preventDefault());
+    canvas.addEventListener('drop', ev => {
+        ev.preventDefault();
+        const type = ev.dataTransfer.getData('type');
+        const rect = canvas.getBoundingClientRect();
+        const x = ev.clientX - rect.left; const y = ev.clientY - rect.top;
+        FlowchartEditor.addNode(type, x, y);
+    });
+})();
+</script>
+</body>
+</html> 

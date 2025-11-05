@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进度测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-container {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .progress-message {
+            margin-top: 5px;
+            color: #666;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 论文生成系统修复测试</h1>
+
+    <div class="test-section">
+        <h2>🎯 修复内容说明</h2>
+        <ul>
+            <li>✅ <strong>更多API调用</strong> - 每个小节（4.1、4.2等）单独调用API</li>
+            <li>✅ <strong>更多token分配</strong> - 大幅增加token限制确保字数充足</li>
+            <li>✅ <strong>引用编号连续性</strong> - 全文引用编号连续，不重置</li>
+            <li>✅ <strong>参考文献一致性</strong> - 与正文引用匹配</li>
+            <li>✅ <strong>删除硬编码业务逻辑</strong> - 不再写死"校友管理"等内容</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 目录生成测试</h2>
+        <button id="testOutlineBtn" onclick="testOutlineGeneration()">测试目录生成</button>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="outlineProgressFill"></div>
+            </div>
+            <div class="progress-text" id="outlineProgressText">0%</div>
+            <div class="progress-message" id="outlineProgressMessage">等待开始...</div>
+        </div>
+        <div class="log" id="outlineLog"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 论文生成测试</h2>
+        <button id="testPaperBtn" onclick="testPaperGeneration()">测试论文生成</button>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="paperProgressFill"></div>
+            </div>
+            <div class="progress-text" id="paperProgressText">0%</div>
+            <div class="progress-message" id="paperProgressMessage">等待开始...</div>
+        </div>
+        <div class="log" id="paperLog"></div>
+    </div>
+
+    <script>
+        let outlineTaskId = null;
+        let paperTaskId = null;
+
+        function log(elementId, message) {
+            const logElement = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}<br>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        async function testOutlineGeneration() {
+            const btn = document.getElementById('testOutlineBtn');
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+            
+            const progressFill = document.getElementById('outlineProgressFill');
+            const progressText = document.getElementById('outlineProgressText');
+            const progressMessage = document.getElementById('outlineProgressMessage');
+            
+            // 清空日志
+            document.getElementById('outlineLog').innerHTML = '';
+            
+            try {
+                log('outlineLog', '开始测试目录生成...');
+                
+                // 调用目录生成API
+                const response = await fetch('/api/generate-intelligent-outline', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: '基于深度学习的图像识别系统设计与实现',
+                        field: '计算机科学与技术',
+                        paper_type: '本科毕业论文',
+                        total_words: 12000,
+                        abstract: '本文设计并实现了一个基于深度学习的图像识别系统，采用卷积神经网络技术，实现了高精度的图像分类功能。',
+                        keywords: '深度学习,图像识别,卷积神经网络,机器学习',
+                        special_requirements: '需要包含系统设计、算法实现、性能测试等内容',
+                        outline_level: 'two'
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    outlineTaskId = result.task_id;
+                    log('outlineLog', `任务创建成功，ID: ${outlineTaskId}`);
+                    
+                    // 开始轮询进度
+                    pollOutlineProgress(outlineTaskId, progressFill, progressText, progressMessage);
+                } else {
+                    throw new Error(result.message || '创建任务失败');
+                }
+            } catch (error) {
+                log('outlineLog', `错误: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = '测试目录生成';
+            }
+        }
+
+        async function pollOutlineProgress(taskId, progressFill, progressText, progressMessage) {
+            const poll = async () => {
+                try {
+                    const response = await fetch(`/api/outline-progress/${taskId}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const progress = data.progress || 0;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${progress}%`;
+                        progressMessage.textContent = data.message || '处理中...';
+                        
+                        log('outlineLog', `进度: ${progress}%, 状态: ${data.status}, 消息: ${data.message}`);
+                        
+                        if (data.status === 'completed') {
+                            log('outlineLog', '目录生成完成！');
+                            log('outlineLog', `生成的章节数: ${data.outline ? data.outline.length : 0}`);
+                            document.getElementById('testOutlineBtn').disabled = false;
+                            document.getElementById('testOutlineBtn').textContent = '测试目录生成';
+                            return;
+                        } else if (data.status === 'error') {
+                            log('outlineLog', `生成失败: ${data.error || '未知错误'}`);
+                            document.getElementById('testOutlineBtn').disabled = false;
+                            document.getElementById('testOutlineBtn').textContent = '测试目录生成';
+                            return;
+                        }
+                        
+                        // 继续轮询
+                        setTimeout(poll, 2000);
+                    } else {
+                        throw new Error(data.message || '查询进度失败');
+                    }
+                } catch (error) {
+                    log('outlineLog', `轮询错误: ${error.message}`);
+                    setTimeout(poll, 3000); // 出错后延长轮询间隔
+                }
+            };
+            
+            poll();
+        }
+
+        async function testPaperGeneration() {
+            const btn = document.getElementById('testPaperBtn');
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+            
+            const progressFill = document.getElementById('paperProgressFill');
+            const progressText = document.getElementById('paperProgressText');
+            const progressMessage = document.getElementById('paperProgressMessage');
+            
+            // 清空日志
+            document.getElementById('paperLog').innerHTML = '';
+            
+            try {
+                log('paperLog', '开始测试论文生成...');
+                
+                // 使用简单的自定义目录进行测试
+                const customOutline = [
+                    {"name": "摘要", "words": 300, "description": "中文摘要和关键词"},
+                    {"name": "第1章 绪论", "words": 1500, "description": "研究背景和意义"},
+                    {"name": "第2章 相关技术", "words": 2000, "description": "技术基础介绍"},
+                    {"name": "第3章 系统设计", "words": 2500, "description": "系统架构设计"},
+                    {"name": "第4章 总结", "words": 800, "description": "工作总结"}
+                ];
+                
+                // 调用论文生成API - 使用更详细的测试数据
+                const response = await fetch('/api/generate-paper-with-outline', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: '基于Spring Boot和Vue.js的在线教育平台设计与实现',
+                        field: '计算机科学与技术',
+                        paper_type: '本科毕业论文',
+                        abstract: '随着在线教育的快速发展，本文设计并实现了一个基于Spring Boot后端和Vue.js前端的在线教育平台。系统采用前后端分离架构，使用MySQL数据库存储数据，实现了用户管理、课程管理、在线学习、考试测评等核心功能。通过性能测试验证，系统能够支持千级并发用户访问，响应时间控制在500ms以内。',
+                        keywords: 'Spring Boot,Vue.js,在线教育,前后端分离,MySQL',
+                        requirements: '需要包含详细的系统架构设计、数据库设计、核心功能实现、性能测试等内容，字数要求12000字以上，引用文献15篇以上',
+                        custom_outline: customOutline
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    paperTaskId = result.task_id;
+                    log('paperLog', `任务创建成功，ID: ${paperTaskId}`);
+                    
+                    // 开始轮询进度
+                    pollPaperProgress(paperTaskId, progressFill, progressText, progressMessage);
+                } else {
+                    throw new Error(result.message || '创建任务失败');
+                }
+            } catch (error) {
+                log('paperLog', `错误: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = '测试论文生成';
+            }
+        }
+
+        async function pollPaperProgress(taskId, progressFill, progressText, progressMessage) {
+            const poll = async () => {
+                try {
+                    const response = await fetch(`/api/paper-progress/${taskId}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const progress = data.progress || 0;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${progress}%`;
+                        progressMessage.textContent = data.message || '处理中...';
+                        
+                        log('paperLog', `进度: ${progress}%, 状态: ${data.status}, 消息: ${data.message}`);
+                        
+                        if (data.status === 'completed') {
+                            log('paperLog', '论文生成完成！');
+                            log('paperLog', `内容长度: ${data.content ? data.content.length : 0} 字符`);
+                            document.getElementById('testPaperBtn').disabled = false;
+                            document.getElementById('testPaperBtn').textContent = '测试论文生成';
+                            return;
+                        } else if (data.status === 'error') {
+                            log('paperLog', `生成失败: ${data.error || '未知错误'}`);
+                            document.getElementById('testPaperBtn').disabled = false;
+                            document.getElementById('testPaperBtn').textContent = '测试论文生成';
+                            return;
+                        }
+                        
+                        // 继续轮询
+                        setTimeout(poll, 2000);
+                    } else {
+                        throw new Error(data.message || '查询进度失败');
+                    }
+                } catch (error) {
+                    log('paperLog', `轮询错误: ${error.message}`);
+                    setTimeout(poll, 3000); // 出错后延长轮询间隔
+                }
+            };
+            
+            poll();
+        }
+    </script>
+</body>
+</html>

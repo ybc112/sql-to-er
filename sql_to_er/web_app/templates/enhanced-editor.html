@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强富文本编辑器 - 专业文档编辑工具</title>
+    
+    <!-- Quill.js CSS -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    
+    <!-- KaTeX for math formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    
+    <!-- Prism.js for better code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --dark-color: #1e293b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .editor-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .editor-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .editor-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .editor-title i {
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--dark-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.primary {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .action-btn.success {
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .action-btn.warning {
+            background: var(--warning-color);
+            color: white;
+            border-color: var(--warning-color);
+        }
+
+        /* 工具栏增强 */
+        .enhanced-toolbar {
+            background: #f8fafc;
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .toolbar-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        .toolbar-select {
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            cursor: pointer;
+        }
+
+        .toolbar-input {
+            border: none;
+            background: transparent;
+            width: 60px;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+        /* Quill编辑器增强样式 */
+        .quill-container {
+            height: 600px;
+            background: white;
+        }
+
+        .ql-toolbar {
+            border: none !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            background: #fafbfc;
+            padding: 15px 30px !important;
+        }
+
+        .ql-container {
+            border: none !important;
+            font-size: 16px !important;
+            line-height: 1.8 !important;
+        }
+
+        .ql-editor {
+            padding: 40px 60px !important;
+            color: #2c3e50;
+            max-width: 1000px;
+            margin: 0 auto;
+            min-height: 500px;
+        }
+
+        .ql-editor h1 {
+            font-size: 2.5rem !important;
+            color: #1a202c !important;
+            margin-bottom: 30px !important;
+            text-align: center !important;
+            font-weight: 700 !important;
+            line-height: 1.2 !important;
+        }
+
+        .ql-editor h2 {
+            font-size: 2rem !important;
+            color: #2d3748 !important;
+            margin-top: 40px !important;
+            margin-bottom: 25px !important;
+            font-weight: 600 !important;
+            padding-bottom: 12px !important;
+            border-bottom: 3px solid #e2e8f0 !important;
+        }
+
+        .ql-editor h3 {
+            font-size: 1.5rem !important;
+            color: #4a5568 !important;
+            margin-top: 30px !important;
+            margin-bottom: 20px !important;
+            font-weight: 600 !important;
+        }
+
+        .ql-editor p {
+            margin-bottom: 20px !important;
+            text-indent: 2em !important;
+            line-height: 1.8 !important;
+            color: #4a5568 !important;
+            text-align: justify !important;
+        }
+
+        .ql-editor blockquote {
+            border-left: 4px solid var(--primary-color) !important;
+            background: #f8fafc !important;
+            padding: 20px !important;
+            margin: 25px 0 !important;
+            font-style: italic !important;
+        }
+
+        .ql-editor pre {
+            background: #f1f5f9 !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px !important;
+            padding: 20px !important;
+            margin: 20px 0 !important;
+            overflow-x: auto !important;
+        }
+
+        .ql-editor table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            margin: 25px 0 !important;
+        }
+
+        .ql-editor table td, .ql-editor table th {
+            border: 1px solid var(--border-color) !important;
+            padding: 12px !important;
+            text-align: left !important;
+        }
+
+        .ql-editor table th {
+            background: #f8fafc !important;
+            font-weight: 600 !important;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 280px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h5 {
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .word-count {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .count-item {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .count-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .count-label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .outline-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #f8fafc;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .outline-item:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .outline-item.h1 {
+            font-weight: 600;
+            margin-left: 0;
+        }
+
+        .outline-item.h2 {
+            margin-left: 15px;
+        }
+
+        .outline-item.h3 {
+            margin-left: 30px;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            background: #f8fafc;
+            padding: 10px 30px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* 模态框样式 */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .editor-header {
+                padding: 15px 20px;
+            }
+
+            .enhanced-toolbar {
+                padding: 10px 20px;
+            }
+
+            .ql-editor {
+                padding: 20px 25px !important;
+            }
+
+            .quill-container {
+                height: 500px;
+            }
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* 加载动画 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast通知 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .custom-toast {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: none;
+            min-width: 300px;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .toast-warning {
+            border-left: 4px solid var(--warning-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 主编辑器容器 -->
+    <div class="editor-container">
+        <!-- 编辑器头部 -->
+        <div class="editor-header">
+            <div class="editor-title">
+                <i class="fas fa-edit"></i>
+                增强富文本编辑器
+            </div>
+            <div class="editor-actions">
+                <button class="action-btn" onclick="newDocument()">
+                    <i class="fas fa-file"></i> 新建
+                </button>
+                <button class="action-btn" onclick="openDocument()">
+                    <i class="fas fa-folder-open"></i> 打开
+                </button>
+                <button class="action-btn success" onclick="saveDocument()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+                <button class="action-btn" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i> 导出PDF
+                </button>
+                <button class="action-btn" onclick="exportToWord()">
+                    <i class="fas fa-file-word"></i> 导出Word
+                </button>
+                <button class="action-btn" onclick="printDocument()">
+                    <i class="fas fa-print"></i> 打印
+                </button>
+                <button class="action-btn" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i> 侧栏
+                </button>
+            </div>
+        </div>
+
+        <!-- 增强工具栏 -->
+        <div class="enhanced-toolbar">
+            <div class="toolbar-group">
+                <label>字体:</label>
+                <select class="toolbar-select" id="fontFamily">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="微软雅黑" selected>微软雅黑</option>
+                    <option value="宋体">宋体</option>
+                    <option value="黑体">黑体</option>
+                    <option value="楷体">楷体</option>
+                </select>
+            </div>
+
+            <div class="toolbar-group">
+                <label>字号:</label>
+                <input type="number" class="toolbar-input" id="fontSize" value="16" min="8" max="72">
+            </div>
+
+            <div class="toolbar-group">
+                <label>行距:</label>
+                <select class="toolbar-select" id="lineHeight">
+                    <option value="1.0">1.0</option>
+                    <option value="1.15">1.15</option>
+                    <option value="1.5" selected>1.5</option>
+                    <option value="2.0">2.0</option>
+                    <option value="2.5">2.5</option>
+                </select>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="action-btn" onclick="insertTable()">
+                    <i class="fas fa-table"></i> 表格
+                </button>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="action-btn" onclick="insertMath()">
+                    <i class="fas fa-square-root-alt"></i> 公式
+                </button>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="action-btn" onclick="insertChart()">
+                    <i class="fas fa-chart-bar"></i> 图表
+                </button>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="action-btn" onclick="findReplace()">
+                    <i class="fas fa-search"></i> 查找替换
+                </button>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="action-btn" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i> 全屏
+                </button>
+            </div>
+        </div>
+
+        <!-- Quill编辑器 -->
+        <div id="editor" class="quill-container"></div>
+
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="cursorPosition">行 1, 列 1</span>
+                <span id="documentLength">0 字符</span>
+                <span id="lastSaved">未保存</span>
+            </div>
+            <div class="status-right">
+                <span id="zoomLevel">100%</span>
+                <span id="documentMode">编辑模式</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <!-- 文档统计 -->
+        <div class="sidebar-section">
+            <h5><i class="fas fa-chart-line"></i> 文档统计</h5>
+            <div class="word-count">
+                <div class="count-item">
+                    <div class="count-number" id="wordCount">0</div>
+                    <div class="count-label">字数</div>
+                </div>
+                <div class="count-item">
+                    <div class="count-number" id="charCount">0</div>
+                    <div class="count-label">字符</div>
+                </div>
+                <div class="count-item">
+                    <div class="count-number" id="paragraphCount">0</div>
+                    <div class="count-label">段落</div>
+                </div>
+                <div class="count-item">
+                    <div class="count-number" id="readingTime">0</div>
+                    <div class="count-label">阅读时间(分)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文档大纲 -->
+        <div class="sidebar-section">
+            <h5><i class="fas fa-list"></i> 文档大纲</h5>
+            <div id="documentOutline">
+                <div class="text-muted text-center py-3">
+                    <i class="fas fa-file-alt fa-2x mb-2"></i>
+                    <p>暂无标题</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 最近文档 -->
+        <div class="sidebar-section">
+            <h5><i class="fas fa-history"></i> 最近文档</h5>
+            <div id="recentDocuments">
+                <div class="text-muted text-center py-3">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <p>暂无最近文档</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 返回首页按钮 -->
+    <a href="/" class="btn btn-outline-light position-fixed" style="bottom: 20px; left: 20px; z-index: 1000;">
+        <i class="fas fa-home me-2"></i>
+        返回首页
+    </a>
+
+    <!-- JavaScript库 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <script>
+        // 全局变量
+        let quill;
+        let currentDocument = null;
+        let autoSaveInterval;
+        let isFullscreen = false;
+        let sidebarVisible = true;
+
+        // 初始化编辑器
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEditor();
+            initializeEventListeners();
+            loadRecentDocuments();
+            startAutoSave();
+        });
+
+        // 初始化Quill编辑器
+        function initializeEditor() {
+            const toolbarOptions = [
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'font': [] }],
+                [{ 'size': ['small', false, 'large', 'huge'] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'direction': 'rtl' }],
+                [{ 'align': [] }],
+                ['blockquote', 'code-block'],
+                ['link', 'image', 'video'],
+                ['clean']
+            ];
+
+            quill = new Quill('#editor', {
+                modules: {
+                    toolbar: toolbarOptions,
+                    syntax: true
+                },
+                theme: 'snow',
+                placeholder: '开始编写您的文档...'
+            });
+
+            // 监听内容变化
+            quill.on('text-change', function() {
+                updateDocumentStats();
+                updateOutline();
+                markDocumentAsModified();
+            });
+
+            // 监听选择变化
+            quill.on('selection-change', function(range) {
+                if (range) {
+                    updateCursorPosition(range);
+                }
+            });
+
+            // 设置默认内容
+            quill.setText('欢迎使用增强富文本编辑器！\n\n这是一个功能强大的文档编辑工具，支持：\n• 丰富的文本格式\n• 表格和图片插入\n• 数学公式编辑\n• 代码语法高亮\n• 文档大纲导航\n• 实时字数统计\n• 自动保存功能\n\n开始创作您的精彩内容吧！');
+        }
+
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 字体选择
+            document.getElementById('fontFamily').addEventListener('change', function() {
+                const font = this.value;
+                quill.format('font', font);
+            });
+
+            // 字号调整
+            document.getElementById('fontSize').addEventListener('change', function() {
+                const size = this.value + 'px';
+                quill.format('size', size);
+            });
+
+            // 行距调整
+            document.getElementById('lineHeight').addEventListener('change', function() {
+                const lineHeight = this.value;
+                const editor = document.querySelector('.ql-editor');
+                editor.style.lineHeight = lineHeight;
+            });
+
+            // 键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+S 保存
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveDocument();
+                }
+                
+                // Ctrl+N 新建
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    newDocument();
+                }
+                
+                // Ctrl+O 打开
+                if (e.ctrlKey && e.key === 'o') {
+                    e.preventDefault();
+                    openDocument();
+                }
+                
+                // F11 全屏
+                if (e.key === 'F11') {
+                    e.preventDefault();
+                    toggleFullscreen();
+                }
+                
+                // Ctrl+F 查找
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    findReplace();
+                }
+            });
+        }
+
+        // 更新文档统计
+        function updateDocumentStats() {
+            const text = quill.getText();
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            const chars = text.length;
+            const paragraphs = text.split('\n').filter(p => p.trim().length > 0);
+            const readingTime = Math.ceil(words.length / 200); // 假设每分钟200字
+
+            document.getElementById('wordCount').textContent = words.length;
+            document.getElementById('charCount').textContent = chars;
+            document.getElementById('paragraphCount').textContent = paragraphs.length;
+            document.getElementById('readingTime').textContent = readingTime;
+            document.getElementById('documentLength').textContent = `${chars} 字符`;
+        }
+
+        // 更新文档大纲
+        function updateOutline() {
+            const contents = quill.getContents();
+            const outline = [];
+            
+            contents.ops.forEach((op, index) => {
+                if (op.attributes && op.attributes.header) {
+                    const level = op.attributes.header;
+                    const text = op.insert.trim();
+                    if (text) {
+                        outline.push({
+                            level: level,
+                            text: text,
+                            index: index
+                        });
+                    }
+                }
+            });
+
+            const outlineContainer = document.getElementById('documentOutline');
+            
+            if (outline.length === 0) {
+                outlineContainer.innerHTML = `
+                    <div class="text-muted text-center py-3">
+                        <i class="fas fa-file-alt fa-2x mb-2"></i>
+                        <p>暂无标题</p>
+                    </div>
+                `;
+            } else {
+                outlineContainer.innerHTML = outline.map(item => `
+                    <div class="outline-item h${item.level}" onclick="scrollToHeading(${item.index})">
+                        ${item.text}
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 滚动到指定标题
+        function scrollToHeading(index) {
+            // 这里可以实现滚动到指定标题的功能
+            showToast('跳转到标题', 'info');
+        }
+
+        // 更新光标位置
+        function updateCursorPosition(range) {
+            const text = quill.getText(0, range.index);
+            const lines = text.split('\n');
+            const line = lines.length;
+            const column = lines[lines.length - 1].length + 1;
+            
+            document.getElementById('cursorPosition').textContent = `行 ${line}, 列 ${column}`;
+        }
+
+        // 标记文档已修改
+        function markDocumentAsModified() {
+            document.getElementById('lastSaved').textContent = '未保存';
+            document.getElementById('lastSaved').style.color = 'var(--warning-color)';
+        }
+
+        // 新建文档
+        function newDocument() {
+            if (confirm('确定要新建文档吗？未保存的更改将丢失。')) {
+                quill.setText('');
+                currentDocument = null;
+                document.getElementById('lastSaved').textContent = '新文档';
+                document.getElementById('lastSaved').style.color = 'var(--secondary-color)';
+                showToast('新文档已创建', 'success');
+            }
+        }
+
+        // 打开文档
+        function openDocument() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt,.html,.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            if (file.name.endsWith('.json')) {
+                                const data = JSON.parse(e.target.result);
+                                quill.setContents(data);
+                            } else if (file.name.endsWith('.html')) {
+                                quill.clipboard.dangerouslyPasteHTML(e.target.result);
+                            } else {
+                                quill.setText(e.target.result);
+                            }
+                            currentDocument = file.name;
+                            showToast(`文档 "${file.name}" 已打开`, 'success');
+                        } catch (error) {
+                            showToast('文档格式不支持', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // 保存文档
+        function saveDocument() {
+            const content = quill.getContents();
+            const html = quill.root.innerHTML;
+            const text = quill.getText();
+            
+            const documentData = {
+                content: content,
+                html: html,
+                text: text,
+                timestamp: new Date().toISOString(),
+                stats: {
+                    words: text.trim().split(/\s+/).filter(word => word.length > 0).length,
+                    characters: text.length,
+                    paragraphs: text.split('\n').filter(p => p.trim().length > 0).length
+                }
+            };
+
+            // 保存到本地存储
+            const fileName = currentDocument || `document_${Date.now()}`;
+            localStorage.setItem(`doc_${fileName}`, JSON.stringify(documentData));
+            
+            // 添加到最近文档
+            addToRecentDocuments(fileName, documentData);
+            
+            // 下载文件
+            const blob = new Blob([JSON.stringify(documentData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            document.getElementById('lastSaved').textContent = `已保存 ${new Date().toLocaleTimeString()}`;
+            document.getElementById('lastSaved').style.color = 'var(--success-color)';
+            showToast('文档已保存', 'success');
+        }
+
+        // 导出为PDF
+        function exportToPDF() {
+            showToast('PDF导出功能开发中...', 'warning');
+        }
+
+        // 导出为Word
+        function exportToWord() {
+            showToast('Word导出功能开发中...', 'warning');
+        }
+
+        // 打印文档
+        function printDocument() {
+            const printContent = quill.root.innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>打印文档</title>
+                    <style>
+                        body { font-family: '微软雅黑', Arial, sans-serif; line-height: 1.6; margin: 2cm; }
+                        h1, h2, h3 { color: #333; }
+                        p { margin-bottom: 1em; text-indent: 2em; }
+                    </style>
+                </head>
+                <body>${printContent}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // 切换侧边栏
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebarVisible = !sidebarVisible;
+            sidebar.style.display = sidebarVisible ? 'block' : 'none';
+        }
+
+        // 插入表格
+        function insertTable() {
+            const rows = prompt('请输入行数:', '3');
+            const cols = prompt('请输入列数:', '3');
+            
+            if (rows && cols) {
+                let tableHTML = '<table><tbody>';
+                for (let i = 0; i < parseInt(rows); i++) {
+                    tableHTML += '<tr>';
+                    for (let j = 0; j < parseInt(cols); j++) {
+                        tableHTML += '<td>单元格</td>';
+                    }
+                    tableHTML += '</tr>';
+                }
+                tableHTML += '</tbody></table>';
+                
+                const range = quill.getSelection();
+                quill.clipboard.dangerouslyPasteHTML(range.index, tableHTML);
+                showToast('表格已插入', 'success');
+            }
+        }
+
+        // 插入数学公式
+        function insertMath() {
+            const formula = prompt('请输入LaTeX公式:', 'E = mc^2');
+            if (formula) {
+                const range = quill.getSelection();
+                quill.insertText(range.index, `$$${formula}$$`);
+                showToast('数学公式已插入', 'success');
+            }
+        }
+
+        // 插入图表
+        function insertChart() {
+            showToast('图表插入功能开发中...', 'warning');
+        }
+
+        // 查找替换
+        function findReplace() {
+            const searchText = prompt('查找内容:');
+            if (searchText) {
+                const replaceText = prompt('替换为:');
+                if (replaceText !== null) {
+                    const content = quill.getText();
+                    const newContent = content.replace(new RegExp(searchText, 'g'), replaceText);
+                    quill.setText(newContent);
+                    showToast('替换完成', 'success');
+                }
+            }
+        }
+
+        // 切换全屏
+        function toggleFullscreen() {
+            if (!isFullscreen) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                }
+                isFullscreen = true;
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                isFullscreen = false;
+            }
+        }
+
+        // 自动保存
+        function startAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                if (quill.getText().trim().length > 0) {
+                    const content = quill.getContents();
+                    localStorage.setItem('autosave_document', JSON.stringify(content));
+                }
+            }, 30000); // 每30秒自动保存
+        }
+
+        // 加载最近文档
+        function loadRecentDocuments() {
+            const recentDocs = JSON.parse(localStorage.getItem('recent_documents') || '[]');
+            const container = document.getElementById('recentDocuments');
+            
+            if (recentDocs.length === 0) {
+                container.innerHTML = `
+                    <div class="text-muted text-center py-3">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <p>暂无最近文档</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = recentDocs.slice(0, 5).map(doc => `
+                    <div class="outline-item" onclick="loadDocument('${doc.name}')">
+                        <i class="fas fa-file-alt me-2"></i>
+                        ${doc.name}
+                        <small class="d-block text-muted">${new Date(doc.timestamp).toLocaleString()}</small>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 添加到最近文档
+        function addToRecentDocuments(name, data) {
+            let recentDocs = JSON.parse(localStorage.getItem('recent_documents') || '[]');
+            
+            // 移除重复项
+            recentDocs = recentDocs.filter(doc => doc.name !== name);
+            
+            // 添加到开头
+            recentDocs.unshift({
+                name: name,
+                timestamp: new Date().toISOString(),
+                preview: data.text.substring(0, 100)
+            });
+            
+            // 保持最多10个
+            recentDocs = recentDocs.slice(0, 10);
+            
+            localStorage.setItem('recent_documents', JSON.stringify(recentDocs));
+            loadRecentDocuments();
+        }
+
+        // 加载文档
+        function loadDocument(name) {
+            const docData = localStorage.getItem(`doc_${name}`);
+            if (docData) {
+                try {
+                    const data = JSON.parse(docData);
+                    quill.setContents(data.content);
+                    currentDocument = name;
+                    showToast(`文档 "${name}" 已加载`, 'success');
+                } catch (error) {
+                    showToast('文档加载失败', 'error');
+                }
+            }
+        }
+
+        // 显示Toast通知
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            
+            const iconMap = {
+                success: 'check-circle',
+                error: 'exclamation-circle',
+                warning: 'exclamation-triangle',
+                info: 'info-circle'
+            };
+            
+            const titleMap = {
+                success: '成功',
+                error: '错误',
+                warning: '警告',
+                info: '信息'
+            };
+            
+            const toastHTML = `
+                <div class="toast custom-toast toast-${type}" id="${toastId}" role="alert">
+                    <div class="toast-header">
+                        <i class="fas fa-${iconMap[type]} me-2"></i>
+                        <strong class="me-auto">${titleMap[type]}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+            toast.show();
+            
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+
+        // 页面卸载前保存
+        window.addEventListener('beforeunload', function(e) {
+            if (quill.getText().trim().length > 0) {
+                const content = quill.getContents();
+                localStorage.setItem('autosave_document', JSON.stringify(content));
+            }
+        });
+
+        // 页面加载时恢复自动保存的内容
+        window.addEventListener('load', function() {
+            const autoSaved = localStorage.getItem('autosave_document');
+            if (autoSaved && confirm('发现自动保存的内容，是否恢复？')) {
+                try {
+                    const content = JSON.parse(autoSaved);
+                    quill.setContents(content);
+                    showToast('自动保存的内容已恢复', 'success');
+                } catch (error) {
+                    showToast('恢复自动保存内容失败', 'error');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

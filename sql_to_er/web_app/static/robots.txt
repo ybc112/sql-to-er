@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# 允许搜索引擎访问主要页面
+Allow: /sql-to-er
+Allow: /paper-generator
+Allow: /test-case-generator
+Allow: /thesis-defense
+Allow: /paper-structure
+
+# 禁止访问API和用户页面
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+
+# 站点地图位置
+Sitemap: http://localhost:5000/static/sitemap.xml

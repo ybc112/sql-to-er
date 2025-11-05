@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="智能学术工具集用户注册 - 免费注册享受SQL转ER图、论文生成、答辩助手等专业AI学术工具服务，新用户注册即送10元体验额度">
+    <meta name="keywords" content="用户注册,学术工具注册,SQL转ER图,论文生成工具,AI答辩助手,学术辅助工具,免费注册,体验额度">
+    <meta name="author" content="智能学术工具集">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/register">
+    <meta property="og:title" content="用户注册 - 智能学术工具集 | 免费体验AI学术工具">
+    <meta property="og:description" content="免费注册智能学术工具集，获得10元体验额度，享受专业的AI学术辅助服务">
+    <meta property="og:image" content="https://yourdomain.com/static/images/register-preview.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yourdomain.com/register">
+    <meta property="twitter:title" content="用户注册 - 智能学术工具集 | 免费体验AI学术工具">
+    <meta property="twitter:description" content="免费注册智能学术工具集，获得10元体验额度，享受专业的AI学术辅助服务">
+    <meta property="twitter:image" content="https://yourdomain.com/static/images/register-preview.jpg">
+
+    <title>用户注册 - 智能学术工具集 | 免费体验AI学术工具</title>
+
+    <link rel="canonical" href="https://yourdomain.com/register">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success-color: #059669;
+            --success-hover: #047857;
+            --error-color: #dc2626;
+            --warning-color: #d97706;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --border-color: #d1d5db;
+            --border-focus: #3b82f6;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-body: #f5f5f5;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 28rem;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .bonus-banner {
+            background: var(--bg-secondary);
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .bonus-banner .icon {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .bonus-banner h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .bonus-banner p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.375rem;
+        }
+
+        .form-label .required {
+            color: var(--error-color);
+            margin-left: 0.125rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-family: inherit;
+            background: var(--bg-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-control.error {
+            border-color: var(--error-color);
+            box-shadow: 0 0 0 3px rgb(220 38 38 / 0.1);
+        }
+
+        .field-hint {
+            margin-top: 0.375rem;
+        }
+
+        .field-hint small {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .password-strength {
+            margin-top: 0.375rem;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .strength-indicator {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        .strength-weak .strength-fill { 
+            width: 33%; 
+            background: var(--error-color); 
+        }
+        .strength-medium .strength-fill { 
+            width: 66%; 
+            background: var(--warning-color); 
+        }
+        .strength-strong .strength-fill { 
+            width: 100%; 
+            background: var(--success-color); 
+        }
+
+        .strength-text {
+            font-weight: 500;
+            min-width: 3rem;
+        }
+
+        .strength-weak .strength-text { color: var(--error-color); }
+        .strength-medium .strength-text { color: var(--warning-color); }
+        .strength-strong .strength-text { color: var(--success-color); }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .footer-text {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            text-decoration: none;
+        }
+
+        .alert {
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .alert-dismissible {
+            position: relative;
+            padding-right: 3rem;
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 0.875rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.6;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
+
+
+
+        @media (max-width: 640px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .card {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            
+
+            
+            .footer-links {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+        </svg>
+        返回首页
+    </a>
+
+    <div class="container">
+        <div class="card">
+            <header class="header">
+                <h1>用户注册</h1>
+                <p>加入智能学术工具集，开启高效学术之旅</p>
+            </header>
+
+            <div class="bonus-banner">
+                <div class="icon">🎁</div>
+                <h3>新用户专享福利</h3>
+                <p>注册即送10元体验额度 • 推荐好友额外获得5元奖励</p>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <form id="registerForm" novalidate>
+                <div class="form-group">
+                    <label for="username" class="form-label">用户名<span class="required">*</span></label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="3-20个字符，支持字母数字下划线" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">邮箱地址<span class="required">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="请输入您的邮箱地址" autocomplete="email" required>
+                    <div class="field-hint">
+                        <small>请确保邮箱地址正确，用于密码找回和重要通知</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmEmail" class="form-label">确认邮箱<span class="required">*</span></label>
+                    <input type="email" class="form-control" id="confirmEmail" name="confirmEmail" placeholder="请再次输入邮箱地址" autocomplete="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">密码<span class="required">*</span></label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="至少6个字符" autocomplete="new-password" required>
+                    <div id="passwordStrength" class="password-strength">
+                        <div class="strength-indicator">
+                            <div class="strength-fill"></div>
+                        </div>
+                        <span class="strength-text"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">确认密码<span class="required">*</span></label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="请再次输入密码" autocomplete="new-password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="inviteCode" class="form-label">邀请码（可选）</label>
+                    <input type="text" class="form-control" id="inviteCode" name="inviteCode" placeholder="如有邀请码请填写，可获得额外奖励">
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="btn-text">立即注册</span>
+                    <span class="btn-loading">
+                        <span class="spinner"></span>
+                        注册中...
+                    </span>
+                </button>
+            </form>
+
+            <div class="footer-links">
+                <span class="footer-text">已有账户？</span>
+                <a href="/login">立即登录</a>
+                <a href="/forgot-password">忘记密码？</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化表单验证
+            initFormValidation();
+        });
+
+        // 密码强度检测
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            if (password.length === 0) {
+                strengthDiv.className = 'password-strength';
+                strengthDiv.querySelector('.strength-text').textContent = '';
+                return;
+            }
+            
+            let score = 0;
+            if (password.length >= 8) score += 1;
+            if (password.match(/[a-z]/)) score += 1;
+            if (password.match(/[A-Z]/)) score += 1;
+            if (password.match(/[0-9]/)) score += 1;
+            if (password.match(/[^a-zA-Z0-9]/)) score += 1;
+            
+            let level = 'weak';
+            let text = '弱';
+            
+            if (score >= 3) {
+                level = 'medium';
+                text = '中等';
+            }
+            if (score >= 4) {
+                level = 'strong';
+                text = '强';
+            }
+            
+            strengthDiv.className = `password-strength strength-${level}`;
+            strengthDiv.querySelector('.strength-text').textContent = text;
+        });
+
+        // 表单提交处理
+        function initFormValidation() {
+            document.getElementById('registerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                const submitBtn = document.getElementById('submitBtn');
+
+                const formData = {
+                    username: document.getElementById('username').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value.trim(),
+                    confirm_password: document.getElementById('confirmPassword').value.trim(),
+                    invite_code: document.getElementById('inviteCode').value.trim()
+                };
+
+                // 显示加载状态
+                setLoading(submitBtn, true);
+
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert(`注册成功！您的邀请码：${result.invite_code}，已获得${result.bonus}元体验额度`, 'success');
+                        setTimeout(() => window.location.href = '/login', 2000);
+                    } else {
+                        showAlert(result.message, 'error');
+                    }
+                } catch (error) {
+                    showAlert('注册失败，请检查网络连接后重试', 'error');
+                } finally {
+                    setLoading(submitBtn, false);
+                }
+            });
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            // 清除之前的错误
+            clearFormErrors();
+
+            // 验证用户名
+            const username = document.getElementById('username').value.trim();
+            if (!username) {
+                setFieldError('username', '请输入用户名');
+                isValid = false;
+            } else if (username.length < 3 || username.length > 20) {
+                setFieldError('username', '用户名长度应在3-20个字符之间');
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                setFieldError('username', '用户名只能包含字母、数字和下划线');
+                isValid = false;
+            }
+
+            // 验证邮箱
+            const email = document.getElementById('email').value.trim();
+            const confirmEmail = document.getElementById('confirmEmail').value.trim();
+
+            if (!email) {
+                setFieldError('email', '请输入邮箱地址');
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                setFieldError('email', '请输入有效的邮箱地址');
+                isValid = false;
+            }
+
+            if (!confirmEmail) {
+                setFieldError('confirmEmail', '请确认邮箱地址');
+                isValid = false;
+            } else if (email !== confirmEmail) {
+                setFieldError('confirmEmail', '两次输入的邮箱地址不一致');
+                isValid = false;
+            }
+
+            // 验证密码
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            if (!password) {
+                setFieldError('password', '请输入密码');
+                isValid = false;
+            } else if (password.length < 6) {
+                setFieldError('password', '密码长度不能少于6个字符');
+                isValid = false;
+            }
+
+            if (!confirmPassword) {
+                setFieldError('confirmPassword', '请确认密码');
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                setFieldError('confirmPassword', '两次输入的密码不一致');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function setFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            field.classList.add('error');
+            
+            // 添加错误提示
+            let errorDiv = field.parentNode.querySelector('.field-error');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error';
+                errorDiv.style.color = 'var(--error-color)';
+                errorDiv.style.fontSize = '0.75rem';
+                errorDiv.style.marginTop = '0.375rem';
+                field.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = message;
+        }
+
+        function clearFormErrors() {
+            document.querySelectorAll('.form-control').forEach(field => {
+                field.classList.remove('error');
+            });
+            document.querySelectorAll('.field-error').forEach(error => {
+                error.remove();
+            });
+        }
+
+        function setLoading(btn, loading) {
+            if (loading) {
+                btn.disabled = true;
+                btn.querySelector('.btn-text').style.display = 'none';
+                btn.querySelector('.btn-loading').style.display = 'flex';
+            } else {
+                btn.disabled = false;
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loading').style.display = 'none';
+            }
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible">
+                    ${message}
+                    <button type="button" class="btn-close" onclick="this.parentElement.remove()">×</button>
+                </div>
+            `;
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // 清除错误状态当用户重新输入时
+        document.querySelectorAll('.form-control').forEach(field => {
+            field.addEventListener('input', function() {
+                this.classList.remove('error');
+                const errorDiv = this.parentNode.querySelector('.field-error');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO优化 - 页面标题 -->
+    <title>智能文档处理平台 - SQL转ER图|论文生成器|文本优化器|测试用例生成|答辩助手 - 专业学术工具集</title>
+
+    <!-- SEO优化 - Meta描述 -->
+    <meta name="description" content="专业的智能文档处理平台，提供SQL转ER图在线工具、AI论文生成器、文本优化器、测试用例自动生成、论文答辩助手等学术研究工具。支持数据库设计、学术论文写作、文本优化、软件测试、毕业答辩全流程服务。">
+
+    <!-- SEO优化 - 关键词 -->
+    <meta name="keywords" content="SQL转ER图,ER图生成器,论文生成器,AI论文写作,文本优化器,文本重写,去AI痕迹,测试用例生成,论文答辩,数据库设计,学术工具,毕业设计,在线工具,文档处理,智能生成">
+
+    <!-- SEO优化 - 作者和版权 -->
+    <meta name="author" content="智能文档处理平台">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="zh-CN">
+
+    <!-- Open Graph 社交媒体优化 -->
+    <meta property="og:title" content="智能文档处理平台 - 专业学术工具集">
+    <meta property="og:description" content="提供SQL转ER图、AI论文生成、测试用例生成、答辩助手等专业学术工具">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_CN">
+
+    <!-- 结构化数据 - JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "智能文档处理平台",
+        "description": "专业的学术工具集，提供SQL转ER图、论文生成、测试用例生成等功能",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "CNY"
+        },
+        "featureList": [
+            "SQL转ER图生成",
+            "AI论文写作助手",
+            "测试用例自动生成",
+            "论文答辩助手",
+            "数据库设计工具"
+        ],
+        "audience": {
+            "@type": "Audience",
+            "audienceType": ["学生", "研究人员", "软件开发者", "数据库设计师"]
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "智能文档处理平台"
+        }
+    }
+    </script>
+
+    <!-- 额外的SEO标签 -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="智能文档处理平台">
+
+    <!-- 预连接优化 -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:5000/">
+
+    <!-- 引入CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', 'Helvetica', sans-serif;
+            background: #f8fafb;
+            min-height: 100vh;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 头部样式 */
+        .header {
+            text-align: center;
+            margin-bottom: 5rem;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 400;
+            max-width: 750px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .header-feature:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .header-feature i {
+            font-size: 1.2rem;
+        }
+
+        .header-feature span {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* 工具卡片网格 */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        /* 工具卡片样式 */
+        .tool-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #f1f5f9;
+            transition: all 0.4s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            color: inherit;
+            border-color: #e2e8f0;
+        }
+
+        .tool-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sql-tool .tool-icon {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .paper-tool .tool-icon {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .test-tool .tool-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .defense-tool .tool-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .paper-gen-tool .tool-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .optimizer-tool .tool-icon {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .format-tool .tool-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+  
+
+
+
+        .tool-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-align: center;
+            color: #1f2937;
+        }
+
+        .tool-description {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .tool-features {
+            list-style: none;
+            margin: 0 0 24px 0;
+            padding: 0;
+            display: grid;
+            gap: 8px;
+        }
+
+        .tool-features li {
+            padding: 8px 12px;
+            color: #374151;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            border-left: 3px solid #10b981;
+            transition: all 0.2s ease;
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .tool-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #10b981;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .tool-features li:hover {
+            background: #f1f5f9;
+            border-left-color: #059669;
+            transform: translateX(2px);
+        }
+
+        .tool-status {
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .status-available {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .status-available:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .status-ready {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .status-ready:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .status-coming-soon {
+            background: #fef3c7;
+            color: #d97706;
+            border-color: #fed7aa;
+        }
+
+        /* 特性介绍区域 */
+        .features-section {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e8ecf0;
+        }
+
+        .features-title {
+            text-align: center;
+            color: #1e293b;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-item {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.2rem;
+            color: #3b82f6;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .feature-desc {
+            color: #64748b;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: #1e293b;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        /* FAQ样式 */
+        .faq-section {
+            padding: 5rem 0;
+            background: #f8fafc;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .faq-question {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .faq-question i {
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .faq-answer {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #10b981;
+        }
+
+        .footer-section p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .footer-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .footer-keywords span {
+            background: #334155;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #10b981;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #334155;
+            padding-top: 1.5rem;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-seo {
+            color: #64748b;
+            font-size: 0.8rem !important;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .tool-card {
+                padding: 2rem;
+            }
+            
+            .features-section {
+                padding: 2rem 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .tool-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e8ecf0;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e293b;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo:hover {
+            text-decoration: none;
+            color: #3b82f6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        /* 用户信息样式 */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: 1rem;
+        }
+
+        .user-balance {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .user-trigger:hover {
+            background: #e2e8f0;
+            text-decoration: none;
+            color: #475569;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 160px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-menu.show {
+            display: block;
+        }
+
+        .user-menu a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #475569;
+            text-decoration: none;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .user-menu a:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        .admin-link {
+            color: #7c3aed !important;
+            font-weight: 500;
+        }
+
+        .admin-link:hover {
+            background: #f3f4f6 !important;
+            color: #7c3aed !important;
+        }
+
+        .admin-link i {
+            color: #7c3aed;
+        }
+
+        .logout-btn {
+            color: #dc2626 !important;
+        }
+
+        .logout-btn:hover {
+            background: #fef2f2 !important;
+            color: #dc2626 !important;
+        }
+
+        /* 公告按钮样式 */
+        .announcement-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .announcement-btn:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .announcement-btn i {
+            font-size: 14px;
+        }
+
+        .announcement-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* 公告模态框样式 */
+        .announcement-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .announcement-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.2s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .announcement-modal-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .announcement-modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .announcement-modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .announcement-modal-close:hover {
+            color: #374151;
+        }
+
+        .announcement-modal-body {
+            padding: 0;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .loading-spinner i {
+            margin-right: 0.5rem;
+            color: #3b82f6;
+        }
+
+        /* 公告项样式 */
+        .announcement-item {
+            border-bottom: 1px solid #f1f5f9;
+            padding: 1.25rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .announcement-item:last-child {
+            border-bottom: none;
+        }
+
+        .announcement-item:hover {
+            background: #f8fafc;
+        }
+
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .announcement-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            flex: 1;
+        }
+
+        .announcement-type {
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 1rem;
+        }
+
+        .announcement-type.info {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .announcement-type.warning {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .announcement-type.success {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .announcement-type.error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .announcement-content {
+            color: #6b7280;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+            white-space: pre-wrap;
+            font-size: 0.875rem;
+        }
+
+        .announcement-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .announcement-sticky {
+            background: #f0f9ff !important;
+            border-left: 3px solid #0ea5e9;
+        }
+
+        .sticky-badge {
+            color: #0ea5e9;
+            font-weight: 500;
+        }
+
+        .empty-announcements {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+        }
+
+        .empty-announcements i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+        }
+
+        /* 看完了按钮 */
+        .announcement-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            background: #f8fafc;
+            text-align: center;
+        }
+
+        .mark-read-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .mark-read-btn:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-tools"></i> 在线工具集
+            </a>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">功能特色</a>
+                <a href="#tools" class="nav-link">工具中心</a>
+
+                <!-- 公告按钮 -->
+                <a href="/announcements" class="announcement-btn" title="查看系统公告">
+                    <i class="fas fa-bell"></i>
+                    <span class="announcement-badge" id="announcementBadge" style="display: none;">0</span>
+                </a>
+
+                {% if user_info %}
+                <!-- 已登录用户 -->
+                <div class="user-info">
+                    <div class="user-balance">
+                        余额: ¥{{ "%.2f"|format(user_info.balance) }}
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-trigger" onclick="toggleUserMenu()">
+                            <i class="fas fa-user"></i>
+                            <span>{{ user_info.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-menu" id="userMenu">
+                            <a href="/profile">
+                                <i class="fas fa-user-circle"></i> 个人中心
+                            </a>
+                            {% if user_info.role == 'admin' %}
+                            <a href="/admin" class="admin-link">
+                                <i class="fas fa-cog"></i> 管理员面板
+                            </a>
+                            {% endif %}
+                            <a href="#" onclick="logout()" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- 未登录用户 -->
+                <a href="/login" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i> 登录
+                </a>
+                <a href="/register" class="nav-link">
+                    <i class="fas fa-user-plus"></i> 注册
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>智能文档处理平台</h1>
+            <p class="subtitle">基于AI技术的专业学术工具集，提供SQL转ER图、论文生成、测试用例生成、答辩助手等一站式解决方案</p>
+            <div class="header-features">
+                <div class="header-feature">
+                    <i class="fas fa-database"></i>
+                    <span>数据库设计</span>
+                </div>
+                <div class="header-feature">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>学术写作</span>
+                </div>
+                <div class="header-feature">
+                    <i class="fas fa-cogs"></i>
+                    <span>软件测试</span>
+                </div>
+                <div class="header-feature">
+                    <i class="fas fa-chart-line"></i>
+                    <span>文档可视化</span>
+                </div>
+            </div>
+        </header>
+
+
+
+        <!-- 工具卡片 -->
+        <div class="tools-grid" id="tools">
+            <!-- SQL转ER图工具 -->
+            <a href="/sql-to-er" class="tool-card sql-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h2 class="tool-title">SQL转ER图编辑器</h2>
+                <p class="tool-description">
+                    自动解析SQL建表语句，生成专业的实体关系图，支持可视化编辑和多格式导出
+                </p>
+                <ul class="tool-features">
+                    <li>智能SQL语句解析</li>
+                    <li>可视化拖拽编辑</li>
+                    <li>支持多种数据库方言</li>
+                    <li>导出PNG/SVG格式图片</li>
+                    <li>生成Word/HTML文档</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-available">
+                        <i class="fas fa-check-circle"></i> 立即使用
+                    </span>
+                </div>
+            </a>
+
+            <!-- 论文结构图生成器 -->
+            <a href="/paper-structure" class="tool-card paper-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h2 class="tool-title">论文结构图生成器</h2>
+                <p class="tool-description">
+                    智能分析论文内容，自动生成清晰的结构图和思维导图，优化学术写作流程
+                </p>
+                <ul class="tool-features">
+                    <li>智能文本结构分析</li>
+                    <li>自动章节层次提取</li>
+                    <li>多种图表样式模板</li>
+                    <li>分层次可视化展示</li>
+                    <li>高清图片批量导出</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-available">
+                        <i class="fas fa-check-circle"></i> 立即使用
+                    </span>
+                </div>
+            </a>
+
+            <!-- AI测试用例生成器 -->
+            <a href="/test-case-generator" class="tool-card test-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h2 class="tool-title">AI测试用例生成器</h2>
+                <p class="tool-description">
+                    基于AI技术，根据系统描述自动生成标准化测试用例表格，支持导出Word三线表格式
+                </p>
+                <ul class="tool-features">
+                    <li>AI智能分析系统需求</li>
+                    <li>自动生成测试用例</li>
+                    <li>标准化表格格式</li>
+                    <li>支持多种测试类型</li>
+                    <li>导出Word三线表</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-available">
+                        <i class="fas fa-check-circle"></i> 立即使用
+                    </span>
+                </div>
+            </a>
+
+            <!-- 论文答辩问题生成器 -->
+            <a href="/thesis-defense" class="tool-card defense-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h2 class="tool-title">论文答辩问题生成器</h2>
+                <p class="tool-description">
+                    基于AI技术，根据论文内容和系统描述，智能生成答辩过程中可能遇到的问题及标准答案
+                </p>
+                <ul class="tool-features">
+                    <li>智能分析论文内容</li>
+                    <li>模拟真实答辩场景</li>
+                    <li>生成标准参考答案</li>
+                    <li>多维度问题覆盖</li>
+                    <li>导出答辩准备材料</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-ready">
+                        <i class="fas fa-check-circle"></i> 立即使用
+                    </span>
+                </div>
+            </a>
+
+
+            <!-- AI论文生成器 -->
+            <a href="/paper-generator" class="tool-card paper-gen-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h2 class="tool-title">AI论文生成器</h2>
+                <p class="tool-description">
+                    基于人工智能技术的学术论文写作助手，让学术写作更简单高效
+                </p>
+                <ul class="tool-features">
+                    <li>智能分析论文要求</li>
+                    <li>自动生成论文内容</li>
+                    <li>支持多种论文类型</li>
+                    <li>导出Word文档</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-ready">
+                        <i class="fas fa-check-circle"></i> 立即使用
+                    </span>
+                </div>
+            </a>
+
+            <!-- AI文本优化器 -->
+            <a href="/text-optimizer" class="tool-card optimizer-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <h2 class="tool-title">AI文本优化器</h2>
+                <p class="tool-description">
+                    智能重写文本内容，降低AI生成痕迹，保持原意不变，让文章更自然流畅
+                </p>
+                <ul class="tool-features">
+                    <li>智能分段处理长文本</li>
+                    <li>深度句式结构优化</li>
+                    <li>保持专业术语准确</li>
+                    <li>实时前后对比展示</li>
+                    <li>一键复制优化结果</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-available">
+                        <i class="fas fa-check-circle"></i> 立即使用
+                    </span>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- 常见问题 -->
+        <section class="faq-section" id="faq">
+            <div class="container">
+                <h2 class="section-title">常见问题</h2>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <i class="fas fa-question-circle"></i>
+                            如何使用SQL转ER图工具？
+                        </h3>
+                        <p class="faq-answer">
+                            只需将您的SQL建表语句粘贴到编辑器中，系统会自动解析并生成对应的ER图。支持MySQL、PostgreSQL、Oracle等主流数据库语法。
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <i class="fas fa-question-circle"></i>
+                            AI论文生成器支持哪些论文类型？
+                        </h3>
+                        <p class="faq-answer">
+                            支持毕业论文、学术报告、研究论文、课程设计报告等多种类型。可以根据您的专业领域和具体要求生成相应的论文内容。
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <i class="fas fa-question-circle"></i>
+                            测试用例生成器如何保证质量？
+                        </h3>
+                        <p class="faq-answer">
+                            基于先进的AI算法，结合软件测试最佳实践，自动生成符合行业标准的测试用例，包括正常流程、异常流程和边界条件测试。
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <i class="fas fa-question-circle"></i>
+                            平台是否免费使用？
+                        </h3>
+                        <p class="faq-answer">
+                            平台提供基础功能免费使用，高级功能需要注册账户。我们致力于为学生和研究人员提供优质的学术工具支持。
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <i class="fas fa-question-circle"></i>
+                            生成的文档可以导出哪些格式？
+                        </h3>
+                        <p class="faq-answer">
+                            支持多种格式导出，包括Word文档、PDF文件、PNG图片、SVG矢量图等，满足不同场景的使用需求。
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <i class="fas fa-question-circle"></i>
+                            数据安全如何保障？
+                        </h3>
+                        <p class="faq-answer">
+                            我们采用企业级安全标准，数据传输加密，本地处理优先，严格保护用户隐私和数据安全。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+        <!-- 平台特性 -->
+        <section class="features-section" id="features">
+            <h2 class="features-title">平台优势</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="feature-title">高效便捷</h3>
+                    <p class="feature-desc">无需安装软件，浏览器直接使用，快速处理文档和图表需求</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">安全可靠</h3>
+                    <p class="feature-desc">数据本地处理，保护用户隐私，企业级安全标准</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3 class="feature-title">多格式导出</h3>
+                    <p class="feature-desc">支持PNG、SVG、PDF、Word等多种格式，满足不同使用场景</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">跨平台支持</h3>
+                    <p class="feature-desc">响应式设计，完美适配桌面、平板、手机等各种设备</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>产品功能</h4>
+                        <ul>
+                            <li><a href="/sql-to-er">SQL转ER图</a></li>
+                            <li><a href="/paper-generator">AI论文生成</a></li>
+                            <li><a href="/test-case-generator">测试用例生成</a></li>
+                            <li><a href="/thesis-defense">答辩助手</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>使用场景</h4>
+                        <ul>
+                            <li>毕业设计</li>
+                            <li>学术研究</li>
+                            <li>软件开发</li>
+                            <li>数据库设计</li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>技术特点</h4>
+                        <ul>
+                            <li>AI智能分析</li>
+                            <li>多格式导出</li>
+                            <li>实时预览</li>
+                            <li>云端处理</li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>关于我们</h4>
+                        <p>专业的智能文档处理平台，致力于为学术研究和软件开发提供高效的工具支持。</p>
+                        <div class="footer-keywords">
+                            <span>SQL转ER图</span>
+                            <span>论文生成器</span>
+                            <span>测试用例</span>
+                            <span>答辩助手</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 智能文档处理平台. 专注于提供高效的学术工具与文档生成解决方案</p>
+                    <p class="footer-seo">
+                        <strong>关键词：</strong>SQL转ER图生成器、AI论文写作助手、测试用例自动生成、论文答辩助手、数据库设计工具、学术写作平台
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 退出确认模态框 -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-2">
+                    <h5 class="modal-title fw-bold text-dark" id="logoutModalLabel">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        确认退出
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0 pb-2">
+                    <p class="mb-0 text-muted fs-6">您确定要退出登录吗？退出后需要重新登录才能使用相关功能。</p>
+                </div>
+                <div class="modal-footer border-0 pt-2">
+                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        取消
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmLogoutBtn">
+                        <span class="logout-text">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            确认退出
+                        </span>
+                        <span class="logout-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            退出中...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+
+            // 加载公告数据并更新徽章
+            loadAnnouncementBadge();
+        });
+
+        // 全局变量存储公告数据
+        let announcementsData = [];
+        let unreadCount = 0;
+
+        // 加载公告徽章
+        function loadAnnouncementBadge() {
+            fetch('/api/announcements')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        announcementsData = data.data || [];
+                        updateAnnouncementBadge();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载公告失败:', error);
+                });
+        }
+
+        // 更新公告徽章
+        function updateAnnouncementBadge() {
+            // 这里可以根据实际需求计算未读数量
+            // 暂时显示所有公告数量
+            unreadCount = announcementsData.length;
+
+            const badge = document.getElementById('announcementBadge');
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // 显示公告模态框
+        function showAnnouncementModal() {
+            const modal = document.getElementById('announcementModal');
+            const modalBody = document.getElementById('announcementModalBody');
+            const footer = document.getElementById('announcementFooter');
+
+            modal.style.display = 'flex';
+
+            // 渲染公告内容
+            if (announcementsData.length > 0) {
+                renderAnnouncementsInModal(announcementsData);
+                // 显示"看完了"按钮
+                footer.style.display = 'block';
+            } else {
+                modalBody.innerHTML = `
+                    <div class="empty-announcements">
+                        <i class="fas fa-bell"></i>
+                        <h3>暂无公告</h3>
+                        <p>目前没有新的系统公告</p>
+                    </div>
+                `;
+                footer.style.display = 'none';
+            }
+        }
+
+        // 关闭公告模态框
+        function closeAnnouncementModal() {
+            const modal = document.getElementById('announcementModal');
+            modal.style.display = 'none';
+        }
+
+        // 标记所有公告为已读
+        function markAllAsRead() {
+            // 隐藏红色数字标签
+            const badge = document.querySelector('.announcement-badge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+
+            // 关闭模态框
+            closeAnnouncementModal();
+
+            // 这里可以添加后端API调用来持久化已读状态
+            // fetch('/api/announcements/mark-read', { method: 'POST' })
+        }
+
+        // 在模态框中渲染公告
+        function renderAnnouncementsInModal(announcements) {
+            const modalBody = document.getElementById('announcementModalBody');
+
+            const announcementsHTML = announcements.map(announcement => {
+                const stickyClass = announcement.is_sticky ? ' announcement-sticky' : '';
+                const typeText = getAnnouncementTypeText(announcement.type);
+
+                return `
+                    <div class="announcement-item ${announcement.type}${stickyClass}"
+                         onclick="markAnnouncementAsViewed(${announcement.id})">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">${announcement.title}</h3>
+                            <span class="announcement-type ${announcement.type}">${typeText}</span>
+                        </div>
+                        <div class="announcement-content">${announcement.content}</div>
+                        <div class="announcement-meta">
+                            <span>发布时间: ${announcement.created_at}</span>
+                            ${announcement.is_sticky ? '<span class="sticky-badge"><i class="fas fa-thumbtack"></i> 置顶公告</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            modalBody.innerHTML = announcementsHTML;
+        }
+
+        // 获取公告类型文本
+        function getAnnouncementTypeText(type) {
+            const typeTexts = {
+                'info': '信息',
+                'warning': '警告',
+                'success': '成功',
+                'error': '错误'
+            };
+            return typeTexts[type] || '信息';
+        }
+
+        // 标记公告为已查看
+        function markAnnouncementAsViewed(announcementId) {
+            fetch(`/api/announcements/${announcementId}/view`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .catch(error => {
+                console.error('更新公告查看次数失败:', error);
+            });
+        }
+
+        // 点击模态框外部关闭 - 已移除公告模态框功能
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 用户菜单切换
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userMenu = document.getElementById('userMenu');
+
+            if (userDropdown && userMenu && !userDropdown.contains(event.target)) {
+                userMenu.classList.remove('show');
+            }
+        });
+
+        // 退出登录
+        function logout() {
+            // 显示模态框
+            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            logoutModal.show();
+        }
+
+        // 确认退出登录
+        document.getElementById('confirmLogoutBtn').addEventListener('click', function() {
+            const confirmBtn = this;
+            const logoutText = confirmBtn.querySelector('.logout-text');
+            const logoutLoading = confirmBtn.querySelector('.logout-loading');
+
+            // 显示加载状态
+            confirmBtn.disabled = true;
+            logoutText.classList.add('d-none');
+            logoutLoading.classList.remove('d-none');
+
+            fetch('/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 关闭模态框
+                    const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+                    logoutModal.hide();
+
+                    // 延迟刷新页面，让用户看到成功状态
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    throw new Error(data.message || '退出登录失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+
+                // 显示错误提示
+                const errorAlert = document.createElement('div');
+                errorAlert.className = 'alert alert-danger alert-dismissible fade show mt-2';
+                errorAlert.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    退出登录失败，请稍后重试
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+
+                const modalBody = document.querySelector('#logoutModal .modal-body');
+                modalBody.appendChild(errorAlert);
+
+                // 恢复按钮状态
+                confirmBtn.disabled = false;
+                logoutText.classList.remove('d-none');
+                logoutLoading.classList.add('d-none');
+            });
+        });
+    </script>
+
+    <!-- 公告模态框已移除，请访问 /announcements 查看公告 -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

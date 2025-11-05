@@ -1,0 +1,2569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO优化 -->
+    <title>论文结构图生成器 - 智能文档结构分析工具 | 思维导图生成</title>
+    <meta name="description" content="专业的论文结构图生成器，智能分析论文内容自动生成清晰的结构图和思维导图，支持多种图表样式，优化学术写作流程，提升论文质量。">
+    <meta name="keywords" content="论文结构图,思维导图生成器,文档结构分析,论文可视化,学术写作工具,结构图编辑器,论文大纲">
+    <meta name="author" content="智能文档处理平台">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="论文结构图生成器 - 智能文档结构分析工具">
+    <meta property="og:description" content="智能分析论文内容，自动生成清晰的结构图和思维导图">
+    <meta property="og:type" content="website">
+    
+    <!-- 引入CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250107">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- 引入D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    
+    <style>
+        /* 交互式编辑器专用样式 */
+        .node-group {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .node-group:hover {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        .node-group.selected {
+            filter: drop-shadow(0 0 6px #3b82f6);
+        }
+        
+        .node-group.editing .node-rect {
+            stroke: #3b82f6;
+            stroke-width: 3;
+        }
+        
+        .node-text {
+            cursor: text;
+            user-select: none;
+        }
+        
+        .node-text.editing {
+            cursor: text;
+            user-select: all;
+        }
+        
+        .foreign-object {
+            pointer-events: none;
+        }
+        
+        .foreign-object.editing {
+            pointer-events: all;
+        }
+        
+        .edit-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            resize: none;
+        }
+        
+        .node-controls {
+            opacity: 0;
+        }
+
+        .node-group:hover .node-controls {
+            opacity: 1;
+        }
+
+
+        
+        .control-btn {
+            cursor: pointer;
+        }
+
+        .control-btn:hover {
+            opacity: 0.8;
+        }
+
+        .add-child-btn {
+            fill: #10b981;
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+
+        .add-child-btn:hover {
+            fill: #059669;
+        }
+
+        .delete-btn {
+            fill: #f87171;
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+
+        .delete-btn:hover {
+            fill: #ef4444;
+        }
+
+        .control-icon {
+            pointer-events: none;
+            user-select: none;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+
+
+        /* 选中节点的高亮边框 */
+        .node-group.selected .node-rect {
+            stroke: #3b82f6;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+        }
+        
+        /* 修改连线样式 - 移除箭头 */
+        .connection-line {
+            stroke: #000000;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .connection-line-bus {
+            stroke: #000000;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .temp-connection {
+            stroke: #3b82f6;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            fill: none;
+        }
+        
+        /* 工具栏增强 */
+        .toolbar-section .btn {
+            margin: 0 0.25rem;
+        }
+        
+        .edit-mode-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            border-radius: 4px;
+            color: #16a34a;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* 右键菜单 */
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            min-width: 150px;
+            padding: 0.5rem 0;
+            display: none;
+        }
+        
+        .context-menu-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        .context-menu-item:hover {
+            background: #f1f5f9;
+        }
+        
+        .context-menu-item i {
+            width: 16px;
+            text-align: center;
+        }
+        
+        /* 侧边栏增强 */
+        .sidebar {
+            width: 280px;
+        }
+        
+        .tree-view {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 0.5rem;
+            background: white;
+        }
+        
+        .tree-node {
+            padding: 0.25rem 0.5rem;
+            margin: 0.125rem 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .tree-node:hover {
+            background: #f8fafc;
+        }
+        
+        .tree-node.selected {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .tree-node-indent {
+            width: 1rem;
+        }
+        
+        .canvas-container {
+            position: relative;
+            flex: 1;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        #structure-canvas {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            cursor: default;
+        }
+        
+        /* 模态框样式优化 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        .close {
+            color: #64748b;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        
+        .close:hover {
+            color: #334155;
+        }
+        
+        /* 模板按钮样式 */
+        .template-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-align: left;
+        }
+
+        .template-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .template-btn.active {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+
+        .template-btn i {
+            font-size: 1.5rem;
+            color: #4f46e5;
+            width: 2rem;
+            text-align: center;
+        }
+
+        .template-btn strong {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .template-btn small {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        /* 导出选项样式 */
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .export-options label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .export-options label:hover {
+            background: #f8fafc;
+        }
+
+        /* 垂直文字支持 */
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+        }
+
+        .horizontal-text {
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+        }
+
+        /* AI生成器样式 */
+        .ai-generator {
+            margin-bottom: 1rem;
+        }
+
+        .ai-progress {
+            text-align: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 2px;
+            animation: progressAnimation 2s ease-in-out infinite;
+        }
+
+        @keyframes progressAnimation {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .ai-result-preview {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: #0ea5e9;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .result-content {
+            margin-bottom: 1rem;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .result-stats {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* 成功提示框样式 */
+        .success-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            min-width: 300px;
+            animation: successSlideIn 0.3s ease-out;
+        }
+
+        .success-toast .icon {
+            font-size: 24px;
+            animation: successBounce 0.6s ease-out;
+        }
+
+        .success-toast .message {
+            flex: 1;
+        }
+
+        .success-toast .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .success-toast .close-btn:hover {
+            opacity: 1;
+        }
+
+        @keyframes successSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @keyframes successBounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* 错误提示框样式 */
+        .error-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(244, 67, 54, 0.3);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            min-width: 300px;
+            animation: errorShake 0.5s ease-out;
+        }
+
+        .error-toast .icon {
+            font-size: 24px;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translate(-50%, -50%); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-52%, -50%); }
+            20%, 40%, 60%, 80% { transform: translate(-48%, -50%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部工具栏 -->
+        <header class="toolbar">
+            <div class="toolbar-section">
+                <a href="/" class="btn btn-secondary" style="margin-right: 1rem; text-decoration: none;">
+                    <i class="fas fa-home"></i> 返回首页
+                </a>
+                <h1 class="app-title">
+                    <i class="fas fa-sitemap"></i>
+                    交互式系统功能结构图编辑器
+                </h1>
+                <div class="edit-mode-indicator">
+                    <i class="fas fa-edit"></i>
+                    交互编辑模式
+                </div>
+            </div>
+            
+            <div class="toolbar-section">
+                <button class="btn btn-success" onclick="addRootNode()">
+                    <i class="fas fa-plus"></i> 添加根节点
+                </button>
+                <button class="btn btn-info" onclick="autoLayout()">
+                    <i class="fas fa-project-diagram"></i> 自动布局
+                </button>
+                <button class="btn btn-info" onclick="zoomFit()">
+                    <i class="fas fa-compress"></i> 适应屏幕
+                </button>
+                <button class="btn btn-warning" onclick="showExportModal()">
+                    <i class="fas fa-download"></i> 导出图片
+                </button>
+                <button class="btn btn-danger" onclick="clearDiagram()">
+                    <i class="fas fa-trash"></i> 清空
+                </button>
+            </div>
+        </header>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 左侧面板 -->
+            <aside class="sidebar">
+                <!-- AI智能生成 -->
+                <div class="panel">
+                    <h3 class="panel-title">
+                        <i class="fas fa-robot"></i> AI智能生成
+                    </h3>
+                    <div class="ai-generator">
+                        <div class="form-group">
+                            <label class="form-label">系统描述：</label>
+                            <textarea id="system-description" class="form-control"
+                                      placeholder="请描述您要设计的系统，例如：&#10;&#10;设计一个在线教育平台，包含用户管理、课程管理、学习进度跟踪、在线考试、支付系统等功能模块..."
+                                      rows="4"></textarea>
+                        </div>
+                        <button id="generate-btn" class="btn btn-primary" onclick="generateStructureWithAI()" style="width: 100%; margin-bottom: 1rem;">
+                            <i class="fas fa-magic"></i> AI生成结构图
+                        </button>
+
+                        <!-- 进度指示器 -->
+                        <div id="ai-progress" class="ai-progress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <div class="progress-text">AI正在分析系统结构...</div>
+                        </div>
+
+                        <!-- 生成结果预览 -->
+                        <div id="ai-result-preview" class="ai-result-preview" style="display: none;">
+                            <div class="result-header">
+                                <i class="fas fa-check-circle"></i>
+                                <span>生成完成</span>
+                            </div>
+                            <div class="result-content">
+                                <div class="result-title" id="generated-title"></div>
+                                <div class="result-stats">
+                                    <span id="node-count">0</span> 个功能模块
+                                </div>
+                            </div>
+                            <button class="btn btn-success btn-sm" onclick="applyGeneratedStructure()" style="width: 100%;">
+                                <i class="fas fa-check"></i> 应用到画布
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速模板 -->
+                <div class="panel">
+                    <h3 class="panel-title">系统模板</h3>
+                    <div class="template-list">
+                        <button class="template-btn" onclick="loadTemplate('medical', this)">
+                            <i class="fas fa-hospital"></i>
+                            <div>
+                                <strong>医疗管理系统</strong>
+                                <small>学校医疗费管理系统模板</small>
+                            </div>
+                        </button>
+                        <button class="template-btn" onclick="loadTemplate('education', this)">
+                            <i class="fas fa-graduation-cap"></i>
+                            <div>
+                                <strong>教务管理系统</strong>
+                                <small>学生选课管理系统模板</small>
+                            </div>
+                        </button>
+                        <button class="template-btn" onclick="loadTemplate('library', this)">
+                            <i class="fas fa-book"></i>
+                            <div>
+                                <strong>图书管理系统</strong>
+                                <small>图书借阅管理系统模板</small>
+                            </div>
+                        </button>
+                        <button class="template-btn" onclick="loadTemplate('ecommerce', this)">
+                            <i class="fas fa-shopping-cart"></i>
+                            <div>
+                                <strong>电商管理系统</strong>
+                                <small>在线购物系统模板</small>
+                            </div>
+                        </button>
+                        <button class="template-btn" onclick="loadTemplate('hrm', this)">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <strong>人事管理系统</strong>
+                                <small>企业人力资源管理模板</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 结构树视图 -->
+                <div class="panel">
+                    <h3 class="panel-title">结构树</h3>
+                    <div id="tree-view" class="tree-view">
+                        <!-- 树形结构将在这里显示 -->
+                    </div>
+                </div>
+
+                <!-- 图形设置 -->
+                <div class="panel">
+                    <h3 class="panel-title">图形设置</h3>
+                    <div class="form-group">
+                        <label class="form-label">布局方向：</label>
+                        <select id="layout-direction" class="form-control" onchange="updateLayoutDirection()">
+                            <option value="vertical">竖向布局（从上到下）</option>
+                            <option value="horizontal">横向布局（从左到右）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">节点宽度：</label>
+                        <input type="range" id="node-width" class="form-control"
+                               min="30" max="200" value="120" onchange="updateNodeSize()">
+                        <small><span id="width-value">120</span>px</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">节点高度：</label>
+                        <input type="range" id="node-height" class="form-control"
+                               min="30" max="300" value="40" onchange="updateNodeSize()">
+                        <small><span id="height-value">40</span>px</small>
+                    </div>
+
+                    <!-- 根节点单独设置 -->
+                    <div class="form-group">
+                        <label class="form-label">根节点宽度：</label>
+                        <input type="range" id="root-width" class="form-control"
+                               min="30" max="300" value="120" onchange="updateRootNodeSize()">
+                        <small><span id="root-width-value">120</span>px</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">根节点高度：</label>
+                        <input type="range" id="root-height" class="form-control"
+                               min="30" max="150" value="40" onchange="updateRootNodeSize()">
+                        <small><span id="root-height-value">40</span>px</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">水平间距：</label>
+                        <input type="range" id="horizontal-spacing" class="form-control"
+                               min="5" max="100" value="30" onchange="updateSpacing()">
+                        <small><span id="horizontal-spacing-value">30</span>px</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">垂直间距：</label>
+                        <input type="range" id="vertical-spacing" class="form-control"
+                               min="10" max="100" value="50" onchange="updateSpacing()">
+                        <small><span id="vertical-spacing-value">50</span>px</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">文字排版：</label>
+                        <select id="text-orientation" class="form-control" onchange="updateTextOrientation()">
+                            <option value="horizontal">全部横向</option>
+                            <option value="mixed">根节点横向，其他竖向</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 操作说明 -->
+                <div class="panel">
+                    <h3 class="panel-title">操作说明</h3>
+                    <div style="font-size: 0.85rem; line-height: 1.4; color: #64748b;">
+                        <p><strong>基本操作：</strong></p>
+                        <p>• 双击节点编辑文字</p>
+                        <p>• 点击节点进行选择</p>
+                        <p>• 右键节点显示菜单</p>
+                        <p>• 鼠标悬停显示操作按钮</p>
+                        <p><strong>节点管理：</strong></p>
+                        <p>• 绿色按钮：添加子节点</p>
+                        <p>• 红色按钮：删除节点</p>
+                        <p><strong>快捷键：</strong></p>
+                        <p>• Delete: 删除选中节点</p>
+                        <p>• Escape: 取消选择</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 画布区域 -->
+            <main class="canvas-container">
+                <div id="structure-canvas">
+                    <!-- SVG画布将在这里创建 -->
+                </div>
+                
+                <!-- 缩放控制 -->
+                <div class="zoom-controls">
+                    <button onclick="zoomIn()"><i class="fas fa-plus"></i></button>
+                    <button onclick="zoomOut()"><i class="fas fa-minus"></i></button>
+                    <button onclick="zoomReset()"><i class="fas fa-undo"></i></button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div id="context-menu" class="context-menu">
+        <button class="context-menu-item" onclick="rightClickEditNode()">
+            <i class="fas fa-edit"></i> 编辑文字
+        </button>
+        <button class="context-menu-item" onclick="addChildNode()">
+            <i class="fas fa-plus"></i> 添加子节点
+        </button>
+        <button class="context-menu-item" onclick="duplicateNode()">
+            <i class="fas fa-copy"></i> 复制节点
+        </button>
+        <button class="context-menu-item" onclick="deleteNode()">
+            <i class="fas fa-trash"></i> 删除节点
+        </button>
+    </div>
+
+    <!-- 导出模态框 -->
+    <div id="export-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>导出结构图</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">选择格式：</label>
+                    <div class="export-options">
+                        <label>
+                            <input type="radio" name="export-format" value="png" checked>
+                            PNG图片 (推荐)
+                        </label>
+                        <label>
+                            <input type="radio" name="export-format" value="svg">
+                            SVG矢量图
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">文件名：</label>
+                    <input type="text" id="export-filename" class="form-control"
+                           value="系统功能结构图" placeholder="输入文件名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">导出选项：</label>
+                    <div class="export-options">
+                        <label>
+                            <input type="checkbox" id="export-with-background" checked>
+                            包含白色背景
+                        </label>
+                        <label>
+                            <input type="checkbox" id="export-current-view">
+                            仅导出当前视图区域
+                        </label>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; text-align: right;">
+                    <button class="btn btn-primary" onclick="exportDiagram()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()" style="margin-left: 1rem;">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let svg, g, zoom;
+        let currentData = null;
+        let nodeWidth = 120;
+        let nodeHeight = 40;
+        let rootNodeWidth = 120;  // 根节点宽度
+        let rootNodeHeight = 40; // 根节点高度
+        let horizontalSpacing = 30;
+        let verticalSpacing = 50;
+        let layoutDirection = 'vertical';
+        let textOrientation = 'horizontal'; // 'horizontal' 或 'mixed'
+        let selectedNode = null;
+        let dragBehavior = null;
+        let contextMenu = null;
+        let treeData = [];
+        let nextNodeId = 0;
+        let isEditing = false;
+
+        // 系统模板
+        const systemTemplates = {
+            medical: `学校医疗费管理系统
+  用户管理
+    用户信息
+    权限配置
+  账单备份
+    账单查询
+    报表打印
+  磁条卡系统
+    余额查询
+    报表打印
+  职工医疗费统计
+    金额统计
+    报表打印
+  当天医疗费统计
+    职信息修改
+    数据入库
+  职工管理
+  系统管理`,
+
+            education: `学生选课管理系统
+  用户管理
+    学生管理
+    教师管理
+    管理员管理
+  课程管理
+    课程信息
+    课程安排
+    课程查询
+  选课管理
+    选课申请
+    选课审核
+    成绩录入
+  成绩管理
+    成绩查询
+    成绩统计
+    成绩导出
+  报表管理
+    选课报表
+    成绩报表
+    统计报表`,
+
+            library: `图书管理系统
+  图书管理
+    图书录入
+    图书查询
+    图书维护
+  读者管理
+    读者注册
+    读者信息
+    借阅权限
+  借阅管理
+    图书借阅
+    图书归还
+    续借处理
+  查询统计
+    借阅查询
+    逾期查询
+    统计报表
+  系统维护
+    数据备份
+    参数设置
+    日志管理`,
+
+            ecommerce: `电子商务系统
+  商品管理
+    商品分类
+    商品信息
+    库存管理
+  订单管理
+    订单处理
+    订单查询
+    订单统计
+  用户管理
+    用户注册
+    用户信息
+    会员管理
+  支付管理
+    支付接口
+    支付记录
+    退款处理
+  物流管理
+    配送管理
+    物流跟踪
+    配送统计
+  营销管理
+    促销活动
+    优惠券
+    会员积分`,
+
+            hrm: `人力资源管理系统
+  员工管理
+    员工档案
+    员工信息
+    组织架构
+  考勤管理
+    考勤记录
+    请假管理
+    加班管理
+  薪资管理
+    工资计算
+    工资发放
+    薪资报表
+  招聘管理
+    职位发布
+    简历筛选
+    面试安排
+  培训管理
+    培训计划
+    培训记录
+    培训评估
+  绩效管理
+    目标设定
+    绩效考核
+    绩效分析`
+        };
+
+        // 显示成功提示框
+        function showSuccessToast(message) {
+            // 移除已存在的提示框
+            const existingToast = document.querySelector('.success-toast, .error-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'success-toast';
+            toast.innerHTML = `
+                <div class="icon">✅</div>
+                <div class="message">${message}</div>
+                <button class="close-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+
+            document.body.appendChild(toast);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // 显示错误提示框
+        function showErrorToast(message) {
+            // 移除已存在的提示框
+            const existingToast = document.querySelector('.success-toast, .error-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'error-toast';
+            toast.innerHTML = `
+                <div class="icon">❌</div>
+                <div class="message">${message}</div>
+                <button class="close-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+
+            document.body.appendChild(toast);
+
+            // 5秒后自动消失
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM加载完成');
+            
+            if (typeof d3 === 'undefined') {
+                console.error('D3.js未正确加载');
+                showErrorToast('D3.js库加载失败，请刷新页面重试');
+                return;
+            }
+            
+            setTimeout(() => {
+                initCanvas();
+                initializeDisplayValues();
+                setupEventListeners();
+                
+                setTimeout(() => {
+                    const firstButton = document.querySelector('.template-btn');
+                    if (firstButton) {
+                        loadTemplate('medical', firstButton);
+                    }
+                }, 200);
+            }, 300);
+        });
+
+        function initCanvas() {
+            console.log('初始化画布');
+            
+            const container = document.getElementById('structure-canvas');
+            if (!container) {
+                console.error('找不到画布容器元素');
+                return;
+            }
+            
+            let width = container.clientWidth;
+            let height = container.clientHeight;
+            
+            if (width === 0) {
+                width = 800;
+                container.style.width = width + 'px';
+            }
+            if (height === 0) {
+                height = 600;
+                container.style.height = height + 'px';
+            }
+            
+            d3.select('#structure-canvas').selectAll('svg').remove();
+
+            svg = d3.select('#structure-canvas')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .style('background', 'white');
+
+            // 移除箭头标记定义，因为不再需要
+            const defs = svg.append('defs');
+
+            zoom = d3.zoom()
+                .scaleExtent([0.1, 3])
+                .on('zoom', function(event) {
+                    if (g) {
+                        g.attr('transform', event.transform);
+                    }
+                });
+
+            svg.call(zoom);
+            g = svg.append('g');
+            
+            console.log('画布初始化完成');
+        }
+
+        function setupEventListeners() {
+            // 键盘事件
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Delete' && selectedNode && !isEditing) {
+                    deleteSelectedNode();
+                }
+                if (e.key === 'Escape') {
+                    hideContextMenu();
+                    clearSelection();
+                }
+            });
+
+            // 点击空白区域取消选择
+            svg.on('click', function(event) {
+                if (event.target === this) {
+                    clearSelection();
+                    hideContextMenu();
+                }
+            });
+
+            // 隐藏右键菜单
+            document.addEventListener('click', function() {
+                hideContextMenu();
+            });
+        }
+
+        function loadTemplate(templateKey, buttonElement) {
+            if (systemTemplates[templateKey]) {
+                const text = systemTemplates[templateKey];
+                
+                // 更新按钮状态
+                document.querySelectorAll('.template-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                if (buttonElement) {
+                    buttonElement.classList.add('active');
+                }
+                
+                parseAndRenderStructure(text);
+            }
+        }
+
+        function parseAndRenderStructure(text) {
+            const data = parseStructure(text);
+            if (data) {
+                currentData = data;
+                renderInteractiveDiagram(data);
+                updateTreeView(data);
+            }
+        }
+
+        function parseStructure(text) {
+            console.log('开始解析结构文本');
+            
+            const lines = text.trim().split('\n').filter(line => line.trim());
+            if (lines.length === 0) {
+                return null;
+            }
+
+            const nodes = [];
+            const links = [];
+            const linkSet = new Set(); // 用于避免重复链接
+            nextNodeId = 0;
+            const stack = [];
+
+            lines.forEach((line, index) => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+
+                const originalLength = line.length;
+                const trimmedLength = line.replace(/^\s+/, '').length;
+                const indent = originalLength - trimmedLength;
+                const level = Math.floor(indent / 2);
+
+                const node = {
+                    id: nextNodeId++,
+                    text: trimmed,
+                    level: level,
+                    x: 0,
+                    y: 0,
+                    children: []
+                };
+
+                nodes.push(node);
+
+                while (stack.length > level) {
+                    stack.pop();
+                }
+
+                if (stack.length > 0) {
+                    const parent = stack[stack.length - 1];
+                    const linkKey = `${parent.id}-${node.id}`;
+                    
+                    // 避免重复添加链接
+                    if (!linkSet.has(linkKey)) {
+                        links.push({
+                            source: parent.id,
+                            target: node.id
+                        });
+                        linkSet.add(linkKey);
+                        parent.children.push(node);
+                    }
+                }
+
+                stack.push(node);
+            });
+
+            treeData = nodes.filter(n => n.level === 0);
+            
+            console.log('解析完成，节点数：', nodes.length, '，链接数：', links.length);
+            
+            return { nodes, links };
+        }
+
+        function renderInteractiveDiagram(data) {
+            if (!g) {
+                console.error('SVG组元素未初始化');
+                return;
+            }
+            
+            // 清除所有内容
+            g.selectAll('*').remove();
+
+            const containerWidth = document.getElementById('structure-canvas').clientWidth || 800;
+            const containerHeight = document.getElementById('structure-canvas').clientHeight || 600;
+            
+            const positions = calculateOptimizedLayout(data, containerWidth, containerHeight);
+            
+            // 先渲染连线（在节点下方）
+            renderOptimizedConnections(data.links, positions);
+            
+            // 再渲染节点（在连线上方）
+            renderNodes(positions);
+            
+            // 自动适应视图
+            setTimeout(() => zoomFit(), 100);
+        }
+
+        function calculateOptimizedLayout(data, width, height) {
+            // 构建节点映射
+            const nodeMap = new Map(data.nodes.map(n => [n.id, { ...n, children: [] }]));
+            data.links.forEach(link => {
+                const parent = nodeMap.get(link.source);
+                const child = nodeMap.get(link.target);
+                if (parent && child) {
+                    parent.children.push(child);
+                }
+            });
+            // 找到根节点
+            const root = data.nodes.find(n => !data.links.some(l => l.target === n.id));
+            if (!root) return [];
+
+            if (layoutDirection === 'vertical') {
+                return calculateVerticalLayout(nodeMap, root, width, height);
+            } else {
+                return calculateHorizontalLayout(nodeMap, root, width, height);
+            }
+        }
+
+        function calculateVerticalLayout(nodeMap, root, width, height) {
+            // 递归计算每个子树的宽度
+            function computeSubtreeWidth(node) {
+                if (!node.children || node.children.length === 0) {
+                    const currentWidth = node.level === 0 ? rootNodeWidth : nodeWidth;
+                    node.subtreeWidth = currentWidth;
+                    return currentWidth;
+                }
+                let total = 0;
+                node.children.forEach((child, idx) => {
+                    const w = computeSubtreeWidth(child);
+                    total += w;
+                    if (idx !== node.children.length - 1) total += horizontalSpacing;
+                });
+                node.subtreeWidth = total;
+                return total;
+            }
+            computeSubtreeWidth(nodeMap.get(root.id));
+
+            // 递归布局
+            const positions = [];
+            function layout(node, x, y) {
+                if (!node) return;
+                // 计算本节点的x
+                let nodeX = x;
+                if (node.children && node.children.length > 0) {
+                    // 居中于所有子节点
+                    let childrenWidth = 0;
+                    node.children.forEach((child, idx) => {
+                        childrenWidth += child.subtreeWidth;
+                        if (idx !== node.children.length - 1) childrenWidth += horizontalSpacing;
+                    });
+                    const currentWidth = node.level === 0 ? rootNodeWidth : nodeWidth;
+                    nodeX = x + childrenWidth / 2 - currentWidth / 2;
+                }
+                positions.push({ ...node, x: nodeX, y });
+                // 子节点布局
+                if (node.children && node.children.length > 0) {
+                    let childX = x;
+                    const currentHeight = node.level === 0 ? rootNodeHeight : nodeHeight;
+                    node.children.forEach(child => {
+                        layout(child, childX, y + currentHeight + verticalSpacing);
+                        childX += child.subtreeWidth + horizontalSpacing;
+                    });
+                }
+            }
+            // 居中整个树
+            const totalTreeWidth = nodeMap.get(root.id).subtreeWidth;
+            const startX = Math.max((width - totalTreeWidth) / 2, 20);
+            layout(nodeMap.get(root.id), startX, 100);
+            return positions;
+        }
+
+        function calculateHorizontalLayout(nodeMap, root, width, height) {
+            // 递归计算每个子树的高度
+            function computeSubtreeHeight(node) {
+                if (!node.children || node.children.length === 0) {
+                    const currentHeight = node.level === 0 ? rootNodeHeight : nodeHeight;
+                    node.subtreeHeight = currentHeight;
+                    return currentHeight;
+                }
+                let total = 0;
+                node.children.forEach((child, idx) => {
+                    const h = computeSubtreeHeight(child);
+                    total += h;
+                    if (idx !== node.children.length - 1) total += verticalSpacing;
+                });
+                node.subtreeHeight = total;
+                return total;
+            }
+            computeSubtreeHeight(nodeMap.get(root.id));
+
+            // 递归布局
+            const positions = [];
+            function layout(node, x, y) {
+                if (!node) return;
+                // 计算本节点的y
+                let nodeY = y;
+                if (node.children && node.children.length > 0) {
+                    // 居中于所有子节点
+                    let childrenHeight = 0;
+                    node.children.forEach((child, idx) => {
+                        childrenHeight += child.subtreeHeight;
+                        if (idx !== node.children.length - 1) childrenHeight += verticalSpacing;
+                    });
+                    const currentHeight = node.level === 0 ? rootNodeHeight : nodeHeight;
+                    nodeY = y + childrenHeight / 2 - currentHeight / 2;
+                }
+                positions.push({ ...node, x, y: nodeY });
+                // 子节点布局
+                if (node.children && node.children.length > 0) {
+                    let childY = y;
+                    const currentWidth = node.level === 0 ? rootNodeWidth : nodeWidth;
+                    node.children.forEach(child => {
+                        layout(child, x + currentWidth + horizontalSpacing, childY);
+                        childY += child.subtreeHeight + verticalSpacing;
+                    });
+                }
+            }
+            // 居中整个树
+            const totalTreeHeight = nodeMap.get(root.id).subtreeHeight;
+            const startY = Math.max((height - totalTreeHeight) / 2, 100);
+            layout(nodeMap.get(root.id), 100, startY);
+            return positions;
+        }
+
+        function renderOptimizedConnections(links, positions) {
+            // 先移除所有旧的连接线
+            g.selectAll('.connection-line').remove();
+            g.selectAll('.connection-line-bus').remove();
+
+            // 创建一个Set来跟踪已处理的连接，避免重复
+            const processedLinks = new Set();
+
+            // 按父节点分组连接
+            const linksByParent = d3.group(links, d => d.source);
+
+            linksByParent.forEach((childLinks, parentId) => {
+                const parentNode = positions.find(p => p.id === parentId);
+                if (!parentNode) return;
+
+                // 过滤掉重复的连接
+                const uniqueChildLinks = childLinks.filter(link => {
+                    const linkKey = `${link.source}-${link.target}`;
+                    if (processedLinks.has(linkKey)) {
+                        return false;
+                    }
+                    processedLinks.add(linkKey);
+                    return true;
+                });
+
+                const childNodes = uniqueChildLinks.map(link =>
+                    positions.find(p => p.id === link.target)
+                ).filter(Boolean);
+
+                if (childNodes.length === 0) return;
+
+                if (layoutDirection === 'vertical') {
+                    renderVerticalConnectionsOptimized(parentNode, childNodes);
+                } else {
+                    renderHorizontalConnectionsOptimized(parentNode, childNodes);
+                }
+            });
+        }
+
+        function renderVerticalConnectionsOptimized(parentNode, childNodes) {
+            const parentX = parentNode.x;
+            // 根据父节点层级使用对应的高度
+            const parentHeight = parentNode.level === 0 ? rootNodeHeight : nodeHeight;
+            const parentBottom = parentNode.y + parentHeight / 2;
+
+            // 计算总线位置（父节点和子节点之间的中点）
+            const childrenTop = Math.min(...childNodes.map(c => {
+                const childHeight = c.level === 0 ? rootNodeHeight : nodeHeight;
+                return c.y - childHeight / 2;
+            }));
+            const busY = parentBottom + (childrenTop - parentBottom) / 2;
+
+            if (childNodes.length === 1) {
+                // 单个子节点：直角连接
+                const child = childNodes[0];
+                const childHeight = child.level === 0 ? rootNodeHeight : nodeHeight;
+                const childTop = child.y - childHeight / 2;
+                
+                g.append('path')
+                    .attr('class', 'connection-line')
+                    .attr('d', `M ${parentX} ${parentBottom} 
+                               L ${parentX} ${busY}
+                               L ${child.x} ${busY}
+                               L ${child.x} ${childTop}`);
+            } else {
+                // 多个子节点：紧凑的T型连接
+                childNodes.sort((a, b) => a.x - b.x);
+                
+                // 计算紧凑的总线范围 - 只覆盖子节点的中心区域
+                const childCenters = childNodes.map(c => c.x);
+                const minCenter = Math.min(...childCenters);
+                const maxCenter = Math.max(...childCenters);
+                
+                // 限制总线长度，避免过长
+                const busWidth = Math.min(maxCenter - minCenter, nodeWidth * 2);
+                const busStartX = minCenter + (maxCenter - minCenter - busWidth) / 2;
+                const busEndX = busStartX + busWidth;
+                
+                // 1. 父节点到总线的垂直线
+                g.append('path')
+                    .attr('class', 'connection-line')
+                    .attr('d', `M ${parentX} ${parentBottom} L ${parentX} ${busY}`);
+                
+                // 2. 紧凑的水平总线
+                g.append('path')
+                    .attr('class', 'connection-line-bus')
+                    .attr('d', `M ${busStartX} ${busY} L ${busEndX} ${busY}`);
+                
+                // 3. 总线到各子节点的垂直线
+                childNodes.forEach(child => {
+                    const childHeight = child.level === 0 ? rootNodeHeight : nodeHeight;
+                    const childTop = child.y - childHeight / 2;
+                    const childCenterX = child.x;
+                    
+                    // 如果子节点在总线范围内，直接连接
+                    if (childCenterX >= busStartX && childCenterX <= busEndX) {
+                        g.append('path')
+                            .attr('class', 'connection-line')
+                            .attr('d', `M ${childCenterX} ${busY} L ${childCenterX} ${childTop}`);
+                    } else {
+                        // 如果子节点在总线范围外，使用L型连接
+                        const nearestBusX = childCenterX < busStartX ? busStartX : busEndX;
+                        g.append('path')
+                            .attr('class', 'connection-line')
+                            .attr('d', `M ${nearestBusX} ${busY} 
+                                       L ${childCenterX} ${busY}
+                                       L ${childCenterX} ${childTop}`);
+                    }
+                });
+            }
+        }
+
+        function renderHorizontalConnectionsOptimized(parentNode, childNodes) {
+            const parentY = parentNode.y;
+            const parentWidth = parentNode.level === 0 ? rootNodeWidth : nodeWidth;
+            const parentRight = parentNode.x + parentWidth / 2;
+
+            // 计算总线位置
+            const childrenLeft = Math.min(...childNodes.map(c => {
+                const childWidth = c.level === 0 ? rootNodeWidth : nodeWidth;
+                return c.x - childWidth / 2;
+            }));
+            const busX = parentRight + (childrenLeft - parentRight) / 2;
+
+            if (childNodes.length === 1) {
+                // 单个子节点：直角连接
+                const child = childNodes[0];
+                const childWidth = child.level === 0 ? rootNodeWidth : nodeWidth;
+                const childLeft = child.x - childWidth / 2;
+                
+                if (Math.abs(parentY - child.y) < 1) {
+                    // 父子节点水平对齐，直线连接
+                    g.append('path')
+                        .attr('class', 'connection-line')
+                        .attr('d', `M ${parentRight} ${parentY} L ${childLeft} ${child.y}`);
+                } else {
+                    // L型连接
+                    g.append('path')
+                        .attr('class', 'connection-line')
+                        .attr('d', `M ${parentRight} ${parentY} 
+                                   L ${busX} ${parentY}
+                                   L ${busX} ${child.y}
+                                   L ${childLeft} ${child.y}`);
+                }
+            } else {
+                // 多个子节点：紧凑的F型连接
+                childNodes.sort((a, b) => a.y - b.y);
+                
+                // 计算紧凑的总线范围
+                const childCenters = childNodes.map(c => c.y);
+                const minCenter = Math.min(...childCenters);
+                const maxCenter = Math.max(...childCenters);
+                
+                // 限制总线长度
+                const busHeight = Math.min(maxCenter - minCenter, nodeHeight * 2);
+                const busStartY = minCenter + (maxCenter - minCenter - busHeight) / 2;
+                const busEndY = busStartY + busHeight;
+                
+                // 1. 父节点到总线的水平线
+                g.append('path')
+                    .attr('class', 'connection-line')
+                    .attr('d', `M ${parentRight} ${parentY} L ${busX} ${parentY}`);
+                
+                // 2. 紧凑的垂直总线
+                g.append('path')
+                    .attr('class', 'connection-line-bus')
+                    .attr('d', `M ${busX} ${busStartY} L ${busX} ${busEndY}`);
+                
+                // 3. 总线到各子节点的水平线
+                childNodes.forEach(child => {
+                    const childWidth = child.level === 0 ? rootNodeWidth : nodeWidth;
+                    const childLeft = child.x - childWidth / 2;
+                    const childCenterY = child.y;
+                    
+                    // 如果子节点在总线范围内，直接连接
+                    if (childCenterY >= busStartY && childCenterY <= busEndY) {
+                        g.append('path')
+                            .attr('class', 'connection-line')
+                            .attr('d', `M ${busX} ${childCenterY} L ${childLeft} ${childCenterY}`);
+                    } else {
+                        // 如果子节点在总线范围外，使用L型连接
+                        const nearestBusY = childCenterY < busStartY ? busStartY : busEndY;
+                        g.append('path')
+                            .attr('class', 'connection-line')
+                            .attr('d', `M ${busX} ${nearestBusY} 
+                                       L ${busX} ${childCenterY}
+                                       L ${childLeft} ${childCenterY}`);
+                    }
+                });
+            }
+        }
+
+        function renderNodes(positions) {
+            const nodeGroups = g.selectAll('.node-group')
+                .data(positions)
+                .enter().append('g')
+                .attr('class', 'node-group')
+                .attr('transform', d => {
+                    // 根据节点层级使用不同的尺寸
+                    const width = d.level === 0 ? rootNodeWidth : nodeWidth;
+                    const height = d.level === 0 ? rootNodeHeight : nodeHeight;
+                    return `translate(${d.x - width/2}, ${d.y - height/2})`;
+                });
+
+            // 添加矩形
+            nodeGroups.append('rect')
+                .attr('class', 'node-rect')
+                .attr('width', d => d.level === 0 ? rootNodeWidth : nodeWidth)
+                .attr('height', d => d.level === 0 ? rootNodeHeight : nodeHeight)
+                .attr('fill', 'white')
+                .attr('stroke', '#000000')
+                .attr('stroke-width', 1.5)
+                .attr('rx', 0); // 方角
+
+            // 添加文本 - 使用 foreignObject 实现自动换行
+            const textObject = nodeGroups.append('foreignObject')
+                .attr('class', 'node-text-wrapper')
+                .attr('x', 5)
+                .attr('y', 5)
+                .attr('width', d => (d.level === 0 ? rootNodeWidth : nodeWidth) - 10)
+                .attr('height', d => (d.level === 0 ? rootNodeHeight : nodeHeight) - 10)
+                .style('pointer-events', 'none');
+
+            textObject.append('xhtml:div')
+                .html(d => d.text)
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('justify-content', 'center')
+                .style('width', '100%')
+                .style('height', '100%')
+                .style('text-align', 'center')
+                .style('word-break', 'break-word')
+                .style('font-family', 'Microsoft YaHei, sans-serif')
+                .style('font-size', '14px')
+                .style('font-weight', '500')
+                .style('color', '#000000')
+                .style('line-height', '1.2')
+                .style('writing-mode', d => {
+                    // 根据文字排版设置和节点层级决定文字方向
+                    if (textOrientation === 'mixed' && d.level > 0) {
+                        return 'vertical-rl'; // 竖向排列，从右到左
+                    }
+                    return 'horizontal-tb'; // 横向排列
+                })
+                .style('text-orientation', d => {
+                    if (textOrientation === 'mixed' && d.level > 0) {
+                        return 'upright'; // 保持文字正立
+                    }
+                    return 'mixed';
+                });
+
+            // 添加控制按钮组
+            const controlGroups = nodeGroups.append('g')
+                .attr('class', 'node-controls');
+
+            // 简化的按钮创建函数
+            const createControlButton = (group, x, y, className, icon, clickHandler) => {
+                // 按钮背景
+                group.append('circle')
+                    .attr('class', `control-btn ${className}`)
+                    .attr('cx', x)
+                    .attr('cy', y)
+                    .attr('r', 10)
+                    .style('cursor', 'pointer')
+                    .on('click', function(event, d) {
+                        event.stopPropagation();
+                        clickHandler(d);
+                    });
+
+                // 按钮图标
+                group.append('text')
+                    .attr('class', 'control-icon')
+                    .attr('x', x)
+                    .attr('y', y)
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '0.35em') // 使用dy来精确垂直居中
+                    .style('font-size', '12px')
+                    .style('font-weight', 'bold')
+                    .style('fill', 'white')
+                    .style('pointer-events', 'none')
+                    .text(icon);
+            };
+
+            // 根据节点尺寸动态计算按钮位置
+            controlGroups.each(function(d) {
+                const group = d3.select(this);
+                const currentWidth = d.level === 0 ? rootNodeWidth : nodeWidth;
+                const currentHeight = d.level === 0 ? rootNodeHeight : nodeHeight;
+
+                // 添加子节点按钮（底部中央，稍微远一点）
+                createControlButton(group, currentWidth / 2, currentHeight + 25, 'add-child-btn', '+', addChildNodeTo);
+
+                // 删除按钮（右上角外侧，避免遮挡文字）
+                createControlButton(group, currentWidth + 10, -10, 'delete-btn', '×', (d) => deleteNodeById(d.id));
+            });
+
+            // 添加事件监听
+            nodeGroups
+                .on('click', function(event, d) {
+                    event.stopPropagation();
+                    selectNode(d);
+                })
+                .on('dblclick', function(event, d) {
+                    event.stopPropagation();
+                    selectNode(d);
+                    setTimeout(editNodeText, 50);
+                })
+                .on('contextmenu', function(event, d) {
+                    event.preventDefault();
+                    selectNode(d);
+                    showContextMenu(event, d);
+                });
+        }
+
+        // 选择节点
+        function selectNode(nodeData) {
+            clearSelection();
+            selectedNode = nodeData;
+            
+            g.selectAll('.node-group').classed('selected', function(d) {
+                return d.id === nodeData.id;
+            });
+            
+            updateTreeSelection(nodeData.id);
+        }
+
+        function clearSelection() {
+            selectedNode = null;
+            g.selectAll('.node-group').classed('selected', false);
+            updateTreeSelection(null);
+        }
+
+        // 编辑文本
+        function editNodeText() {
+            if (isEditing || !selectedNode) return;
+            
+            const nodeElement = g.selectAll('.node-group').filter(d => d.id === selectedNode.id).node();
+            if (!nodeElement) return;
+
+            isEditing = true;
+            const nodeGroup = d3.select(nodeElement);
+            const textWrapper = nodeGroup.select('.node-text-wrapper');
+            const nodeData = selectedNode;
+            
+            // 隐藏原文本
+            textWrapper.style('display', 'none');
+            
+            // 创建输入框
+            const currentWidth = nodeData.level === 0 ? rootNodeWidth : nodeWidth;
+            const currentHeight = nodeData.level === 0 ? rootNodeHeight : nodeHeight;
+            const foreignObject = nodeGroup.append('foreignObject')
+                .attr('class', 'foreign-object editing')
+                .attr('x', 5)
+                .attr('y', 5)
+                .attr('width', currentWidth - 10)
+                .attr('height', currentHeight - 10);
+            
+            const input = foreignObject.append('xhtml:input')
+                .attr('class', 'edit-input')
+                .attr('value', nodeData.text)
+                .style('width', '100%')
+                .style('height', '100%')
+                .style('border', 'none')
+                .style('background', 'transparent')
+                .style('text-align', 'center')
+                .style('font-family', 'Microsoft YaHei, sans-serif')
+                .style('font-size', '14px')
+                .style('outline', 'none')
+                .style('writing-mode', () => {
+                    // 编辑时也要保持相同的文字方向
+                    if (textOrientation === 'mixed' && nodeData.level > 0) {
+                        return 'vertical-rl';
+                    }
+                    return 'horizontal-tb';
+                })
+                .style('text-orientation', () => {
+                    if (textOrientation === 'mixed' && nodeData.level > 0) {
+                        return 'upright';
+                    }
+                    return 'mixed';
+                });
+            
+            // 聚焦并选中文本
+            setTimeout(() => {
+                input.node().focus();
+                input.node().select();
+            }, 10);
+            
+            // 完成编辑
+            function finishEdit() {
+                if (!isEditing) return;
+                
+                const newText = input.node().value.trim();
+                const originalNodeId = nodeData.id;
+
+                if (newText && newText !== nodeData.text) {
+                    const nodeToUpdate = currentData.nodes.find(n => n.id === originalNodeId);
+                    if (nodeToUpdate) {
+                        nodeToUpdate.text = newText;
+                    }
+                    
+                    renderInteractiveDiagram(currentData);
+                    updateTreeView(currentData);
+                    
+                    setTimeout(() => {
+                        const allNodesOnScreen = g.selectAll('.node-group').data();
+                        const newNodeData = allNodesOnScreen.find(d => d.id === originalNodeId);
+                        if (newNodeData) {
+                            selectNode(newNodeData);
+                        }
+                    }, 100);
+                }
+                
+                foreignObject.remove();
+                textWrapper.style('display', null);
+                isEditing = false;
+            }
+            
+            input.on('blur', finishEdit);
+            input.on('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    finishEdit();
+                } else if (event.key === 'Escape') {
+                    foreignObject.remove();
+                    textWrapper.style('display', null);
+                    isEditing = false;
+                }
+            });
+        }
+
+        // 右键菜单
+        function showContextMenu(event, nodeData) {
+            selectedNode = nodeData;
+            selectNode(nodeData);
+            
+            const menu = document.getElementById('context-menu');
+            menu.style.display = 'block';
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+        }
+
+        function hideContextMenu() {
+            document.getElementById('context-menu').style.display = 'none';
+        }
+
+        // 右键菜单操作
+        function rightClickEditNode() {
+            hideContextMenu();
+            editNodeText();
+        }
+
+        function addChildNode() {
+            hideContextMenu();
+            if (selectedNode) {
+                addChildNodeTo(selectedNode);
+            }
+        }
+
+        function addChildNodeTo(parentNode) {
+            const newNode = {
+                id: nextNodeId++,
+                text: '新节点',
+                level: parentNode.level + 1,
+                x: 0,
+                y: 0,
+                children: []
+            };
+            
+            const newLink = {
+                source: parentNode.id,
+                target: newNode.id
+            };
+            
+            currentData.nodes.push(newNode);
+            currentData.links.push(newLink);
+            
+            // 重新渲染
+            renderInteractiveDiagram(currentData);
+            updateTreeView(currentData);
+            
+            // 选中新节点并开始编辑
+            setTimeout(() => {
+                selectNode(newNode);
+                const nodeElement = g.selectAll('.node-group').filter(d => d.id === newNode.id).node();
+                if (nodeElement) {
+                    editNodeText(newNode, nodeElement);
+                }
+            }, 100);
+        }
+
+        function duplicateNode() {
+            hideContextMenu();
+            if (selectedNode) {
+                const newNode = {
+                    id: nextNodeId++,
+                    text: selectedNode.text + ' (副本)',
+                    level: selectedNode.level,
+                    x: selectedNode.x + nodeWidth + 20,
+                    y: selectedNode.y,
+                    children: []
+                };
+                
+                // 如果原节点有父节点，新节点也连到同一个父节点
+                const parentLink = currentData.links.find(link => link.target === selectedNode.id);
+                if (parentLink) {
+                    const newLink = {
+                        source: parentLink.source,
+                        target: newNode.id
+                    };
+                    currentData.links.push(newLink);
+                }
+                
+                currentData.nodes.push(newNode);
+                renderInteractiveDiagram(currentData);
+                updateTreeView(currentData);
+            }
+        }
+
+        function deleteNode() {
+            hideContextMenu();
+            if (selectedNode) {
+                deleteNodeById(selectedNode.id);
+            }
+        }
+
+        function deleteSelectedNode() {
+            if (selectedNode) {
+                deleteNodeById(selectedNode.id);
+            }
+        }
+
+        function deleteNodeById(nodeId) {
+            // 递归删除所有子节点
+            function deleteNodeAndChildren(id) {
+                const childLinks = currentData.links.filter(link => link.source === id);
+                childLinks.forEach(link => {
+                    deleteNodeAndChildren(link.target);
+                });
+                
+                // 删除节点
+                currentData.nodes = currentData.nodes.filter(n => n.id !== id);
+                // 删除相关连线
+                currentData.links = currentData.links.filter(l => l.source !== id && l.target !== id);
+            }
+            
+            deleteNodeAndChildren(nodeId);
+            clearSelection();
+            renderInteractiveDiagram(currentData);
+            updateTreeView(currentData);
+        }
+
+        // 添加根节点
+        function addRootNode() {
+            const newNode = {
+                id: nextNodeId++,
+                text: '新系统',
+                level: 0,
+                x: 400,
+                y: 80,
+                children: []
+            };
+            
+            if (!currentData) {
+                currentData = { nodes: [], links: [] };
+            }
+            
+            currentData.nodes.push(newNode);
+            renderInteractiveDiagram(currentData);
+            updateTreeView(currentData);
+            
+            // 选中新节点并开始编辑
+            setTimeout(() => {
+                selectNode(newNode);
+                const nodeElement = g.selectAll('.node-group').filter(d => d.id === newNode.id).node();
+                if (nodeElement) {
+                    editNodeText(newNode, nodeElement);
+                }
+            }, 100);
+        }
+
+        // 树视图更新
+        function updateTreeView(data) {
+            const treeContainer = document.getElementById('tree-view');
+            treeContainer.innerHTML = '';
+            
+            if (!data || !data.nodes.length) {
+                treeContainer.innerHTML = '<div style="color: #64748b; text-align: center; padding: 1rem;">暂无数据</div>';
+                return;
+            }
+            
+            // 构建树结构
+            const roots = data.nodes.filter(n => n.level === 0);
+            
+            function renderTreeNode(node, container, level = 0) {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'tree-node';
+                nodeDiv.style.marginLeft = (level * 1) + 'rem';
+                nodeDiv.innerHTML = `
+                    <span class="tree-node-indent"></span>
+                    <i class="fas fa-square" style="font-size: 8px; color: #666;"></i>
+                    <span>${node.text}</span>
+                `;
+                
+                nodeDiv.onclick = () => {
+                    selectNode(node);
+                    // 滚动到节点
+                    const nodeElement = g.selectAll('.node-group').filter(d => d.id === node.id);
+                    if (!nodeElement.empty()) {
+                        const transform = nodeElement.attr('transform');
+                        const match = transform.match(/translate\(([^,]+),([^)]+)\)/);
+                        if (match) {
+                            const x = parseFloat(match[1]) + nodeWidth/2;
+                            const y = parseFloat(match[2]) + nodeHeight/2;
+                            
+                            const scale = d3.zoomTransform(svg.node()).k;
+                            const containerWidth = svg.attr('width');
+                            const containerHeight = svg.attr('height');
+                            
+                            svg.transition()
+                                .duration(750)
+                                .call(zoom.transform, 
+                                    d3.zoomIdentity
+                                        .translate(containerWidth/2 - x*scale, containerHeight/2 - y*scale)
+                                        .scale(scale)
+                                );
+                        }
+                    }
+                };
+                
+                container.appendChild(nodeDiv);
+                
+                // 渲染子节点
+                const children = data.links
+                    .filter(link => link.source === node.id)
+                    .map(link => data.nodes.find(n => n.id === link.target))
+                    .filter(Boolean);
+                
+                children.forEach(child => {
+                    renderTreeNode(child, container, level + 1);
+                });
+            }
+            
+            roots.forEach(root => {
+                renderTreeNode(root, treeContainer);
+            });
+        }
+
+        function updateTreeSelection(nodeId) {
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+        }
+
+        // 其他功能函数
+        function updateNodeSize() {
+            nodeWidth = parseInt(document.getElementById('node-width').value);
+            nodeHeight = parseInt(document.getElementById('node-height').value);
+            
+            document.getElementById('width-value').textContent = nodeWidth;
+            document.getElementById('height-value').textContent = nodeHeight;
+            
+            if (currentData) {
+                renderInteractiveDiagram(currentData);
+            }
+        }
+
+        function updateSpacing() {
+            horizontalSpacing = parseInt(document.getElementById('horizontal-spacing').value);
+            verticalSpacing = parseInt(document.getElementById('vertical-spacing').value);
+            
+            document.getElementById('horizontal-spacing-value').textContent = horizontalSpacing;
+            document.getElementById('vertical-spacing-value').textContent = verticalSpacing;
+            
+            if (currentData) {
+                renderInteractiveDiagram(currentData);
+            }
+        }
+
+        function updateLayoutDirection() {
+            layoutDirection = document.getElementById('layout-direction').value;
+
+            if (currentData) {
+                renderInteractiveDiagram(currentData);
+                setTimeout(() => zoomFit(), 100);
+            }
+        }
+
+        function updateTextOrientation() {
+            textOrientation = document.getElementById('text-orientation').value;
+
+            if (currentData) {
+                renderInteractiveDiagram(currentData);
+            }
+        }
+
+        function updateRootNodeSize() {
+            rootNodeWidth = parseInt(document.getElementById('root-width').value);
+            rootNodeHeight = parseInt(document.getElementById('root-height').value);
+
+            document.getElementById('root-width-value').textContent = rootNodeWidth;
+            document.getElementById('root-height-value').textContent = rootNodeHeight;
+
+            if (currentData) {
+                renderInteractiveDiagram(currentData);
+            }
+        }
+
+        function initializeDisplayValues() {
+            document.getElementById('width-value').textContent = nodeWidth;
+            document.getElementById('height-value').textContent = nodeHeight;
+            document.getElementById('root-width-value').textContent = rootNodeWidth;
+            document.getElementById('root-height-value').textContent = rootNodeHeight;
+            document.getElementById('horizontal-spacing-value').textContent = horizontalSpacing;
+            document.getElementById('vertical-spacing-value').textContent = verticalSpacing;
+        }
+
+        function autoLayout() {
+            if (currentData) {
+                renderInteractiveDiagram(currentData);
+                zoomFit();
+            }
+        }
+
+        function zoomFit() {
+            if (!svg || !g) return;
+            
+            const bounds = g.node().getBBox();
+            if (bounds.width === 0 || bounds.height === 0) return;
+            
+            const parent = svg.node().getBoundingClientRect();
+            const fullWidth = parent.width;
+            const fullHeight = parent.height;
+            
+            const scale = 0.8 / Math.max(bounds.width / fullWidth, bounds.height / fullHeight);
+            const translate = [
+                fullWidth / 2 - scale * (bounds.x + bounds.width / 2),
+                fullHeight / 2 - scale * (bounds.y + bounds.height / 2)
+            ];
+            
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        }
+
+        function zoomIn() {
+            svg.transition().call(zoom.scaleBy, 1.2);
+        }
+
+        function zoomOut() {
+            svg.transition().call(zoom.scaleBy, 0.8);
+        }
+
+        function zoomReset() {
+            svg.transition().call(zoom.transform, d3.zoomIdentity);
+        }
+
+        function showExportModal() {
+            if (!currentData) {
+                alert('请先创建结构图');
+                return;
+            }
+            document.getElementById('export-modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('export-modal').style.display = 'none';
+        }
+
+        function exportDiagram() {
+            const format = document.querySelector('input[name="export-format"]:checked').value;
+            const filename = document.getElementById('export-filename').value || '系统功能结构图';
+            const withBackground = document.getElementById('export-with-background').checked;
+            const currentViewOnly = document.getElementById('export-current-view').checked;
+
+            try {
+                if (format === 'png') {
+                    exportAsPNG(filename, withBackground, currentViewOnly);
+                } else if (format === 'svg') {
+                    exportAsSVG(filename, withBackground, currentViewOnly);
+                }
+
+                closeModal();
+                // 不立即显示成功消息，等导出完成后再显示
+            } catch (error) {
+                console.error('导出失败:', error);
+                showErrorToast('导出失败: ' + error.message);
+            }
+        }
+
+
+
+        // 计算导出边界 - 参考ER图的实现
+
+
+        function calculateExportBounds(currentViewOnly = false) {
+            // 参考ER图的方法：使用数据坐标而不是DOM边界
+            const padding = 10; // 进一步减少边距，避免过多空白
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            let hasElements = false;
+
+            console.log('开始计算导出边界（使用数据坐标）...', { currentViewOnly });
+
+            // 如果只导出当前视图区域
+            if (currentViewOnly) {
+                const svgElement = svg.node();
+                const transform = d3.zoomTransform(svgElement);
+                const containerWidth = document.getElementById('structure-canvas').clientWidth || 800;
+                const containerHeight = document.getElementById('structure-canvas').clientHeight || 600;
+
+                return {
+                    x: -transform.x / transform.k,
+                    y: -transform.y / transform.k,
+                    width: containerWidth / transform.k,
+                    height: containerHeight / transform.k
+                };
+            }
+
+            if (!currentData || !currentData.nodes || currentData.nodes.length === 0) {
+                console.warn('没有数据，使用默认边界');
+                return {
+                    x: 0,
+                    y: 0,
+                    width: 1200,
+                    height: 800
+                };
+            }
+
+            // 重新计算布局位置
+            const containerWidth = document.getElementById('structure-canvas').clientWidth || 800;
+            const containerHeight = document.getElementById('structure-canvas').clientHeight || 600;
+            const positions = calculateOptimizedLayout(currentData, containerWidth, containerHeight);
+
+            console.log('计算出的位置数据:', positions);
+
+            // 遍历所有节点位置
+            positions.forEach(nodePos => {
+                // 使用全局变量，避免变量名冲突
+                const currentNodeWidth = nodePos.level === 0 ? rootNodeWidth : nodeWidth;
+                const currentNodeHeight = nodePos.level === 0 ? rootNodeHeight : nodeHeight;
+
+                // 节点的实际边界（节点是居中定位的）
+                const nodeLeft = nodePos.x - currentNodeWidth / 2;
+                const nodeTop = nodePos.y - currentNodeHeight / 2;
+                const nodeRight = nodePos.x + currentNodeWidth / 2;
+                const nodeBottom = nodePos.y + currentNodeHeight / 2;
+
+                minX = Math.min(minX, nodeLeft);
+                minY = Math.min(minY, nodeTop);
+                maxX = Math.max(maxX, nodeRight);
+                maxY = Math.max(maxY, nodeBottom);
+                hasElements = true;
+            });
+
+            // 考虑连接线的边界（连接线连接节点中心点）
+            if (currentData.links && currentData.links.length > 0) {
+                const nodeMap = new Map(positions.map(p => [p.id, p]));
+                currentData.links.forEach(link => {
+                    const sourceNode = nodeMap.get(link.source);
+                    const targetNode = nodeMap.get(link.target);
+                    if (sourceNode && targetNode) {
+                        // 连接线从源节点中心到目标节点中心
+                        minX = Math.min(minX, sourceNode.x, targetNode.x);
+                        minY = Math.min(minY, sourceNode.y, targetNode.y);
+                        maxX = Math.max(maxX, sourceNode.x, targetNode.x);
+                        maxY = Math.max(maxY, sourceNode.y, targetNode.y);
+                    }
+                });
+            }
+
+            console.log(`找到 ${positions.length} 个节点, ${currentData.links ? currentData.links.length : 0} 条连接线`);
+            console.log('原始边界:', { minX, minY, maxX, maxY });
+
+            // 如果没有找到有效元素，使用默认边界
+            if (!hasElements || !isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+                console.warn('没有找到有效元素，使用默认边界');
+                return {
+                    x: 0,
+                    y: 0,
+                    width: 1200,
+                    height: 800
+                };
+            }
+
+            const result = {
+                x: minX - padding,
+                y: minY - padding,
+                width: (maxX - minX) + padding * 2,
+                height: (maxY - minY) + padding * 2
+            };
+
+            // 确保最小尺寸（减少最小尺寸限制）
+            result.width = Math.max(result.width, 200);
+            result.height = Math.max(result.height, 100);
+
+            console.log('最终导出边界:', result);
+            return result;
+        }
+
+        function exportAsPNG(filename, withBackground = true, currentViewOnly = false) {
+            try {
+                const svgElement = svg.node();
+                if (!svgElement) {
+                    alert('没有找到图表内容');
+                    return;
+                }
+
+                console.log('PNG导出开始...', { withBackground, currentViewOnly });
+
+                // 计算导出边界 - 参考ER图的方法
+                const exportBounds = calculateExportBounds(currentViewOnly);
+                console.log('导出边界:', exportBounds);
+
+                // 创建新的SVG用于导出 - 参考ER图的方法
+                const exportSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                exportSvg.setAttribute('width', exportBounds.width);
+                exportSvg.setAttribute('height', exportBounds.height);
+                exportSvg.setAttribute('viewBox', `${exportBounds.x} ${exportBounds.y} ${exportBounds.width} ${exportBounds.height}`);
+                exportSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                if (withBackground) {
+                    exportSvg.setAttribute('style', 'background-color: white');
+                }
+
+                // 添加样式定义
+                const styles = getSVGStyles(svgElement);
+                const styleElement = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                styleElement.textContent = styles;
+                exportSvg.appendChild(styleElement);
+
+                // 克隆g元素及其所有内容
+                const gClone = g.node().cloneNode(true);
+                // 移除transform属性，因为我们已经在viewBox中处理了定位
+                gClone.removeAttribute('transform');
+                exportSvg.appendChild(gClone);
+
+                // 转换为图片
+                const svgData = new XMLSerializer().serializeToString(exportSvg);
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+
+                // 设置高质量导出
+                const scale = 2; // 2x 分辨率
+                canvas.width = exportBounds.width * scale;
+                canvas.height = exportBounds.height * scale;
+                ctx.scale(scale, scale);
+
+                img.onload = function() {
+                    console.log('图片加载成功');
+                    if (withBackground) {
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, exportBounds.width, exportBounds.height);
+                    }
+                    ctx.drawImage(img, 0, 0, exportBounds.width, exportBounds.height);
+
+                    // 下载图片
+                    canvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.download = filename + '.png';
+                        a.href = url;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        showSuccessToast('PNG导出成功！');
+                    }, 'image/png', 1.0);
+                };
+
+                img.onerror = function() {
+                    console.error('SVG转换失败');
+                    showErrorToast('导出失败，请尝试使用SVG格式');
+                };
+
+                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+
+            } catch (error) {
+                console.error('导出PNG失败:', error);
+                showErrorToast('导出PNG失败，请稍后重试');
+            }
+        }
+
+
+
+        function exportAsSVG(filename, withBackground = true, currentViewOnly = false) {
+            try {
+                const svgElement = svg.node();
+                if (!svgElement) {
+                    alert('没有找到图表内容');
+                    return;
+                }
+
+                console.log('SVG导出开始...', { withBackground, currentViewOnly });
+
+                // 使用相同的边界计算方法
+                const exportBounds = calculateExportBounds(currentViewOnly);
+                console.log('SVG导出边界:', exportBounds);
+
+                // 创建新的SVG用于导出 - 参考ER图的方法
+                const exportSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                exportSvg.setAttribute('width', exportBounds.width);
+                exportSvg.setAttribute('height', exportBounds.height);
+                exportSvg.setAttribute('viewBox', `${exportBounds.x} ${exportBounds.y} ${exportBounds.width} ${exportBounds.height}`);
+                exportSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                if (withBackground) {
+                    exportSvg.setAttribute('style', 'background-color: white');
+                }
+
+                // 添加样式定义
+                const styles = getSVGStyles(svgElement);
+                const styleElement = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                styleElement.textContent = styles;
+                exportSvg.appendChild(styleElement);
+
+                // 克隆g元素及其所有内容
+                const gClone = g.node().cloneNode(true);
+                // 移除transform属性，因为我们已经在viewBox中处理了定位
+                gClone.removeAttribute('transform');
+                exportSvg.appendChild(gClone);
+
+                // 导出
+                const svgData = new XMLSerializer().serializeToString(exportSvg);
+                console.log('SVG导出 - 数据长度:', svgData.length);
+
+                const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename + '.svg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                console.log('SVG导出完成');
+                alert('SVG导出成功！');
+
+            } catch (error) {
+                console.error('导出SVG失败:', error);
+                showErrorToast('导出SVG失败，请稍后重试');
+            }
+        }
+
+        function getSVGStyles(svgElement) {
+            let style = `
+                .node-rect { fill: white; stroke: #000000; stroke-width: 1.5; }
+                .connection-line { stroke: #000000; stroke-width: 1.5; fill: none; }
+                .connection-line-bus { stroke: #000000; stroke-width: 1.5; fill: none; }
+                text { font-family: 'Microsoft YaHei', sans-serif; font-size: 14px; font-weight: 500; }
+                .node-controls { display: none; }
+            `;
+            return style;
+        }
+
+        function clearDiagram() {
+            if (confirm('确定要清空当前结构图吗？')) {
+                currentData = null;
+                selectedNode = null;
+                nextNodeId = 0;
+                g.selectAll('*').remove();
+                updateTreeView(null);
+                
+                document.querySelectorAll('.template-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            }
+        }
+
+        // 响应式处理
+        window.addEventListener('resize', function() {
+            if (currentData) {
+                const container = document.getElementById('structure-canvas');
+                svg.attr('width', container.clientWidth)
+                   .attr('height', container.clientHeight);
+                renderInteractiveDiagram(currentData);
+            }
+        });
+
+        // 模态框点击外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('export-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // AI生成相关变量
+        let generatedStructureData = null;
+
+        // AI生成结构图
+        async function generateStructureWithAI() {
+            const description = document.getElementById('system-description').value.trim();
+
+            if (!description) {
+                alert('请输入系统描述');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generate-btn');
+            const progressDiv = document.getElementById('ai-progress');
+            const resultDiv = document.getElementById('ai-result-preview');
+
+            // 显示进度
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中...';
+            progressDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/generate-structure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        description: description
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 保存生成的数据
+                    generatedStructureData = result.data;
+
+                    // 显示结果预览
+                    document.getElementById('generated-title').textContent = result.data.title || '系统功能结构图';
+                    document.getElementById('node-count').textContent = result.data.nodes ? result.data.nodes.length : 0;
+
+                    progressDiv.style.display = 'none';
+                    resultDiv.style.display = 'block';
+
+                    showSuccessToast('AI生成完成！');
+                } else {
+                    throw new Error(result.message || '生成失败');
+                }
+            } catch (error) {
+                console.error('AI生成失败:', error);
+                alert('生成失败：' + error.message);
+                progressDiv.style.display = 'none';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-magic"></i> AI生成结构图';
+            }
+        }
+
+        // 应用生成的结构到画布
+        function applyGeneratedStructure() {
+            if (!generatedStructureData) {
+                alert('没有可应用的结构数据');
+                return;
+            }
+
+            try {
+                // 清空当前画布
+                clearDiagram();
+
+                // 应用生成的数据
+                currentData = generatedStructureData;
+
+                // 重新渲染
+                renderInteractiveDiagram(currentData);
+                updateTreeView(currentData);
+
+                // 自动布局和适应屏幕
+                setTimeout(() => {
+                    autoLayout();
+                    setTimeout(() => zoomFit(), 100);
+                }, 100);
+
+                // 隐藏结果预览
+                document.getElementById('ai-result-preview').style.display = 'none';
+
+                showSuccessToast('结构图已应用到画布！');
+            } catch (error) {
+                console.error('应用结构失败:', error);
+                alert('应用结构失败：' + error.message);
+            }
+        }
+
+    </script>
+</body>
+</html>

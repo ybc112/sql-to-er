@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO优化 -->
+    <title>SQL转ER图在线编辑器 - 数据库设计可视化工具 | 智能文档处理平台</title>
+    <meta name="description" content="专业的SQL转ER图在线编辑器，支持MySQL、PostgreSQL等数据库，自动解析SQL建表语句生成实体关系图，可视化数据库设计工具，支持导出PNG、SVG、Word等格式。">
+    <meta name="keywords" content="SQL转ER图,ER图编辑器,数据库设计,实体关系图,SQL解析,数据库可视化,在线工具,数据库建模">
+    <meta name="author" content="智能文档处理平台">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="SQL转ER图在线编辑器 - 数据库设计可视化工具">
+    <meta property="og:description" content="专业的SQL转ER图工具，自动解析SQL语句生成实体关系图">
+    <meta property="og:type" content="website">
+    
+    <!-- 引入CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250107-no-pk-color">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- 引入依赖库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部工具栏 -->
+        <header class="toolbar">
+            <div class="toolbar-section">
+                <a href="/" class="btn btn-secondary" style="margin-right: 1rem; text-decoration: none;">
+                    <i class="fas fa-home"></i> 返回首页
+                </a>
+                <h1 class="app-title">
+                    <i class="fas fa-project-diagram"></i>
+                    ER图在线编辑器
+                </h1>
+            </div>
+            
+            <div class="toolbar-section">
+                <button class="btn btn-info" onclick="autoLayout()">
+                    <i class="fas fa-project-diagram"></i> 自动布局
+                </button>
+                <button class="btn btn-info" onclick="zoomFit()">
+                    <i class="fas fa-compress"></i> 适应屏幕
+                </button>
+                <button class="btn btn-success" onclick="importSQL()">
+                    <i class="fas fa-file-import"></i> 导入SQL
+                </button>
+                <button class="btn btn-warning" onclick="showExportImageModal()">
+                    <i class="fas fa-image"></i> 导出图片
+                </button>
+                <button class="btn btn-primary" onclick="showExportDocModal()">
+                    <i class="fas fa-file-word"></i> 导出文档
+                </button>
+                <button id="toggleRelationsBtn" class="btn btn-info" onclick="toggleRelationships()">
+                    <i class="fas fa-link"></i> 隐藏关系连线
+                </button>
+            </div>
+        </header>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 左侧面板 -->
+            <aside class="sidebar">
+                <div class="panel">
+                    <h3 class="panel-title">实体列表</h3>
+                    <div id="entity-list" class="entity-list">
+                        <!-- 实体列表将在这里动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3 class="panel-title">数据库类型</h3>
+                    <select id="db-type" class="form-control">
+                        <option value="mysql">MySQL</option>
+                        <option value="postgresql">PostgreSQL</option>
+                        <option value="sqlite">SQLite</option>
+                        <option value="sqlserver">SQL Server</option>
+                        <option value="oracle">Oracle</option>
+                    </select>
+                </div>
+                
+                <div class="panel">
+                    <h3 class="panel-title">快速操作</h3>
+                    <button class="btn btn-block" onclick="loadExample()">
+                        <i class="fas fa-database"></i> 加载示例
+                    </button>
+                    <button class="btn btn-block btn-danger" onclick="clearDiagram()">
+                        <i class="fas fa-trash"></i> 清空图表
+                    </button>
+                </div>
+                
+                <div class="panel">
+                    <h3 class="panel-title">图形大小调整</h3>
+                    <div class="size-control">
+                        <label>实体大小</label>
+                        <div class="size-input-group">
+                            <label>宽:</label>
+                            <input type="number" id="entity-width" value="120" min="80" max="300" onchange="updateEntitySize()">
+                            <label>高:</label>
+                            <input type="number" id="entity-height" value="60" min="40" max="150" onchange="updateEntitySize()">
+                        </div>
+                    </div>
+                    <div class="size-control">
+                        <label>属性大小</label>
+                        <div class="size-input-group">
+                            <label>宽:</label>
+                            <input type="number" id="attr-width" value="60" min="40" max="150" onchange="updateAttributeSize()">
+                            <label>高:</label>
+                            <input type="number" id="attr-height" value="25" min="15" max="60" onchange="updateAttributeSize()">
+                        </div>
+                    </div>
+                    <div class="size-control">
+                        <label>关系大小</label>
+                        <div class="size-input-group">
+                            <label>宽:</label>
+                            <input type="number" id="rel-width" value="80" min="50" max="200" onchange="updateRelationshipSize()">
+                            <label>高:</label>
+                            <input type="number" id="rel-height" value="50" min="30" max="120" onchange="updateRelationshipSize()">
+                        </div>
+                    </div>
+                    <button class="btn btn-block btn-info" onclick="applyUniformSize()">
+                        <i class="fas fa-sync"></i> 应用统一大小
+                    </button>
+                </div>
+
+                <div class="panel">
+                    <h3 class="panel-title">字体大小</h3>
+                    <div class="size-control">
+                        <label>基础字号：<span id="font-size-value">12</span> px</label>
+                        <input type="range" id="font-size-range" min="10" max="20" value="12" oninput="updateFontSize(this.value)" />
+                        <small style="color:#6c757d;">实体=基础+2，属性/关系/标签=基础</small>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 画布区域 -->
+            <main class="canvas-container">
+                <div id="er-canvas">
+                    <!-- SVG画布将在这里创建 -->
+                </div>
+                
+                <!-- 缩放控制 -->
+                <div class="zoom-controls">
+                    <button onclick="zoomIn()"><i class="fas fa-plus"></i></button>
+                    <button onclick="zoomOut()"><i class="fas fa-minus"></i></button>
+                    <button onclick="zoomReset()"><i class="fas fa-undo"></i></button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 模态框：添加实体 -->
+    <div id="entity-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添加/编辑实体</h2>
+                <span class="close" onclick="closeModal('entity-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>实体名称：</label>
+                    <input type="text" id="entity-name" class="form-control" placeholder="输入实体名称">
+                </div>
+                <div class="form-group">
+                    <label>属性列表：</label>
+                    <div id="attributes-list">
+                        <!-- 属性将在这里动态添加 -->
+                    </div>
+                    <button class="btn btn-sm" onclick="addAttribute()">
+                        <i class="fas fa-plus"></i> 添加属性
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveEntity()">保存</button>
+                <button class="btn btn-secondary" onclick="closeModal('entity-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：添加关系 -->
+    <div id="relationship-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添加关系</h2>
+                <span class="close" onclick="closeModal('relationship-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>源实体：</label>
+                    <select id="rel-from-entity" class="form-control">
+                        <!-- 选项将动态生成 -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标实体：</label>
+                    <select id="rel-to-entity" class="form-control">
+                        <!-- 选项将动态生成 -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>关系类型：</label>
+                    <select id="rel-type" class="form-control">
+                        <option value="1:1">一对一 (1:1)</option>
+                        <option value="1:N" selected>一对多 (1:N)</option>
+                        <option value="M:N">多对多 (M:N)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveRelationship()">保存</button>
+                <button class="btn btn-secondary" onclick="closeModal('relationship-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：SQL编辑器 -->
+    <div id="sql-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="sql-modal-title">SQL编辑器</h2>
+                <span class="close" onclick="closeModal('sql-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="sql-editor" style="height: 400px; width: 100%;"></div>
+
+                <!-- 翻译选项 -->
+                <div class="form-group" style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                    <label style="display: flex; align-items: center; margin: 0;">
+                        <input type="checkbox" id="enable-translation" checked style="margin-right: 8px;">
+                        <span style="font-weight: 500;">
+                            <i class="fas fa-language" style="margin-right: 5px; color: #007bff;"></i>
+                            智能翻译表名和字段名为中文
+                        </span>
+                    </label>
+                    <small style="color: #6c757d; margin-left: 20px; display: block; margin-top: 5px;">
+                        使用AI自动将英文表名和字段名翻译成中文，让ER图更加直观易懂
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="sql-action-btn" class="btn btn-primary">执行</button>
+                <button class="btn btn-secondary" onclick="closeModal('sql-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Document Modal -->
+    <div id="export-doc-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>导出数据库文档</h2>
+                <span class="close" onclick="closeModal('export-doc-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择导出格式:</label>
+                    <div style="margin: 10px 0;">
+                        <label style="margin-right: 20px;">
+                            <input type="radio" name="export-format" value="html" checked> HTML格式（预览）
+                        </label>
+                        <label>
+                            <input type="radio" name="export-format" value="docx"> Word文档（下载）
+                        </label>
+                    </div>
+                </div>
+                <div id="doc-preview-content" style="margin-top: 20px;">
+                    <p>请选择格式并点击生成...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="exportDoc()">生成文档</button>
+                <button class="btn btn-secondary" onclick="closeModal('export-doc-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML Preview Modal -->
+    <div id="html-preview-modal" class="modal">
+        <div class="modal-content x-large">
+            <div class="modal-header">
+                <h2>数据库文档预览</h2>
+                <span class="close" onclick="closeModal('html-preview-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <iframe id="html-preview-frame" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出图片模态框 -->
+    <div id="export-image-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>导出ER图</h2>
+                <span class="close" onclick="closeModal('export-image-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择导出格式:</label>
+                    <div style="margin: 10px 0;">
+                        <label style="margin-right: 20px;">
+                            <input type="radio" name="export-image-format" value="png" checked> PNG图片
+                        </label>
+                        <label>
+                            <input type="radio" name="export-image-format" value="svg"> SVG矢量图
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>导出选项:</label>
+                    <div style="margin: 10px 0;">
+                        <label>
+                            <input type="checkbox" id="export-with-background" checked> 包含白色背景
+                        </label>
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <label>
+                            <input type="checkbox" id="export-current-view"> 仅导出当前视图区域
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>文件名:</label>
+                    <input type="text" id="export-filename" class="form-control" value="er-diagram" placeholder="输入文件名（不含扩展名）">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="exportImageWithOptions()">导出</button>
+                <button class="btn btn-secondary" onclick="closeModal('export-image-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 加载JavaScript -->
+    <script src="{{ url_for('static', filename='js/er-editor.js') }}?v=20250823-1900-canvas-fixed&t={{ range(1000000, 9999999) | random }}"></script>
+</body>
+</html>

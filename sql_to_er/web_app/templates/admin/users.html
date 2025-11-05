@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - SQL转ER图工具</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: #343a40;
+            width: 250px;
+        }
+        
+        .sidebar-sticky {
+            position: sticky;
+            top: 48px;
+            height: calc(100vh - 48px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        .sidebar .nav-link {
+            font-weight: 500;
+            color: #adb5bd;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #007bff;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* 主内容区域 */
+        .main {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        /* 顶部导航栏 */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* 搜索栏 */
+        .search-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            margin-bottom: 20px;
+        }
+        
+        .search-bar .form-control {
+            border-radius: 20px;
+            padding-left: 40px;
+        }
+        
+        .search-bar .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        /* 用户表格 */
+        .user-table-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+        }
+        
+        .table thead {
+            background-color: #f8f9fa;
+        }
+        
+        .table th {
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* 状态标签 */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* 操作按钮 */
+        .btn-action {
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        
+        /* 分页 */
+        .pagination {
+            margin-bottom: 0;
+        }
+        
+        /* 用户详情模态框 */
+        .modal-header {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .info-row {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        /* 余额卡片 */
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-card h4 {
+            margin-bottom: 5px;
+        }
+        
+        /* 加载动画 */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 50px;
+        }
+        
+        .loading-spinner i {
+            font-size: 48px;
+            color: #007bff;
+        }
+        
+        /* 空数据提示 */
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        /* 筛选标签 */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-tab {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #666;
+        }
+        
+        .filter-tab:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .filter-tab.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        /* 统计信息 */
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            text-align: center;
+        }
+        
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <div class="sidebar-sticky">
+            <div class="text-center text-white mb-4">
+                <i class="fas fa-user-shield fa-3x mb-2"></i>
+                <h5>管理员后台</h5>
+                <small>{{ admin_info.username }}</small>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        仪表盘
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('admin.users') }}">
+                        <i class="fas fa-users"></i>
+                        用户管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.announcements') }}">
+                        <i class="fas fa-bullhorn"></i>
+                        公告管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.settings') }}">
+                        <i class="fas fa-cog"></i>
+                        系统设置
+                    </a>
+                </li>
+            </ul>
+            
+            <hr class="text-white">
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('homepage') }}">
+                        <i class="fas fa-home"></i>
+                        返回首页
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.logout') }}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        退出登录
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 主内容区域 -->
+    <main class="main">
+        <!-- 顶部导航 -->
+        <nav class="navbar">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h4 class="mb-0">用户管理</h4>
+                <div>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <i class="fas fa-plus me-2"></i>添加用户
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- 统计信息 -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="number">{{ user_data.total or 0 }}</div>
+                <div class="label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="activeCount">{{ user_data.users|selectattr('status', 'equalto', 1)|list|length }}</div>
+                <div class="label">活跃用户</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="todayCount">0</div>
+                <div class="label">今日新增</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalBalance">¥0</div>
+                <div class="label">用户总余额</div>
+            </div>
+        </div>
+        
+        <!-- 搜索和筛选 -->
+        <div class="search-bar">
+            <form method="GET" action="{{ url_for('admin.users') }}" class="d-flex align-items-center">
+                <div class="position-relative flex-grow-1 me-3">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="form-control" name="search" placeholder="搜索用户名或邮箱..." value="{{ search }}">
+                </div>
+                <select class="form-select me-3" name="status" style="width: 150px;">
+                    <option value="">全部状态</option>
+                    <option value="1" {{ 'selected' if status == 1 else '' }}>正常</option>
+                    <option value="0" {{ 'selected' if status == 0 else '' }}>禁用</option>
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>搜索
+                </button>
+                {% if search or status is not none %}
+                <a href="{{ url_for('admin.users') }}" class="btn btn-secondary ms-2">
+                    <i class="fas fa-times me-2"></i>清除
+                </a>
+                {% endif %}
+            </form>
+        </div>
+        
+        <!-- 用户列表 -->
+        <div class="user-table-card">
+            {% if user_data.users %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>余额</th>
+                            <th>累计充值</th>
+                            <th>累计消费</th>
+                            <th>状态</th>
+                            <th>注册时间</th>
+                            <th>最后登录</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in user_data.users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>
+                                <strong>{{ user.username or '未设置' }}</strong>
+                                {% if user.invite_earnings > 0 %}
+                                <br><small class="text-muted">邀请收益: ¥{{ "%.2f"|format(user.invite_earnings) }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.email or '-' }}</td>
+                            <td class="text-primary">¥{{ "%.2f"|format(user.balance) }}</td>
+                            <td>¥{{ "%.2f"|format(user.total_recharge) }}</td>
+                            <td>¥{{ "%.2f"|format(user.total_consumption) }}</td>
+                            <td>
+                                {% if user.status == 1 %}
+                                    <span class="status-badge active">正常</span>
+                                {% else %}
+                                    <span class="status-badge inactive">禁用</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if user.last_login_at %}
+                                    {{ user.last_login_at.strftime('%m-%d %H:%M') }}
+                                    {% if user.last_login_ip %}
+                                    <br><small class="text-muted">{{ user.last_login_ip }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">从未登录</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-action" onclick="viewUserDetail({{ user.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning btn-action" onclick="showRechargeModal({{ user.id }}, '{{ user.username or user.email }}')">
+                                    <i class="fas fa-coins"></i>
+                                </button>
+                                {% if user.status == 1 %}
+                                <button class="btn btn-sm btn-danger btn-action" onclick="toggleUserStatus({{ user.id }}, 0)">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                                {% else %}
+                                <button class="btn btn-sm btn-success btn-action" onclick="toggleUserStatus({{ user.id }}, 1)">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 分页 -->
+            {% if user_data.total_pages > 1 %}
+            <nav aria-label="用户列表分页">
+                <ul class="pagination justify-content-center">
+                    {% if user_data.page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.users', page=user_data.page-1, search=search, status=status) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for p in range(1, user_data.total_pages + 1) %}
+                        {% if p == 1 or p == user_data.total_pages or (p >= user_data.page - 2 and p <= user_data.page + 2) %}
+                        <li class="page-item {{ 'active' if p == user_data.page else '' }}">
+                            <a class="page-link" href="{{ url_for('admin.users', page=p, search=search, status=status) }}">{{ p }}</a>
+                        </li>
+                        {% elif p == user_data.page - 3 or p == user_data.page + 3 %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if user_data.page < user_data.total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.users', page=user_data.page+1, search=search, status=status) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h5>暂无用户数据</h5>
+                <p>没有找到符合条件的用户</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- 加载动画 -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p class="mt-3">加载中...</p>
+        </div>
+    </main>
+    
+    <!-- 用户详情模态框 -->
+    <div class="modal fade" id="userDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user me-2"></i>用户详情
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="userDetailContent">
+                    <!-- 动态加载内容 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 充值模态框 -->
+    <div class="modal fade" id="rechargeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-coins me-2"></i>余额充值
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        正在为用户 <strong id="rechargeUsername"></strong> 充值
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">充值金额（元）</label>
+                        <input type="number" class="form-control" id="rechargeAmount" step="0.01" min="0.01" value="10.00">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">充值说明</label>
+                        <input type="text" class="form-control" id="rechargeDescription" placeholder="管理员手动充值">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmRecharge()">
+                        <i class="fas fa-check me-2"></i>确认充值
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加用户模态框 -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>添加新用户
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="newUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="newEmail" placeholder="请输入邮箱">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="请输入密码">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">初始余额（元）</label>
+                        <input type="number" class="form-control" id="newBalance" step="0.01" min="0" value="0.00">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="addNewUser()">
+                        <i class="fas fa-check me-2"></i>确认添加
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentRechargeUserId = null;
+        
+        // 计算统计数据
+        document.addEventListener('DOMContentLoaded', function() {
+            // 计算今日新增用户
+            const today = new Date().toDateString();
+            let todayCount = 0;
+            let totalBalance = 0;
+            
+            {% for user in user_data.users %}
+            const createdAt = new Date('{{ user.created_at }}').toDateString();
+            if (createdAt === today) {
+                todayCount++;
+            }
+            totalBalance += {{ user.balance }};
+            {% endfor %}
+            
+            document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('totalBalance').textContent = '¥' + totalBalance.toFixed(2);
+        });
+        
+        // 查看用户详情
+        async function viewUserDetail(userId) {
+            const modal = new bootstrap.Modal(document.getElementById('userDetailModal'));
+            const content = document.getElementById('userDetailContent');
+            
+            content.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x"></i></div>';
+            modal.show();
+            
+            try {
+                const response = await fetch(`/admin/api/users/${userId}/detail`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const user = data.user;
+                    content.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-3">基本信息</h6>
+                                <div class="info-row">
+                                    <span class="info-label">用户ID：</span>
+                                    <span>${user.id}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">用户名：</span>
+                                    <span>${user.username || '未设置'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">邮箱：</span>
+                                    <span>${user.email || '-'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">状态：</span>
+                                    <span>${user.status == 1 ? '<span class="text-success">正常</span>' : '<span class="text-danger">禁用</span>'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">注册时间：</span>
+                                    <span>${new Date(user.created_at).toLocaleString()}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">最后登录：</span>
+                                    <span>${user.last_login_at ? new Date(user.last_login_at).toLocaleString() : '从未登录'}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-3">财务信息</h6>
+                                <div class="balance-card">
+                                    <h4>¥${parseFloat(user.balance).toFixed(2)}</h4>
+                                    <p class="mb-0">当前余额</p>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">累计充值：</span>
+                                    <span>¥${parseFloat(user.total_recharge).toFixed(2)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">累计消费：</span>
+                                    <span>¥${parseFloat(user.total_consumption).toFixed(2)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">邀请收益：</span>
+                                    <span>¥${parseFloat(user.invite_earnings).toFixed(2)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">邀请码：</span>
+                                    <span><code>${user.invite_code}</code></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">邀请人：</span>
+                                    <span>${user.invited_by || '无'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${user.recent_consumptions && user.recent_consumptions.length > 0 ? `
+                        <hr class="my-4">
+                        <h6 class="text-muted mb-3">最近消费记录</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>服务类型</th>
+                                        <th>金额</th>
+                                        <th>时间</th>
+                                        <th>描述</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${user.recent_consumptions.map(record => `
+                                        <tr>
+                                            <td>${getServiceTypeName(record.service_type)}</td>
+                                            <td>¥${parseFloat(record.amount).toFixed(2)}</td>
+                                            <td>${new Date(record.created_at).toLocaleString()}</td>
+                                            <td>${record.description || '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        ` : ''}
+                    `;
+                } else {
+                    content.innerHTML = '<div class="alert alert-danger">加载失败：' + data.message + '</div>';
+                }
+            } catch (error) {
+                content.innerHTML = '<div class="alert alert-danger">加载失败，请重试</div>';
+            }
+        }
+        
+        // 获取服务类型名称
+        function getServiceTypeName(type) {
+            const names = {
+                'sql_to_er': 'SQL转ER图',
+                'defense_questions': '答辩问题',
+                'paper_generation': '论文生成',
+                'ai_translation': 'AI翻译',
+                'er_optimization': 'ER优化',
+                'database_design': '数据库设计'
+            };
+            return names[type] || type;
+        }
+        
+        // 切换用户状态
+        async function toggleUserStatus(userId, newStatus) {
+            const action = newStatus == 1 ? '启用' : '禁用';
+            if (!confirm(`确定要${action}该用户吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/api/users/${userId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert('操作失败：' + result.message);
+                }
+            } catch (error) {
+                alert('操作失败，请重试');
+            }
+        }
+        
+        // 显示充值模态框
+        function showRechargeModal(userId, username) {
+            currentRechargeUserId = userId;
+            document.getElementById('rechargeUsername').textContent = username;
+            document.getElementById('rechargeAmount').value = '10.00';
+            document.getElementById('rechargeDescription').value = '管理员手动充值';
+            
+            const modal = new bootstrap.Modal(document.getElementById('rechargeModal'));
+            modal.show();
+        }
+        
+        // 确认充值
+        async function confirmRecharge() {
+            const amount = parseFloat(document.getElementById('rechargeAmount').value);
+            const description = document.getElementById('rechargeDescription').value;
+            
+            if (isNaN(amount) || amount <= 0) {
+                alert('请输入有效的充值金额');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/api/users/${currentRechargeUserId}/recharge`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: amount,
+                        description: description
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('充值成功！');
+                    bootstrap.Modal.getInstance(document.getElementById('rechargeModal')).hide();
+                    location.reload();
+                } else {
+                    alert('充值失败：' + result.message);
+                }
+            } catch (error) {
+                alert('充值失败，请重试');
+            }
+        }
+        
+        // 显示添加用户模态框
+        function showAddUserModal() {
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newBalance').value = '0.00';
+            
+            const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+            modal.show();
+        }
+        
+        // 添加新用户
+        async function addNewUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const balance = parseFloat(document.getElementById('newBalance').value);
+            
+            if (!username && !email) {
+                alert('请至少输入用户名或邮箱');
+                return;
+            }
+            
+            if (!password) {
+                alert('请输入密码');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/api/users/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                        balance: balance
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('用户添加成功！');
+                    bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                    location.reload();
+                } else {
+                    alert('添加失败：' + result.message);
+                }
+            } catch (error) {
+                alert('添加失败，请重试');
+            }
+        }
+    </script>
+</body>
+</html>

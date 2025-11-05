@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据统计 - SQL转ER图工具</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/Chart.js/3.9.1/chart.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: #343a40;
+            width: 250px;
+        }
+        
+        .sidebar-sticky {
+            position: sticky;
+            top: 48px;
+            height: calc(100vh - 48px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        .sidebar .nav-link {
+            font-weight: 500;
+            color: #adb5bd;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #007bff;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* 主内容区域 */
+        .main {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        /* 顶部导航栏 */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* 统计卡片 */
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            margin-bottom: 20px;
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        
+        .chart-container-small {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        /* 过滤器样式 */
+        .filter-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            margin-bottom: 20px;
+        }
+        
+        .filter-card .form-control,
+        .filter-card .form-select {
+            border-radius: 8px;
+        }
+        
+        /* 数据表格 */
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+        }
+        
+        .data-table h5 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        /* 数字卡片 */
+        .number-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .number-card h3 {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+        
+        .number-card p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        /* 响应式表格 */
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table thead {
+            background-color: #f8f9fa;
+        }
+        
+        /* 导出按钮 */
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        /* 时间范围选择器 */
+        .time-range-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .time-range-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .time-range-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <div class="sidebar-sticky">
+            <div class="text-center text-white mb-4">
+                <i class="fas fa-user-shield fa-3x mb-2"></i>
+                <h5>管理员后台</h5>
+                <small>{{ admin_info.username }}</small>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        仪表盘
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.users') }}">
+                        <i class="fas fa-users"></i>
+                        用户管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('admin.statistics') }}">
+                        <i class="fas fa-chart-line"></i>
+                        数据统计
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.settings') }}">
+                        <i class="fas fa-cog"></i>
+                        系统设置
+                    </a>
+                </li>
+            </ul>
+            
+            <hr class="text-white">
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('homepage') }}">
+                        <i class="fas fa-home"></i>
+                        返回首页
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.logout') }}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        退出登录
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 主内容区域 -->
+    <main class="main">
+        <!-- 顶部导航 -->
+        <nav class="navbar">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h4 class="mb-0">数据统计</h4>
+                <button class="export-btn" onclick="exportReport()">
+                    <i class="fas fa-download me-2"></i>导出报表
+                </button>
+            </div>
+        </nav>
+        
+        <!-- 时间过滤器 -->
+        <div class="filter-card">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="time-range-selector">
+                        <button class="time-range-btn active" data-range="7days">最近7天</button>
+                        <button class="time-range-btn" data-range="30days">最近30天</button>
+                        <button class="time-range-btn" data-range="90days">最近90天</button>
+                        <button class="time-range-btn" data-range="custom">自定义</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row g-2 d-none" id="customDateRange">
+                        <div class="col">
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col">
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary" onclick="applyDateRange()">应用</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 关键指标概览 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="number-card">
+                    <h3 id="totalRevenue">¥0</h3>
+                    <p>总收入</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="number-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3 id="avgRevenuePerUser">¥0</h3>
+                    <p>人均收入</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="number-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3 id="conversionRate">0%</h3>
+                    <p>付费转化率</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="number-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                    <h3 id="activeRate">0%</h3>
+                    <p>用户活跃率</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 收入趋势图 -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="stat-card">
+                    <h5>收入趋势分析</h5>
+                    <div class="chart-container">
+                        <canvas id="revenueTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h5>收入来源分布</h5>
+                    <div class="chart-container-small">
+                        <canvas id="revenueSourceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 用户增长分析 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <h5>用户增长趋势</h5>
+                    <div class="chart-container-small">
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <h5>服务使用频次</h5>
+                    <div class="chart-container-small">
+                        <canvas id="serviceUsageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 详细数据表格 -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="data-table">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>服务收入明细</h5>
+                        <select class="form-select w-auto" id="serviceFilter">
+                            <option value="">全部服务</option>
+                            <option value="sql_to_er">SQL转ER图</option>
+                            <option value="defense_questions">答辩问题</option>
+                            <option value="paper_generation">论文生成</option>
+                            <option value="ai_translation">AI翻译</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>服务类型</th>
+                                    <th>使用次数</th>
+                                    <th>总收入</th>
+                                    <th>平均单价</th>
+                                    <th>占比</th>
+                                    <th>趋势</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serviceRevenueTable">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 用户行为分析 -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="data-table">
+                    <h5>用户留存分析</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>新增用户</th>
+                                    <th>次日留存</th>
+                                    <th>7日留存</th>
+                                    <th>30日留存</th>
+                                </tr>
+                            </thead>
+                            <tbody id="retentionTable">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="data-table">
+                    <h5>热门时段分析</h5>
+                    <div class="chart-container-small">
+                        <canvas id="hourlyActivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // 当前选择的时间范围
+        let currentTimeRange = '7days';
+        let charts = {};
+        
+        // 时间范围选择器
+        document.querySelectorAll('.time-range-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-range-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentTimeRange = this.dataset.range;
+                
+                if (currentTimeRange === 'custom') {
+                    document.getElementById('customDateRange').classList.remove('d-none');
+                } else {
+                    document.getElementById('customDateRange').classList.add('d-none');
+                    loadStatisticsData();
+                }
+            });
+        });
+        
+        // 加载统计数据
+        async function loadStatisticsData() {
+            try {
+                const response = await fetch(`/admin/api/statistics?range=${currentTimeRange}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateDashboard(data.data);
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+        
+        // 更新仪表盘数据
+        function updateDashboard(data) {
+            // 更新关键指标
+            document.getElementById('totalRevenue').textContent = `¥${(data.totalRevenue || 0).toFixed(2)}`;
+            document.getElementById('avgRevenuePerUser').textContent = `¥${(data.avgRevenuePerUser || 0).toFixed(2)}`;
+            document.getElementById('conversionRate').textContent = `${(data.conversionRate || 0).toFixed(1)}%`;
+            document.getElementById('activeRate').textContent = `${(data.activeRate || 0).toFixed(1)}%`;
+            
+            // 更新图表
+            updateRevenueTrendChart(data.revenueTrend || {labels: [], revenue: [], orders: []});
+            updateRevenueSourceChart(data.revenueSource || {labels: [], values: []});
+            updateUserGrowthChart(data.userGrowth || {labels: [], newUsers: [], activeUsers: []});
+            updateServiceUsageChart(data.serviceUsage || {labels: [], values: []});
+            updateHourlyActivityChart(data.hourlyActivity || {labels: [], values: []});
+            
+            // 更新表格
+            updateServiceRevenueTable(data.serviceRevenue || []);
+            updateRetentionTable(data.retention || []);
+        }
+        
+        // 收入趋势图
+        function updateRevenueTrendChart(data) {
+            const ctx = document.getElementById('revenueTrendChart').getContext('2d');
+            
+            if (charts.revenueTrend) {
+                charts.revenueTrend.destroy();
+            }
+            
+            charts.revenueTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: '收入',
+                        data: data.revenue,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '订单数',
+                        data: data.orders,
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + value;
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 收入来源分布图
+        function updateRevenueSourceChart(data) {
+            const ctx = document.getElementById('revenueSourceChart').getContext('2d');
+            
+            if (charts.revenueSource) {
+                charts.revenueSource.destroy();
+            }
+            
+            charts.revenueSource = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#f5576c',
+                            '#feca57',
+                            '#48dbfb'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 用户增长图
+        function updateUserGrowthChart(data) {
+            const ctx = document.getElementById('userGrowthChart').getContext('2d');
+            
+            if (charts.userGrowth) {
+                charts.userGrowth.destroy();
+            }
+            
+            charts.userGrowth = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: '新增用户',
+                        data: data.newUsers,
+                        backgroundColor: '#30cfd0'
+                    }, {
+                        label: '活跃用户',
+                        data: data.activeUsers,
+                        backgroundColor: '#330867'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: false
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 服务使用频次图
+        function updateServiceUsageChart(data) {
+            const ctx = document.getElementById('serviceUsageChart').getContext('2d');
+            
+            if (charts.serviceUsage) {
+                charts.serviceUsage.destroy();
+            }
+            
+            charts.serviceUsage = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: '使用次数',
+                        data: data.values,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 每小时活动图
+        function updateHourlyActivityChart(data) {
+            const ctx = document.getElementById('hourlyActivityChart').getContext('2d');
+            
+            if (charts.hourlyActivity) {
+                charts.hourlyActivity.destroy();
+            }
+            
+            charts.hourlyActivity = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: '活跃度',
+                        data: data.values,
+                        backgroundColor: '#feca57'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新服务收入表格
+        function updateServiceRevenueTable(data) {
+            const tbody = document.getElementById('serviceRevenueTable');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                const trend = item.trend > 0 ? `<span class="text-success">↑${item.trend}%</span>` : 
+                             item.trend < 0 ? `<span class="text-danger">↓${Math.abs(item.trend)}%</span>` : 
+                             '<span class="text-muted">-</span>';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.service}</td>
+                        <td>${item.count}</td>
+                        <td>¥${item.revenue.toFixed(2)}</td>
+                        <td>¥${item.avgPrice.toFixed(2)}</td>
+                        <td>${item.percentage.toFixed(1)}%</td>
+                        <td>${trend}</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // 更新留存表格
+        function updateRetentionTable(data) {
+            const tbody = document.getElementById('retentionTable');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.date}</td>
+                        <td>${item.newUsers}</td>
+                        <td>${item.day1}%</td>
+                        <td>${item.day7}%</td>
+                        <td>${item.day30}%</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // 应用自定义日期范围
+        function applyDateRange() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (startDate && endDate) {
+                loadStatisticsData();
+            }
+        }
+        
+        // 导出报表
+        function exportReport() {
+            const params = new URLSearchParams({
+                range: currentTimeRange,
+                format: 'excel'
+            });
+            
+            window.location.href = `/admin/api/export-report?${params}`;
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认日期
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+            
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+            
+            // 加载初始数据
+            loadStatisticsData();
+            
+            // 定时刷新（每5分钟）
+            setInterval(loadStatisticsData, 300000);
+        });
+        
+        // 服务过滤器
+        document.getElementById('serviceFilter').addEventListener('change', function() {
+            loadStatisticsData();
+        });
+    </script>
+</body>
+</html>

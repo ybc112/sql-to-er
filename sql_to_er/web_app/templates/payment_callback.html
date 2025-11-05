@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付失败 - 学术工具集</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff7b7b 0%, #d63031 100%);
+        }
+        .error-card {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .error-icon {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+        .error-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: #6c757d;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .btn-retry {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        .btn-home {
+            background: #6c757d;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-home:hover {
+            background: #5a6268;
+            color: white;
+        }
+        .help-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <i class="bi bi-x-circle-fill error-icon"></i>
+            <h2 class="error-title">支付失败</h2>
+            <p class="error-message">
+                很抱歉，您的支付未能成功完成。<br>
+                可能的原因：支付被取消、网络异常或其他支付问题。
+            </p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="/profile" class="btn-retry">
+                    <i class="bi bi-arrow-clockwise me-2"></i>重新充值
+                </a>
+                <a href="/" class="btn-home">
+                    <i class="bi bi-house-fill me-2"></i>返回首页
+                </a>
+            </div>
+            
+            <div class="help-text">
+                <strong>遇到问题？</strong><br>
+                如果您在支付过程中遇到问题，请：<br>
+                1. 检查网络连接是否正常<br>
+                2. 确认银行卡或支付账户余额充足<br>
+                3. 重新尝试支付<br>
+                4. 如问题持续存在，请联系客服
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 记录支付失败事件（可用于分析）
+        console.log('Payment failed or cancelled:', new Date().toISOString());
+    </script>
+</body>
+</html>

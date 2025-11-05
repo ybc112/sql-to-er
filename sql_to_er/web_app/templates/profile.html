@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f8fafc;
+            color: #1a202c;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-home {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .back-home:hover {
+            color: #334155;
+            background: #f1f5f9;
+            text-decoration: none;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .profile-section {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            padding: 48px 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            position: relative;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.4;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-details h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            letter-spacing: -0.025em;
+        }
+
+        .user-balance {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .balance-amount {
+            font-size: 42px;
+            font-weight: 800;
+            color: #fbbf24;
+            margin-left: 12px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+            letter-spacing: -0.025em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: #fff;
+        }
+
+        .stat-item {
+            padding: 40px 32px;
+            text-align: center;
+            border-right: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-item:hover {
+            background: #f8fafc;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: -0.025em;
+        }
+
+        .section {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            letter-spacing: -0.025em;
+        }
+
+        .section-content {
+            padding: 40px 32px;
+        }
+
+        .recharge-form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-weight: 700;
+            display: block;
+            letter-spacing: -0.025em;
+            text-align: center;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 18px 24px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: #fff;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .payment-methods {
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        .payment-methods-label {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: block;
+            letter-spacing: -0.025em;
+            text-align: center;
+        }
+
+        .payment-methods {
+            margin-top: 16px;
+        }
+
+        .payment-option {
+            margin-bottom: 12px;
+        }
+
+        .payment-option input[type="radio"] {
+            display: none;
+        }
+
+        .payment-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 24px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-label:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-option input[type="radio"]:checked + .payment-label {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .payment-label i {
+            font-size: 24px;
+            margin-right: 16px;
+            color: #3b82f6;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-radius: 8px;
+        }
+
+        .payment-label span {
+            font-size: 16px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 18px 48px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 40px;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.4);
+            letter-spacing: -0.025em;
+            text-transform: uppercase;
+            min-width: 240px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 20px 24px;
+            font-size: 16px;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+
+        .tab-btn:hover {
+            color: #3b82f6;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 -4px 6px rgba(59, 130, 246, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 32px 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
+        }
+
+        .records-table th,
+        .records-table td {
+            padding: 20px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            word-wrap: break-word;
+        }
+
+        .records-table th:nth-child(1),
+        .records-table td:nth-child(1) {
+            width: 18%;
+        }
+
+        .records-table th:nth-child(2),
+        .records-table td:nth-child(2) {
+            width: 20%;
+        }
+
+        .records-table th:nth-child(3),
+        .records-table td:nth-child(3) {
+            width: 15%;
+            text-align: center;
+        }
+
+        .records-table th:nth-child(4),
+        .records-table td:nth-child(4) {
+            width: 47%;
+        }
+
+        .records-table th {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 14px;
+            letter-spacing: -0.025em;
+            white-space: nowrap;
+        }
+
+        .records-table td {
+            font-size: 14px;
+            color: #475569;
+            font-weight: 500;
+            background: #fff;
+            vertical-align: top;
+        }
+
+        .records-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .amount-positive {
+            color: #059669;
+            font-weight: 700;
+            font-size: 15px;
+            white-space: nowrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        .amount-negative {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 15px;
+            white-space: nowrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        .invite-content {
+            max-width: 100%;
+        }
+
+        .invite-code-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            padding: 32px;
+            margin-bottom: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.1);
+        }
+
+        .invite-code-section h4 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: -0.025em;
+        }
+
+        .invite-code {
+            font-size: 36px;
+            font-weight: 800;
+            color: #0ea5e9;
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 24px;
+            text-align: center;
+            padding: 24px;
+            background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
+            border: 3px solid #0ea5e9;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
+            text-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+            text-transform: uppercase;
+            letter-spacing: -0.025em;
+        }
+
+        .btn-copy:hover {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.5);
+        }
+
+        .invite-rules {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #22c55e;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.1);
+        }
+
+        .invite-rules h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #166534;
+            margin-bottom: 20px;
+            letter-spacing: -0.025em;
+        }
+
+        .invite-rules ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .invite-rules li {
+            padding: 12px 0;
+            color: #166534;
+            font-weight: 500;
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .invite-rules li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            color: #22c55e;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* 添加一些动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .profile-header {
+                padding: 24px 20px;
+            }
+
+            .user-details h2 {
+                font-size: 24px;
+            }
+
+            .balance-amount {
+                font-size: 28px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-item {
+                padding: 24px 20px;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .stat-item:last-child {
+                border-bottom: none;
+            }
+
+            .records-table th,
+            .records-table td {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+
+            .records-table th:nth-child(1),
+            .records-table td:nth-child(1) {
+                width: 20%;
+            }
+
+            .records-table th:nth-child(2),
+            .records-table td:nth-child(2) {
+                width: 18%;
+            }
+
+            .records-table th:nth-child(3),
+            .records-table td:nth-child(3) {
+                width: 18%;
+            }
+
+            .records-table th:nth-child(4),
+            .records-table td:nth-child(4) {
+                width: 44%;
+            }
+
+            .amount-positive,
+            .amount-negative {
+                font-size: 13px;
+            }
+
+            .tab-content {
+                padding: 20px 16px;
+            }
+
+            .recharge-form-container {
+                max-width: 100%;
+                padding: 0 16px;
+            }
+
+            .form-control {
+                font-size: 16px;
+                padding: 16px 20px;
+            }
+
+            .btn-primary {
+                font-size: 16px;
+                padding: 16px 32px;
+                min-width: 200px;
+            }
+
+            .payment-label {
+                padding: 16px 20px;
+            }
+        }
+
+        /* 空状态样式 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* 警告消息样式 */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #22c55e;
+            color: #166534;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 2px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .invite-rules h4 {
+            color: #333;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .invite-rules ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .invite-rules li {
+            padding: 8px 0;
+            color: #666;
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .invite-rules li:before {
+            content: "•";
+            color: #52c41a;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #f6ffed;
+            color: #52c41a;
+            border-color: #b7eb8f;
+        }
+
+        .alert-danger {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border-color: #ffccc7;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .form-control,
+            .payment-label {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面头部 -->
+    <div class="header">
+        <div class="header-content">
+            <a href="/" class="back-home">
+                <i class="fas fa-arrow-left"></i> 返回首页
+            </a>
+            <h1 class="page-title">个人中心</h1>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 个人信息区域 -->
+        <div class="profile-section">
+            <div class="profile-header">
+                <div class="profile-info">
+                    <div class="user-details">
+                        <h2>{{ user_info.username }}</h2>
+                        <div class="user-balance">
+                            账户余额<span class="balance-amount">¥{{ "%.2f"|format(user_info.balance) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">累计充值</div>
+                    <div class="stat-value">¥{{ "%.2f"|format(user_info.total_recharge) }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">累计消费</div>
+                    <div class="stat-value">¥{{ "%.2f"|format(user_info.total_consumption) }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">邀请人数</div>
+                    <div class="stat-value">{{ user_info.invite_count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 充值功能 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">账户充值</h2>
+            </div>
+            <div class="section-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="recharge-form-container">
+                    <form method="POST" action="/api/recharge">
+                        <div class="form-group">
+                            <label class="form-label" for="amount">充值金额</label>
+                            <input type="number"
+                                   class="form-control"
+                                   id="amount"
+                                   name="amount"
+                                   min="0.01"
+                                   step="0.01"
+                                   placeholder="请输入充值金额"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="payment-methods-label">支付方式</div>
+                            <div class="payment-methods">
+                                <div class="payment-option">
+                                    <input type="radio" id="alipay" name="payment_method" value="alipay" checked>
+                                    <label for="alipay" class="payment-label">
+                                        <i class="fa-brands fa-alipay"></i>
+                                        <span>支付宝支付</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">立即充值</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 交易记录 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">交易记录</h2>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('recharge')">
+                    充值记录
+                </button>
+                <button class="tab-btn" onclick="showTab('consumption')">
+                    消费记录
+                </button>
+            </div>
+
+            <div id="recharge-tab" class="tab-content active">
+                {% if recharge_records and recharge_records|length > 0 %}
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>交易时间</th>
+                                <th>交易类型</th>
+                                <th>交易金额</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in recharge_records %}
+                            <tr>
+                                <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>支付宝充值</td>
+                                <td class="amount-positive">+¥{{ "%.2f"|format(record.amount) }}</td>
+                                <td>{{ record.description or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>暂无充值记录</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div id="consumption-tab" class="tab-content">
+                {% if records and records|length > 0 %}
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>交易时间</th>
+                                <th>服务类型</th>
+                                <th>交易金额</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>{{ record.service_type }}</td>
+                                <td class="amount-negative">-¥{{ "%.2f"|format(record.amount) }}</td>
+                                <td>{{ record.description or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>暂无消费记录</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 邀请功能 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">邀请好友</h2>
+            </div>
+            <div class="section-content">
+                <div class="invite-content">
+                    <div class="invite-code-section">
+                        <h4>我的邀请码</h4>
+                        <div class="invite-code">{{ user_info.invite_code }}</div>
+                        <button class="btn-copy" onclick="copyInviteCode()">复制邀请码</button>
+                    </div>
+
+                    <div class="invite-rules">
+                        <h4>邀请奖励规则</h4>
+                        <ul>
+                            <li>成功邀请一位新用户注册，您将获得 <strong>5元</strong> 奖励</li>
+                            <li>被邀请用户首次充值，您将获得其充值金额 <strong>10%</strong> 的奖励</li>
+                            <li>奖励将自动发放到您的账户余额中</li>
+                            <li>邀请码长期有效，可重复使用</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加页面加载完成的类
+            document.body.classList.add('loaded');
+
+            // 为数字添加计数动画
+            animateNumbers();
+        });
+
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.stat-value, .balance-amount');
+            numbers.forEach(number => {
+                const finalValue = parseFloat(number.textContent.replace(/[^\d.-]/g, ''));
+                if (!isNaN(finalValue)) {
+                    animateValue(number, 0, finalValue, 1000);
+                }
+            });
+        }
+
+        function animateValue(element, start, end, duration) {
+            const startTime = performance.now();
+            const isBalance = element.classList.contains('balance-amount');
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                const current = start + (end - start) * easeOutQuart(progress);
+
+                if (isBalance) {
+                    element.textContent = '¥' + current.toFixed(2);
+                } else {
+                    element.textContent = Math.round(current);
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function easeOutQuart(t) {
+            return 1 - Math.pow(1 - t, 4);
+        }
+
+        function copyInviteCode() {
+            const inviteCode = '{{ user_info.invite_code }}';
+            const button = event.target;
+
+            navigator.clipboard.writeText(inviteCode).then(function() {
+                // 更改按钮文本和样式
+                const originalText = button.textContent;
+                button.textContent = '已复制!';
+                button.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+
+                // 2秒后恢复原状
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            }, function(err) {
+                console.error('复制失败: ', err);
+                // 备用方案
+                const textArea = document.createElement('textarea');
+                textArea.value = inviteCode;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                // 显示成功反馈
+                const originalText = button.textContent;
+                button.textContent = '已复制!';
+                button.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+
+        function showTab(tabName) {
+            // 移除所有激活状态
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // 激活选中的标签和内容
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // 添加表单验证
+        function validateRechargeForm() {
+            const amount = document.querySelector('input[name="amount"]');
+            if (!amount) return true;
+
+            const value = parseFloat(amount.value);
+
+            if (isNaN(value) || value <= 0) {
+                alert('请输入有效的充值金额');
+                amount.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        // 为充值表单添加提交处理
+        document.addEventListener('DOMContentLoaded', function() {
+            const rechargeForm = document.querySelector('form[action="/api/recharge"]');
+            if (rechargeForm) {
+                rechargeForm.addEventListener('submit', function(e) {
+                    if (!validateRechargeForm()) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    const button = this.querySelector('.btn-primary');
+                    if (button) {
+                        const originalText = button.textContent;
+                        button.textContent = '处理中...';
+                        button.disabled = true;
+                        button.style.opacity = '0.7';
+
+                        // 如果提交失败，恢复按钮状态
+                        setTimeout(() => {
+                            button.textContent = originalText;
+                            button.disabled = false;
+                            button.style.opacity = '1';
+                        }, 5000);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

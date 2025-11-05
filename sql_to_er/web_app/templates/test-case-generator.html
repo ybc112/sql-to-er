@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO优化 -->
+    <title>AI测试用例生成器 - 智能软件测试工具 | 自动生成测试用例</title>
+    <meta name="description" content="专业的AI测试用例生成器，基于系统需求自动生成标准化测试用例，支持功能测试、性能测试等多种测试类型，导出Word三线表格式，提升软件测试效率。">
+    <meta name="keywords" content="AI测试用例生成器,测试用例自动生成,软件测试工具,测试用例设计,功能测试,性能测试,测试文档,软件质量">
+    <meta name="author" content="智能文档处理平台">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="AI测试用例生成器 - 智能软件测试工具">
+    <meta property="og:description" content="基于AI技术自动生成标准化测试用例，提升软件测试效率">
+    <meta property="og:type" content="website">
+    
+    <!-- 引入CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: #f8fafb;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e8ecf0;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e293b !important;
+            text-decoration: none;
+        }
+
+        .navbar-brand:hover {
+            color: #10b981 !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #10b981 !important;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* 头部区域 */
+        .header-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #e8ecf0;
+            text-align: center;
+        }
+
+        .header-section h1 {
+            color: #1a365d;
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-section .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+        /* 输入区域 */
+        .input-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #e8ecf0;
+        }
+
+        .input-section h3 {
+            color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* 按钮样式 */
+        .btn-generate {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-generate:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .btn-generate:disabled {
+            background: #9ca3af;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 结果区域 */
+        .result-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #e8ecf0;
+            display: none;
+        }
+
+        .result-section h3 {
+            color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 表格样式 */
+        .test-case-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .test-case-table th,
+        .test-case-table td {
+            border: 1px solid #d1d5db;
+            padding: 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .test-case-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .test-case-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .test-case-table .case-id {
+            font-weight: 600;
+            color: #1e293b;
+            min-width: 80px;
+        }
+
+        .test-case-table .status-pass {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .test-case-table .status-fail {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .test-case-table .status-blocked {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .test-case-table .status-not {
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .test-case-table .pending-result {
+            color: #9ca3af;
+            font-style: italic;
+            background-color: #f9fafb;
+        }
+
+        /* 加载动画 */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner-border {
+            color: #10b981;
+        }
+
+        /* 导出按钮 */
+        .export-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-export {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-export:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0 0.5rem;
+            }
+            
+            .input-section,
+            .result-section {
+                padding: 1.5rem;
+            }
+            
+            .test-case-table {
+                font-size: 0.8rem;
+            }
+            
+            .test-case-table th,
+            .test-case-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* 提示信息 */
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot"></i> AI测试用例生成器
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sql-to-er">
+                            <i class="fas fa-project-diagram"></i> SQL转ER图
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/paper-structure">
+                            <i class="fas fa-sitemap"></i> 论文结构图
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- 头部区域 -->
+        <div class="header-section">
+            <h1><i class="fas fa-robot text-success"></i> AI测试用例生成器</h1>
+            <p class="subtitle">基于人工智能技术，智能分析系统需求，自动生成标准化测试用例</p>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-section">
+            <h3><i class="fas fa-edit"></i> 系统描述输入</h3>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>使用提示：</strong> 请详细描述您的系统功能、模块、用户角色等信息，AI将根据描述生成相应的测试用例。描述越详细，生成的测试用例越准确。
+            </div>
+
+            <form id="generateForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="systemName" class="form-label">系统名称</label>
+                        <input type="text" class="form-control" id="systemName" placeholder="例如：在线购物系统" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="testType" class="form-label">测试类型</label>
+                        <select class="form-control" id="testType" required>
+                            <option value="">请选择测试类型</option>
+                            <option value="功能测试">功能测试</option>
+                            <option value="接口测试">接口测试</option>
+                            <option value="性能测试">性能测试</option>
+                            <option value="安全测试">安全测试</option>
+                            <option value="兼容性测试">兼容性测试</option>
+                            <option value="综合测试">综合测试</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="systemDescription" class="form-label">系统功能描述</label>
+                    <textarea class="form-control" id="systemDescription" rows="6" 
+                              placeholder="请详细描述系统的主要功能模块、用户角色、业务流程等。例如：&#10;&#10;系统包含以下主要模块：&#10;1. 用户管理：用户注册、登录、个人信息管理&#10;2. 商品管理：商品浏览、搜索、分类筛选&#10;3. 购物车：添加商品、修改数量、删除商品&#10;4. 订单管理：下单、支付、订单查询、取消订单&#10;5. 支付系统：支持多种支付方式（微信、支付宝、银行卡）&#10;&#10;用户角色：普通用户、管理员&#10;技术架构：前后端分离，RESTful API接口" 
+                              required></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-generate">
+                        <i class="fas fa-magic"></i> 生成测试用例
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 加载动画 -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">生成中...</span>
+            </div>
+            <p class="mt-2">AI正在分析系统需求，生成测试用例中...</p>
+        </div>
+
+        <!-- 结果区域 -->
+        <div class="result-section" id="resultSection">
+            <h3><i class="fas fa-table"></i> 生成的测试用例</h3>
+            
+            <div class="export-buttons">
+                <button class="btn btn-export" onclick="exportToWord()">
+                    <i class="fas fa-file-word"></i> 导出Word
+                </button>
+                <button class="btn btn-export" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> 导出Excel
+                </button>
+                <button class="btn btn-export" onclick="copyToClipboard()">
+                    <i class="fas fa-copy"></i> 复制表格
+                </button>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="test-case-table" id="testCaseTable">
+                    <thead>
+                        <tr>
+                            <th>用例编号</th>
+                            <th>测试模块</th>
+                            <th>测试功能点</th>
+                            <th>前置条件</th>
+                            <th>测试步骤</th>
+                            <th>预期结果</th>
+                            <th>实际结果</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody id="testCaseTableBody">
+                        <!-- 动态生成的测试用例将在这里显示 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 全局变量存储生成的测试用例数据
+        let generatedTestCases = [];
+
+        // 表单提交处理
+        document.getElementById('generateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const systemName = document.getElementById('systemName').value;
+            const testType = document.getElementById('testType').value;
+            const systemDescription = document.getElementById('systemDescription').value;
+            
+            if (!systemName || !testType || !systemDescription) {
+                alert('请填写完整的系统信息');
+                return;
+            }
+            
+            // 显示加载动画
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/generate-test-cases', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        systemName: systemName,
+                        testType: testType,
+                        systemDescription: systemDescription
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    generatedTestCases = result.testCases;
+                    displayTestCases(result.testCases);
+                    showSuccess('测试用例生成成功！');
+                } else {
+                    showError(result.error || '生成失败，请重试');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('网络错误，请检查连接后重试');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // 显示加载动画
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+            document.querySelector('.btn-generate').disabled = true;
+        }
+
+        // 隐藏加载动画
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.querySelector('.btn-generate').disabled = false;
+        }
+
+        // 显示测试用例
+        function displayTestCases(testCases) {
+            const tbody = document.getElementById('testCaseTableBody');
+            tbody.innerHTML = '';
+            
+            testCases.forEach(testCase => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="case-id">${testCase.caseId}</td>
+                    <td>${testCase.module}</td>
+                    <td>${testCase.function}</td>
+                    <td>${testCase.precondition}</td>
+                    <td>${testCase.steps}</td>
+                    <td>${testCase.expectedResult}</td>
+                    <td>${testCase.actualResult || ''}</td>
+                    <td>${testCase.remark || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('resultSection').style.display = 'block';
+        }
+
+        // 显示成功消息
+        function showSuccess(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            document.querySelector('.input-section').insertBefore(alert, document.querySelector('.input-section').firstChild);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // 显示错误消息
+        function showError(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger';
+            alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            document.querySelector('.input-section').insertBefore(alert, document.querySelector('.input-section').firstChild);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // 导出到Word
+        async function exportToWord() {
+            if (generatedTestCases.length === 0) {
+                alert('请先生成测试用例');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/export-test-cases-word', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        testCases: generatedTestCases,
+                        systemName: document.getElementById('systemName').value,
+                        testType: document.getElementById('testType').value
+                    })
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `测试用例_${document.getElementById('systemName').value}_${new Date().toISOString().split('T')[0]}.docx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('导出失败，请重试');
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('导出失败，请重试');
+            }
+        }
+
+        // 导出到Excel
+        function exportToExcel() {
+            if (generatedTestCases.length === 0) {
+                alert('请先生成测试用例');
+                return;
+            }
+            
+            // 这里可以实现Excel导出功能
+            alert('Excel导出功能开发中...');
+        }
+
+        // 复制表格到剪贴板
+        function copyToClipboard() {
+            if (generatedTestCases.length === 0) {
+                alert('请先生成测试用例');
+                return;
+            }
+            
+            const table = document.getElementById('testCaseTable');
+            const range = document.createRange();
+            range.selectNode(table);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            try {
+                document.execCommand('copy');
+                alert('表格已复制到剪贴板');
+            } catch (err) {
+                alert('复制失败，请手动选择表格内容复制');
+            }
+            
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>

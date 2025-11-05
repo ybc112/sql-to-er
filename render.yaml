@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: sql-to-er-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: mysql
+          property: host
+      - key: DB_USER
+        fromDatabase:
+          name: mysql
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: mysql
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: mysql
+          property: database
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: mysql
+    databaseName: user_system
+    user: root
+    plan: free
+

@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(chmod:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(pip install:*)",
+      "Bash(apt-get:*)",
+      "Bash(apt-get install:*)",
+      "Bash(python:*)",
+      "Bash(/root/sql4/sql_to_er/restart_web.sh:*)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(/root/sql4/sql_to_er/restart_debug.sh:*)",
+      "Bash(grep:*)",
+      "Bash(pip3 list:*)",
+      "Bash(pip3 install:*)",
+      "Bash(true)",
+      "Bash(rm:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(hostname:*)",
+      "Bash(kill:*)",
+      "Bash(/root/sql4/sql_to_er/start_app.sh:*)",
+      "Bash(bash:*)",
+      "Bash(sed:*)",
+      "Bash(sudo service:*)",
+      "Bash(sudo systemctl start:*)",
+      "Bash(mysql:*)",
+      "WebSearch"
+    ],
+    "deny": []
+  }
+}

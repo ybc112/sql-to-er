@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Flask应用
+  web:
+    build: .
+    container_name: sql_to_er_app
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+      - ./sql_to_er/web_app/output:/app/sql_to_er/web_app/output
+    environment:
+      - FLASK_ENV=production
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_NAME=user_system
+    depends_on:
+      - mysql
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: sql_to_er_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: user_system
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./user_system.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: sql_to_er_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: sql_to_er_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl  # SSL证书目录
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
