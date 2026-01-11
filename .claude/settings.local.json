@@ -29,7 +29,18 @@
       "Bash(sudo service:*)",
       "Bash(sudo systemctl start:*)",
       "Bash(mysql:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(python3:*)",
+      "Bash(git checkout:*)",
+      "Bash(git restore:*)",
+      "Bash(/mnt/e/dapp开发路线/sql/sql_to_er/restart_web.sh)",
+      "WebFetch(domain:blog.csdn.net)",
+      "WebFetch(domain:gptzero.me)",
+      "Bash(cat:*)",
+      "WebFetch(domain:www.pangram.com)",
+      "WebFetch(domain:www.geeksforgeeks.org)",
+      "WebFetch(domain:whimsical.com)",
+      "WebFetch(domain:mermaid.nodejs.cn)"
     ],
     "deny": []
   }

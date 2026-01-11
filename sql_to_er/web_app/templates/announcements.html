@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统公告 - SQL转ER图工具</title>
-    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>系统公告 - 智能文档处理平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -14,19 +13,18 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', 'Helvetica', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: #f8fafb;
             min-height: 100vh;
             color: #2c3e50;
             line-height: 1.6;
         }
 
-        /* 导航栏样式 */
+        /* ========== 导航栏 - 和首页完全一致 ========== */
         .navbar {
             background: white;
             border-bottom: 1px solid #e8ecf0;
             padding: 1rem 0;
-            margin-bottom: 2rem;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -48,13 +46,6 @@
             color: #1e293b;
             text-decoration: none;
             flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .logo i {
-            color: #667eea;
         }
 
         .logo:hover {
@@ -74,25 +65,43 @@
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 500;
-            transition: all 0.2s ease;
+            transition: color 0.2s ease;
             white-space: nowrap;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
         }
 
         .nav-link:hover {
             color: #3b82f6;
-            background: #f8fafc;
             text-decoration: none;
         }
 
-        .nav-link.active {
-            color: #3b82f6;
-            background: #f0f9ff;
-            font-weight: 600;
+        /* 公告按钮 - 和首页一致 */
+        .announcement-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #3b82f6;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 1rem;
+            border: 1px solid #3b82f6;
+            text-decoration: none;
         }
 
-        /* 用户信息样式 */
+        .announcement-btn:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .announcement-btn i {
+            font-size: 14px;
+        }
+
+        /* 用户信息样式 - 和首页完全一致 */
         .user-info {
             display: flex;
             align-items: center;
@@ -123,7 +132,7 @@
             border-radius: 6px;
             color: #475569;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease;
             cursor: pointer;
         }
 
@@ -144,6 +153,7 @@
             min-width: 160px;
             display: none;
             z-index: 1000;
+            margin-top: 4px;
         }
 
         .user-menu.show {
@@ -155,9 +165,8 @@
             padding: 0.75rem 1rem;
             color: #475569;
             text-decoration: none;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
             border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.3s ease;
         }
 
         .user-menu a:last-child {
@@ -167,51 +176,6 @@
         .user-menu a:hover {
             background: #f8fafc;
             color: #2563eb;
-            text-decoration: none;
-        }
-
-        /* 公告按钮样式 */
-        .announcement-btn {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: #f8fafc;
-            color: #64748b;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-right: 1rem;
-            border: 1px solid #e2e8f0;
-        }
-
-        .announcement-btn:hover {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .announcement-btn i {
-            font-size: 14px;
-        }
-
-        .announcement-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            font-size: 10px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid white;
         }
 
         .admin-link {
@@ -224,10 +188,6 @@
             color: #7c3aed !important;
         }
 
-        .admin-link i {
-            color: #7c3aed;
-        }
-
         .logout-btn {
             color: #dc2626 !important;
         }
@@ -237,699 +197,717 @@
             color: #dc2626 !important;
         }
 
-        /* 主容器 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem 2rem;
+        .login-btn {
+            padding: 0.5rem 1.25rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
-        /* 页面头部 */
+        .login-btn:hover {
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+        }
+
+        /* ========== 主内容区 ========== */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 2rem 60px;
+        }
+
+        /* 页面标题 */
         .page-header {
             text-align: center;
-            margin-bottom: 3rem;
-            padding: 4rem 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
-        }
-
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
+            margin-bottom: 32px;
         }
 
         .page-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            letter-spacing: -0.5px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .page-title i {
+            color: #3b82f6;
+            margin-right: 8px;
         }
 
         .page-subtitle {
-            font-size: 1.15rem;
-            opacity: 0.95;
-            font-weight: 400;
-            position: relative;
-            z-index: 1;
+            font-size: 0.95rem;
+            color: #64748b;
         }
 
         /* 统计卡片 */
-        .stats-grid {
+        .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2.5rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
-        .stat-card {
+        .stat-item {
             background: white;
-            border-radius: 16px;
-            padding: 2rem 1.75rem;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            border-color: #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e8ecf0;
         }
 
         .stat-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.25rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+            font-size: 16px;
         }
 
-        .stat-icon i {
-            font-size: 1.75rem;
-            color: white;
-        }
+        .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+        .stat-icon.orange { background: #fff7ed; color: #f97316; }
+        .stat-icon.green { background: #f0fdf4; color: #22c55e; }
+        .stat-icon.gray { background: #f8fafc; color: #64748b; }
 
-        .stat-content {
-            flex: 1;
-        }
-
-        .stat-value {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: #2d3748;
+        .stat-info h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
             line-height: 1;
-            margin-bottom: 0.5rem;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #718096;
-            font-weight: 500;
+        .stat-info span {
+            font-size: 0.8rem;
+            color: #94a3b8;
         }
 
-        /* 筛选栏 */
+        /* 筛选区 */
         .filter-bar {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            margin-bottom: 2rem;
-        }
-
-        .filter-group {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 12px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
-        .filter-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #4a5568;
-            margin-right: 0.75rem;
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
         }
 
-        .filter-buttons {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 0.6rem 1.5rem;
-            border: 2px solid #e2e8f0;
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
             background: white;
-            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             font-size: 0.9rem;
-            font-weight: 500;
-            color: #718096;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        .filter-btn:hover {
-            background: #f8fafc;
-            border-color: #3b82f6;
             color: #1e293b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        .filter-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 4px;
+            background: white;
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-tab {
+            padding: 6px 14px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover {
+            color: #1e293b;
+            background: #f8fafc;
+        }
+
+        .filter-tab.active {
+            background: #3b82f6;
             color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .sort-select {
+            padding: 10px 14px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
 
         /* 公告列表 */
-        .announcements-container {
-            display: grid;
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
+        .announcements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        /* 公告卡片 */
         .announcement-card {
             background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e8ecf0;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .announcement-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-        }
-
-        .announcement-card:hover::before {
-            transform: scaleX(1);
+            transition: all 0.2s;
         }
 
         .announcement-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12);
-            border-color: #e0e0e0;
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
         }
 
-        /* 置顶公告 */
         .announcement-card.sticky {
-            border-color: #fbbf24;
-            background: #fffbeb;
+            border-left: 3px solid #f97316;
+            background: #fffbf5;
         }
 
-        .announcement-card.sticky::before {
-            background: linear-gradient(90deg, #fbbf24, #f59e0b);
-            transform: scaleX(1);
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .card-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
         }
 
         .sticky-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            padding: 0.375rem 1rem;
-            border-radius: 0 15px 0 15px;
-            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: #fff7ed;
+            color: #ea580c;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .card-title {
+            font-size: 1rem;
             font-weight: 600;
+            color: #1e293b;
         }
 
-        .announcement-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            gap: 1rem;
+        .type-badge {
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
         }
 
-        .announcement-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #2d3748;
-            line-height: 1.5;
-            flex: 1;
-            margin-bottom: 0.5rem;
-        }
+        .type-info { background: #eff6ff; color: #2563eb; }
+        .type-warning { background: #fff7ed; color: #ea580c; }
+        .type-success { background: #f0fdf4; color: #16a34a; }
+        .type-error { background: #fef2f2; color: #dc2626; }
 
-        .announcement-type {
-            padding: 0.5rem 1.25rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-
-        .type-info {
-            background: #edf2f7;
-            color: #4a5568;
-        }
-
-        .type-warning {
-            background: #fed7aa;
-            color: #c2410c;
-        }
-
-        .type-success {
-            background: #bbf7d0;
-            color: #14532d;
-        }
-
-        .type-error {
-            background: #fecaca;
-            color: #991b1b;
-        }
-
-        .announcement-content {
-            color: #718096;
-            font-size: 0.95rem;
-            line-height: 1.7;
-            margin-bottom: 1.25rem;
+        .card-content {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 12px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        .announcement-meta {
+        .card-footer {
             display: flex;
             align-items: center;
-            gap: 2rem;
-            font-size: 0.9rem;
-            color: #a0aec0;
-            flex-wrap: wrap;
-            padding-top: 1rem;
-            border-top: 1px solid #f7fafc;
+            justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         .meta-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 4px;
+            font-size: 0.8rem;
+            color: #94a3b8;
         }
 
         .meta-item i {
-            color: #cbd5e0;
+            font-size: 12px;
         }
 
-        /* 评论数量 */
-        .comment-count {
-            background: #eff6ff;
-            color: #1e40af;
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
+        .read-more-btn {
+            color: #3b82f6;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e8ecf0;
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            background: #f8fafc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .empty-icon i {
+            font-size: 24px;
+            color: #94a3b8;
+        }
+
+        .empty-state h3 {
+            font-size: 1.1rem;
             font-weight: 600;
-            border: 1px solid #bfdbfe;
+            color: #1e293b;
+            margin-bottom: 4px;
         }
 
-        /* 模态框 */
-        .modal-content {
-            border: none;
-            border-radius: 24px;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+        .empty-state p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* 加载骨架 */
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            height: 120px;
+            margin-bottom: 12px;
+        }
+
+        /* ========== 模态框 ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
             overflow: hidden;
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 2rem;
-            border-radius: 24px 24px 0 0;
+            background: #3b82f6;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .modal-title {
-            font-weight: 700;
-            font-size: 1.5rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
         }
 
-        .btn-close {
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
         }
 
-        .btn-close:hover {
-            opacity: 1;
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .modal-body {
-            padding: 2.5rem;
-            max-height: 70vh;
+            padding: 24px;
+            max-height: calc(85vh - 80px);
             overflow-y: auto;
+        }
+
+        .detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .detail-content {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            margin-bottom: 24px;
         }
 
         /* 评论区 */
         .comments-section {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 2px solid #f1f5f9;
+            border-top: 1px solid #e8ecf0;
+            padding-top: 20px;
         }
 
-        .comments-header {
+        .section-title {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
         }
 
-        .comments-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .section-title i {
+            color: #3b82f6;
         }
 
-        .comments-count {
-            background: #eff6ff;
-            color: #1e40af;
-            padding: 0.35rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            border: 1px solid #bfdbfe;
+        .comment-count {
+            background: #3b82f6;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
         }
 
-        /* 评论输入 */
-        .comment-input-section {
-            background: #f7fafc;
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 2px solid #e2e8f0;
+        .comment-form {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
         }
 
         .comment-textarea {
             width: 100%;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1rem;
-            font-size: 0.95rem;
-            resize: vertical;
-            min-height: 120px;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            padding: 12px;
             background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #1e293b;
+            resize: none;
+            min-height: 70px;
+            font-family: inherit;
         }
 
         .comment-textarea:focus {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
-        .comment-submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .comment-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .submit-comment-btn {
+            padding: 8px 20px;
+            background: #3b82f6;
             color: white;
             border: none;
-            padding: 0.85rem 2rem;
-            border-radius: 20px;
-            font-weight: 600;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: background 0.2s;
         }
 
-        .comment-submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        .submit-comment-btn:hover {
+            background: #2563eb;
         }
 
-        .comment-submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .login-prompt {
+            text-align: center;
+            padding: 24px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 16px;
         }
 
-        /* 评论列表 */
+        .login-prompt p {
+            color: #64748b;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .login-prompt a {
+            display: inline-block;
+            padding: 8px 24px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .login-prompt a:hover {
+            background: #2563eb;
+        }
+
         .comments-list {
-            display: grid;
-            gap: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .comment-item {
-            background: #fafafa;
-            border: 2px solid #f0f0f0;
-            border-radius: 16px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .comment-item:hover {
-            background: white;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-            border-color: #e0e0e0;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 14px;
         }
 
         .comment-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-        }
-
-        .comment-author {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
+            margin-bottom: 8px;
         }
 
         .comment-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            background: #eff6ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1e40af;
-            font-weight: 700;
-            font-size: 1rem;
-            border: 2px solid #bfdbfe;
-        }
-
-        .comment-author-name {
-            font-weight: 700;
-            color: #2d3748;
-            font-size: 0.95rem;
-        }
-
-        .comment-time {
-            font-size: 0.85rem;
-            color: #a0aec0;
-        }
-
-        .comment-content {
-            color: #4a5568;
-            line-height: 1.7;
-            font-size: 0.95rem;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .comment-actions {
-            display: flex;
-            gap: 1.25rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .comment-action-btn {
-            color: #a0aec0;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: none;
-            border: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
-        }
-
-        .comment-action-btn:hover {
-            color: #3b82f6;
-        }
-
-        .comment-action-btn.delete:hover {
-            color: #ef4444;
-        }
-
-        .empty-comments {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: #a0aec0;
-        }
-
-        .empty-comments i {
-            font-size: 3.5rem;
-            margin-bottom: 1.25rem;
-            color: #e2e8f0;
-        }
-
-        /* 空状态 */
-        .empty-state {
-            background: white;
-            border-radius: 24px;
-            padding: 5rem 2rem;
-            text-align: center;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            color: #e2e8f0;
-            margin-bottom: 1.5rem;
-        }
-
-        .empty-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 0.75rem;
-        }
-
-        .empty-text {
-            color: #a0aec0;
-            font-size: 1rem;
-        }
-
-        /* 加载更多 */
-        .load-more-btn {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            padding: 0.85rem 2.5rem;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
-        }
-
-        .load-more-btn:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        /* 返回顶部 */
-        .back-to-top {
-            position: fixed;
-            bottom: 2.5rem;
-            right: 2.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            width: 56px;
-            height: 56px;
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .comment-info {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+
+        .comment-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .comment-delete {
+            background: none;
+            border: none;
+            color: #cbd5e1;
             cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0;
-            visibility: hidden;
-            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
-            z-index: 1000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
         }
 
-        .back-to-top.show {
-            opacity: 1;
-            visibility: visible;
+        .comment-delete:hover {
+            background: #fef2f2;
+            color: #ef4444;
         }
 
-        .back-to-top:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 10px 35px rgba(102, 126, 234, 0.5);
+        .comment-body {
+            color: #475569;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-left: 42px;
         }
 
-        /* 加载骨架屏 */
-        .loading-skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 16px;
-            height: 150px;
+        .no-comments {
+            text-align: center;
+            padding: 30px 20px;
+            color: #94a3b8;
+            background: #f8fafc;
+            border-radius: 8px;
         }
 
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .no-comments i {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .no-comments p {
+            font-size: 0.85rem;
         }
 
         /* 响应式 */
         @media (max-width: 768px) {
-            .container {
-                padding: 0 1rem 2rem;
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .filter-tabs {
+                overflow-x: auto;
             }
 
             .page-title {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
+            .main-content {
+                padding: 24px 1rem;
             }
 
-            .filter-group {
+            .nav-container {
+                padding: 0 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-item {
+                padding: 12px;
+            }
+
+            .user-balance {
+                display: none;
+            }
+
+            .card-meta {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .card-footer {
                 flex-direction: column;
                 align-items: flex-start;
-            }
-
-            .nav-links {
-                gap: 1rem;
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+                gap: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
+    <!-- 导航栏 - 和首页完全一致 -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
                 <i class="fas fa-tools"></i> 在线工具集
             </a>
             <div class="nav-links">
-                <a href="/" class="nav-link">首页</a>
-                <a href="/announcements" class="nav-link active">公告</a>
+                <!-- 技术服务按钮 -->
+                <a href="/services" class="nav-link" title="技术服务">
+                    <i class="fas fa-code"></i> 技术服务
+                </a>
+
+                <!-- 公告按钮 -->
+                <a href="/announcements" class="announcement-btn" title="系统公告">
+                    <i class="fas fa-bell"></i>
+                </a>
+
                 {% if user_info %}
+                <!-- 已登录用户 -->
                 <div class="user-info">
                     <div class="user-balance">
                         余额: ¥{{ "%.2f"|format(user_info.balance) }}
@@ -956,11 +934,9 @@
                     </div>
                 </div>
                 {% else %}
-                <a href="/login" class="nav-link">
+                <!-- 未登录 -->
+                <a href="/login" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i> 登录
-                </a>
-                <a href="/register" class="nav-link">
-                    <i class="fas fa-user-plus"></i> 注册
                 </a>
                 {% endif %}
             </div>
@@ -968,158 +944,132 @@
     </nav>
 
     <!-- 主内容 -->
-    <div class="container">
-        <!-- 页面头部 -->
+    <main class="main-content">
+        <!-- 页面标题 -->
         <div class="page-header">
-            <h1 class="page-title">
-                <i class="fas fa-bullhorn"></i> 系统公告
-            </h1>
+            <h1 class="page-title"><i class="fas fa-bullhorn"></i>系统公告</h1>
             <p class="page-subtitle">获取最新的系统更新、功能发布和重要通知</p>
         </div>
 
-        <!-- 统计卡片 -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
+        <!-- 统计行 -->
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-icon blue">
                     <i class="fas fa-bullhorn"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-value" id="totalCount">0</div>
-                    <div class="stat-label">总公告数</div>
+                <div class="stat-info">
+                    <h3 id="totalCount">0</h3>
+                    <span>总公告</span>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div class="stat-item">
+                <div class="stat-icon orange">
                     <i class="fas fa-thumbtack"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-value" id="stickyCount">0</div>
-                    <div class="stat-label">置顶公告</div>
+                <div class="stat-info">
+                    <h3 id="stickyCount">0</h3>
+                    <span>置顶</span>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <div class="stat-item">
+                <div class="stat-icon green">
                     <i class="fas fa-calendar-check"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-value" id="monthCount">0</div>
-                    <div class="stat-label">本月发布</div>
+                <div class="stat-info">
+                    <h3 id="monthCount">0</h3>
+                    <span>本月</span>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+            <div class="stat-item">
+                <div class="stat-icon gray">
                     <i class="fas fa-clock"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-value" id="latestTime">--</div>
-                    <div class="stat-label">最新发布</div>
+                <div class="stat-info">
+                    <h3 id="latestTime">--</h3>
+                    <span>最新</span>
                 </div>
             </div>
         </div>
 
         <!-- 筛选栏 -->
         <div class="filter-bar">
-            <div class="filter-group">
-                <div>
-                    <span class="filter-label">类型筛选：</span>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-type="all">全部</button>
-                        <button class="filter-btn" data-type="info">信息</button>
-                        <button class="filter-btn" data-type="warning">警告</button>
-                        <button class="filter-btn" data-type="success">成功</button>
-                        <button class="filter-btn" data-type="error">错误</button>
-                    </div>
-                </div>
-                <div style="margin-left: auto;">
-                    <span class="filter-label">排序：</span>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-sort="latest">最新发布</button>
-                        <button class="filter-btn" data-sort="views">最多查看</button>
-                    </div>
-                </div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="搜索公告...">
             </div>
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-type="all">全部</button>
+                <button class="filter-tab" data-type="info">信息</button>
+                <button class="filter-tab" data-type="warning">警告</button>
+                <button class="filter-tab" data-type="success">成功</button>
+                <button class="filter-tab" data-type="error">错误</button>
+            </div>
+            <select class="sort-select" id="sortSelect">
+                <option value="latest">最新发布</option>
+                <option value="views">最多浏览</option>
+                <option value="comments">最多评论</option>
+            </select>
         </div>
 
         <!-- 公告列表 -->
-        <div class="announcements-container" id="announcementsList">
-            <div class="loading-skeleton"></div>
-            <div class="loading-skeleton"></div>
-            <div class="loading-skeleton"></div>
+        <div class="announcements-list" id="announcementsList">
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card"></div>
         </div>
 
         <!-- 空状态 -->
         <div class="empty-state" id="emptyState" style="display: none;">
-            <i class="fas fa-bell-slash empty-icon"></i>
-            <h3 class="empty-title">暂无公告</h3>
-            <p class="empty-text">目前还没有发布任何系统公告</p>
+            <div class="empty-icon">
+                <i class="fas fa-bell-slash"></i>
+            </div>
+            <h3>暂无公告</h3>
+            <p>目前还没有发布任何系统公告</p>
         </div>
-
-        <!-- 加载更多 -->
-        <div class="load-more-section" id="loadMoreSection" style="display: none; text-align: center; margin-top: 2rem;">
-            <button class="load-more-btn" id="loadMoreBtn">
-                <i class="fas fa-plus"></i>
-                加载更多
-            </button>
-        </div>
-    </div>
-
-    <!-- 返回顶部 -->
-    <div class="back-to-top" id="backToTop">
-        <i class="fas fa-arrow-up"></i>
-    </div>
+    </main>
 
     <!-- 公告详情模态框 -->
-    <div class="modal fade" id="detailModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="modalBody">
-                    <!-- 公告内容 -->
-                    <div id="announcementContent"></div>
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-meta" id="detailMeta"></div>
+                <div class="detail-content" id="detailContent"></div>
 
-                    <!-- 评论区 -->
-                    <div class="comments-section">
-                        <div class="comments-header">
-                            <div class="comments-title">
-                                <i class="fas fa-comments"></i>
-                                评论
-                                <span class="comments-count" id="commentsCount">0</span>
-                            </div>
-                        </div>
+                <!-- 评论区 -->
+                <div class="comments-section">
+                    <div class="section-title">
+                        <i class="fas fa-comments"></i>
+                        评论
+                        <span class="comment-count" id="commentsCount">0</span>
+                    </div>
 
-                        <!-- 评论输入 -->
-                        {% if user_info %}
-                        <div class="comment-input-section">
-                            <textarea
-                                class="comment-textarea"
-                                id="commentTextarea"
-                                placeholder="写下你的评论...（支持换行）"
-                                maxlength="500"
-                            ></textarea>
-                            <button class="comment-submit-btn" onclick="submitComment()">
+                    {% if user_info %}
+                    <div class="comment-form">
+                        <textarea class="comment-textarea" id="commentTextarea"
+                            placeholder="写下你的评论..." maxlength="500"></textarea>
+                        <div class="comment-actions">
+                            <button class="submit-comment-btn" onclick="submitComment()">
                                 <i class="fas fa-paper-plane"></i> 发表评论
                             </button>
                         </div>
-                        {% else %}
-                        <div class="comment-input-section" style="text-align: center; padding: 2rem;">
-                            <p style="color: #64748b; margin-bottom: 1rem;">
-                                <i class="fas fa-info-circle"></i> 请先登录后再发表评论
-                            </p>
-                            <a href="/login" class="comment-submit-btn" style="text-decoration: none; display: inline-block;">
-                                <i class="fas fa-sign-in-alt"></i> 立即登录
-                            </a>
-                        </div>
-                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="login-prompt">
+                        <p>登录后即可参与评论</p>
+                        <a href="/login">立即登录</a>
+                    </div>
+                    {% endif %}
 
-                        <!-- 评论列表 -->
-                        <div class="comments-list" id="commentsList">
-                            <div class="empty-comments">
-                                <i class="fas fa-comments"></i>
-                                <p>还没有评论，快来抢沙发吧~</p>
-                            </div>
+                    <div class="comments-list" id="commentsList">
+                        <div class="no-comments">
+                            <i class="fas fa-comment-dots"></i>
+                            <p>还没有评论，快来抢沙发吧~</p>
                         </div>
                     </div>
                 </div>
@@ -1127,22 +1077,56 @@
         </div>
     </div>
 
-    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script>
         let announcements = [];
         let filteredAnnouncements = [];
         let currentFilter = 'all';
         let currentSort = 'latest';
-        let currentPage = 1;
-        const pageSize = 10;
+        let searchKeyword = '';
         let currentAnnouncementId = null;
         let currentUserId = {{ user_info.id if user_info else 'null' }};
 
         document.addEventListener('DOMContentLoaded', function() {
             loadAnnouncements();
             setupEventListeners();
-            setupScrollEvents();
         });
+
+        // 用户菜单切换 - 和首页一致
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+
+        // 点击其他地方关闭菜单 - 和首页一致
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userMenu = document.getElementById('userMenu');
+
+            if (userDropdown && userMenu && !userDropdown.contains(event.target)) {
+                userMenu.classList.remove('show');
+            }
+        });
+
+        // 退出登录 - 和首页一致
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('退出失败:', error);
+                });
+            }
+        }
 
         async function loadAnnouncements() {
             try {
@@ -1165,8 +1149,10 @@
 
         function updateStatistics() {
             document.getElementById('totalCount').textContent = announcements.length;
+
             const stickyCount = announcements.filter(a => a.is_sticky).length;
             document.getElementById('stickyCount').textContent = stickyCount;
+
             const currentMonth = new Date().getMonth();
             const currentYear = new Date().getFullYear();
             const monthCount = announcements.filter(a => {
@@ -1174,179 +1160,145 @@
                 return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
             }).length;
             document.getElementById('monthCount').textContent = monthCount;
+
             if (announcements.length > 0) {
                 document.getElementById('latestTime').textContent = getRelativeTime(announcements[0].created_at);
             }
         }
 
         function setupEventListeners() {
-            document.querySelectorAll('[data-type]').forEach(btn => {
+            document.querySelectorAll('.filter-tab').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     currentFilter = this.dataset.type;
-                    currentPage = 1;
                     applyFiltersAndSort();
                 });
             });
 
-            document.querySelectorAll('[data-sort]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentSort = this.dataset.sort;
-                    currentPage = 1;
+            document.getElementById('sortSelect').addEventListener('change', function() {
+                currentSort = this.value;
+                applyFiltersAndSort();
+            });
+
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchKeyword = this.value.toLowerCase().trim();
                     applyFiltersAndSort();
-                });
+                }, 300);
             });
 
-            document.getElementById('loadMoreBtn')?.addEventListener('click', function() {
-                currentPage++;
-                renderAnnouncements(false);
-            });
-        }
-
-        function setupScrollEvents() {
-            const backToTop = document.getElementById('backToTop');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
-                    backToTop.classList.add('show');
-                } else {
-                    backToTop.classList.remove('show');
-                }
-            });
-            backToTop.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('detailModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
             });
         }
 
         function applyFiltersAndSort() {
-            filteredAnnouncements = currentFilter === 'all'
-                ? [...announcements]
-                : announcements.filter(a => a.type === currentFilter);
+            filteredAnnouncements = announcements.filter(a => {
+                const matchType = currentFilter === 'all' || a.type === currentFilter;
+                const matchSearch = !searchKeyword ||
+                    a.title.toLowerCase().includes(searchKeyword) ||
+                    a.content.toLowerCase().includes(searchKeyword);
+                return matchType && matchSearch;
+            });
 
             filteredAnnouncements.sort((a, b) => {
-                if (a.is_sticky !== b.is_sticky) {
-                    return b.is_sticky - a.is_sticky;
-                }
-                if (currentSort === 'latest') {
-                    return new Date(b.created_at) - new Date(a.created_at);
-                } else {
-                    return b.view_count - a.view_count;
+                if (a.is_sticky !== b.is_sticky) return b.is_sticky - a.is_sticky;
+
+                switch (currentSort) {
+                    case 'views': return (b.view_count || 0) - (a.view_count || 0);
+                    case 'comments': return (b.comment_count || 0) - (a.comment_count || 0);
+                    default: return new Date(b.created_at) - new Date(a.created_at);
                 }
             });
 
-            renderAnnouncements(true);
+            renderAnnouncements();
         }
 
-        function renderAnnouncements(reset = false) {
+        function renderAnnouncements() {
             const container = document.getElementById('announcementsList');
             const emptyState = document.getElementById('emptyState');
-            const loadMoreSection = document.getElementById('loadMoreSection');
 
             if (filteredAnnouncements.length === 0) {
-                showEmptyState();
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
                 return;
             }
 
-            if (reset) {
-                container.innerHTML = '';
-            }
-
-            const start = reset ? 0 : (currentPage - 1) * pageSize;
-            const end = currentPage * pageSize;
-            const pageData = filteredAnnouncements.slice(start, end);
-
-            pageData.forEach((announcement) => {
-                const card = createAnnouncementCard(announcement);
-                card.classList.add('fade-in');
-                container.appendChild(card);
-            });
-
             emptyState.style.display = 'none';
-            loadMoreSection.style.display = end < filteredAnnouncements.length ? 'block' : 'none';
+
+            container.innerHTML = filteredAnnouncements.map(item => {
+                const typeText = { info: '信息', warning: '警告', success: '成功', error: '错误' };
+                return `
+                    <div class="announcement-card ${item.is_sticky ? 'sticky' : ''}" onclick="showDetail(${item.id})">
+                        <div class="card-header">
+                            <div class="card-title-wrapper">
+                                ${item.is_sticky ? '<span class="sticky-badge"><i class="fas fa-thumbtack"></i> 置顶</span>' : ''}
+                                <h3 class="card-title">${item.title}</h3>
+                            </div>
+                            <span class="type-badge type-${item.type}">${typeText[item.type] || '信息'}</span>
+                        </div>
+                        <div class="card-content">${item.content}</div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    ${formatTime(item.created_at)}
+                                </span>
+                                <span class="meta-item">
+                                    <i class="fas fa-eye"></i>
+                                    ${item.view_count || 0}
+                                </span>
+                                <span class="meta-item">
+                                    <i class="fas fa-comments"></i>
+                                    ${item.comment_count || 0}
+                                </span>
+                            </div>
+                            <span class="read-more-btn">
+                                查看详情 <i class="fas fa-angle-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        function createAnnouncementCard(announcement) {
-            const card = document.createElement('div');
-            card.className = `announcement-card ${announcement.is_sticky ? 'sticky' : ''}`;
-            card.onclick = () => showDetail(announcement);
+        async function showDetail(id) {
+            currentAnnouncementId = id;
+            const item = announcements.find(a => a.id === id);
+            if (!item) return;
 
-            const typeText = getTypeText(announcement.type);
-            const commentCount = announcement.comment_count || 0;
+            const typeText = { info: '信息', warning: '警告', success: '成功', error: '错误' };
 
-            card.innerHTML = `
-                ${announcement.is_sticky ? '<div class="sticky-badge"><i class="fas fa-thumbtack"></i> 置顶</div>' : ''}
-                <div class="announcement-header">
-                    <h3 class="announcement-title">${announcement.title}</h3>
-                    <span class="announcement-type type-${announcement.type}">${typeText}</span>
-                </div>
-                <div class="announcement-content">${announcement.content}</div>
-                <div class="announcement-meta">
-                    <span class="meta-item">
-                        <i class="fas fa-clock"></i>
-                        ${formatDate(announcement.created_at)}
-                    </span>
-                    <span class="meta-item">
-                        <i class="fas fa-eye"></i>
-                        ${announcement.view_count || 0}
-                    </span>
-                    <span class="meta-item comment-count">
-                        <i class="fas fa-comments"></i>
-                        ${commentCount} 条评论
-                    </span>
-                </div>
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('detailMeta').innerHTML = `
+                <span class="type-badge type-${item.type}">${typeText[item.type] || '信息'}</span>
+                ${item.is_sticky ? '<span class="sticky-badge"><i class="fas fa-thumbtack"></i> 置顶</span>' : ''}
+                <span class="meta-item"><i class="fas fa-calendar-alt"></i> ${formatFullDate(item.created_at)}</span>
+                <span class="meta-item"><i class="fas fa-eye"></i> ${item.view_count || 0} 浏览</span>
             `;
+            document.getElementById('detailContent').textContent = item.content;
 
-            return card;
-        }
-
-        async function showDetail(announcement) {
-            currentAnnouncementId = announcement.id;
-            const modal = new bootstrap.Modal(document.getElementById('detailModal'));
-            const modalTitle = document.getElementById('modalTitle');
-            const announcementContent = document.getElementById('announcementContent');
-
-            modalTitle.textContent = announcement.title;
-            const typeText = getTypeText(announcement.type);
-
-            announcementContent.innerHTML = `
-                <div class="mb-3">
-                    <span class="announcement-type type-${announcement.type}">${typeText}</span>
-                    ${announcement.is_sticky ? '<span class="badge bg-warning ms-2"><i class="fas fa-thumbtack"></i> 置顶</span>' : ''}
-                </div>
-                <div style="color: #475569; line-height: 1.8; white-space: pre-wrap; margin-bottom: 1.5rem;">
-                    ${announcement.content}
-                </div>
-                <hr>
-                <div class="announcement-meta mt-3">
-                    <span class="meta-item">
-                        <i class="fas fa-clock"></i>
-                        发布于 ${formatFullDate(announcement.created_at)}
-                    </span>
-                    <span class="meta-item">
-                        <i class="fas fa-eye"></i>
-                        ${announcement.view_count || 0} 次查看
-                    </span>
-                </div>
-            `;
-
-            modal.show();
-            loadComments(announcement.id);
+            document.getElementById('detailModal').classList.add('show');
+            loadComments(id);
 
             try {
-                await fetch(`/api/announcements/${announcement.id}/view`, {
+                await fetch(`/api/announcements/${id}/view`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
-            } catch (error) {
-                console.error('更新查看次数失败:', error);
-            }
+            } catch (e) {}
         }
 
-        async function loadComments(announcementId) {
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        async function loadComments(id) {
             try {
-                const response = await fetch(`/api/announcements/${announcementId}/comments`);
+                const response = await fetch(`/api/announcements/${id}/comments`);
                 const data = await response.json();
                 if (data.success) {
                     renderComments(data.comments || []);
@@ -1357,40 +1309,33 @@
         }
 
         function renderComments(comments) {
-            const commentsList = document.getElementById('commentsList');
-            const commentsCount = document.getElementById('commentsCount');
-
-            commentsCount.textContent = comments.length;
+            document.getElementById('commentsCount').textContent = comments.length;
 
             if (comments.length === 0) {
-                commentsList.innerHTML = `
-                    <div class="empty-comments">
-                        <i class="fas fa-comments"></i>
+                document.getElementById('commentsList').innerHTML = `
+                    <div class="no-comments">
+                        <i class="fas fa-comment-dots"></i>
                         <p>还没有评论，快来抢沙发吧~</p>
                     </div>
                 `;
                 return;
             }
 
-            commentsList.innerHTML = comments.map(comment => `
-                <div class="comment-item fade-in">
+            document.getElementById('commentsList').innerHTML = comments.map(c => `
+                <div class="comment-item">
                     <div class="comment-header">
-                        <div class="comment-author">
-                            <div class="comment-avatar">${comment.username.charAt(0).toUpperCase()}</div>
-                            <div>
-                                <div class="comment-author-name">${comment.username}</div>
-                                <div class="comment-time">${formatDate(comment.created_at)}</div>
-                            </div>
+                        <div class="comment-avatar">${c.username.charAt(0).toUpperCase()}</div>
+                        <div class="comment-info">
+                            <div class="comment-author">${c.username}</div>
+                            <div class="comment-time">${formatTime(c.created_at)}</div>
                         </div>
-                    </div>
-                    <div class="comment-content">${comment.content}</div>
-                    ${currentUserId === comment.user_id ? `
-                    <div class="comment-actions">
-                        <button class="comment-action-btn delete" onclick="deleteComment(${comment.id})">
-                            <i class="fas fa-trash-alt"></i> 删除
+                        ${currentUserId === c.user_id ? `
+                        <button class="comment-delete" onclick="deleteComment(${c.id})" title="删除">
+                            <i class="fas fa-trash-alt"></i>
                         </button>
+                        ` : ''}
                     </div>
-                    ` : ''}
+                    <div class="comment-body">${c.content}</div>
                 </div>
             `).join('');
         }
@@ -1398,7 +1343,6 @@
         async function submitComment() {
             const textarea = document.getElementById('commentTextarea');
             const content = textarea.value.trim();
-
             if (!content) {
                 alert('请输入评论内容');
                 return;
@@ -1410,9 +1354,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content })
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
                     textarea.value = '';
                     loadComments(currentAnnouncementId);
@@ -1421,23 +1363,18 @@
                     alert(data.message || '发表评论失败');
                 }
             } catch (error) {
-                console.error('发表评论失败:', error);
                 alert('发表评论失败，请稍后重试');
             }
         }
 
         async function deleteComment(commentId) {
-            if (!confirm('确定要删除这条评论吗？')) {
-                return;
-            }
+            if (!confirm('确定要删除这条评论吗？')) return;
 
             try {
                 const response = await fetch(`/api/announcements/comments/${commentId}`, {
                     method: 'DELETE'
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
                     loadComments(currentAnnouncementId);
                     loadAnnouncements();
@@ -1445,7 +1382,6 @@
                     alert(data.message || '删除评论失败');
                 }
             } catch (error) {
-                console.error('删除评论失败:', error);
                 alert('删除评论失败，请稍后重试');
             }
         }
@@ -1453,39 +1389,21 @@
         function showEmptyState() {
             document.getElementById('announcementsList').innerHTML = '';
             document.getElementById('emptyState').style.display = 'block';
-            document.getElementById('loadMoreSection').style.display = 'none';
         }
 
-        function getTypeText(type) {
-            const types = {
-                'info': '信息',
-                'warning': '警告',
-                'success': '成功',
-                'error': '错误'
-            };
-            return types[type] || '信息';
-        }
-
-        function formatDate(dateString) {
+        function formatTime(dateString) {
             const date = new Date(dateString);
             const now = new Date();
             const diff = now - date;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
 
-            if (days === 0) {
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                if (hours === 0) {
-                    const minutes = Math.floor(diff / (1000 * 60));
-                    return minutes <= 1 ? '刚刚' : `${minutes}分钟前`;
-                }
-                return `${hours}小时前`;
-            } else if (days === 1) {
-                return '昨天';
-            } else if (days < 7) {
-                return `${days}天前`;
-            } else {
-                return date.toLocaleDateString('zh-CN');
-            }
+            if (minutes < 1) return '刚刚';
+            if (minutes < 60) return `${minutes}分钟前`;
+            if (hours < 24) return `${hours}小时前`;
+            if (days < 7) return `${days}天前`;
+            return date.toLocaleDateString('zh-CN');
         }
 
         function formatFullDate(dateString) {
@@ -1502,51 +1420,12 @@
             const date = new Date(dateString);
             const now = new Date();
             const diff = now - date;
-            const minutes = Math.floor(diff / (1000 * 60));
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
 
-            if (minutes < 60) return `${minutes}分钟前`;
-            if (hours < 24) return `${hours}小时前`;
-            if (days < 7) return `${days}天前`;
-            return date.toLocaleDateString('zh-CN');
-        }
-
-        function toggleUserMenu() {
-            const menu = document.getElementById('userMenu');
-            if (menu) {
-                menu.classList.toggle('show');
-            }
-        }
-
-        document.addEventListener('click', function(event) {
-            const userDropdown = document.querySelector('.user-dropdown');
-            const userMenu = document.getElementById('userMenu');
-
-            if (userDropdown && userMenu && !userDropdown.contains(event.target)) {
-                userMenu.classList.remove('show');
-            }
-        });
-
-        function logout() {
-            if (confirm('确定要退出登录吗？')) {
-                fetch('/api/logout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        alert('退出登录失败，请重试');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('退出登录失败，请重试');
-                });
-            }
+            if (hours < 24) return `${hours}h前`;
+            if (days < 30) return `${days}天前`;
+            return `${Math.floor(days/30)}月前`;
         }
     </script>
 </body>

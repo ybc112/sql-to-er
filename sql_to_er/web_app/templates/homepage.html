@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO优化 - 页面标题 -->
-    <title>智能文档处理平台 - SQL转ER图|论文生成器|文本优化器|测试用例生成|答辩助手 - 专业学术工具集</title>
+    <title>智能文档处理平台 - SQL转ER图|文本优化器|测试用例生成|答辩助手 - 专业学术工具集</title>
 
     <!-- SEO优化 - Meta描述 -->
-    <meta name="description" content="专业的智能文档处理平台，提供SQL转ER图在线工具、AI论文生成器、文本优化器、测试用例自动生成、论文答辩助手等学术研究工具。支持数据库设计、学术论文写作、文本优化、软件测试、毕业答辩全流程服务。">
+    <meta name="description" content="专业的智能文档处理平台，提供SQL转ER图在线工具、文本优化器、测试用例自动生成、论文答辩助手等学术研究工具。支持数据库设计、文本优化、软件测试、毕业答辩全流程服务。">
 
     <!-- SEO优化 - 关键词 -->
-    <meta name="keywords" content="SQL转ER图,ER图生成器,论文生成器,AI论文写作,文本优化器,文本重写,去AI痕迹,测试用例生成,论文答辩,数据库设计,学术工具,毕业设计,在线工具,文档处理,智能生成">
+    <meta name="keywords" content="SQL转ER图,ER图生成器,文本优化器,文本重写,去AI痕迹,测试用例生成,论文答辩,数据库设计,学术工具,毕业设计,在线工具,文档处理,智能生成">
 
     <!-- SEO优化 - 作者和版权 -->
     <meta name="author" content="智能文档处理平台">
@@ -20,7 +20,7 @@
 
     <!-- Open Graph 社交媒体优化 -->
     <meta property="og:title" content="智能文档处理平台 - 专业学术工具集">
-    <meta property="og:description" content="提供SQL转ER图、AI论文生成、测试用例生成、答辩助手等专业学术工具">
+    <meta property="og:description" content="提供SQL转ER图、测试用例生成、答辩助手等专业学术工具">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="zh_CN">
 
@@ -30,7 +30,7 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "智能文档处理平台",
-        "description": "专业的学术工具集，提供SQL转ER图、论文生成、测试用例生成等功能",
+        "description": "专业的学术工具集，提供SQL转ER图、测试用例生成等功能",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Web Browser",
         "offers": {
@@ -40,9 +40,9 @@
         },
         "featureList": [
             "SQL转ER图生成",
-            "AI论文写作助手",
             "测试用例自动生成",
             "论文答辩助手",
+            "AI文本优化",
             "数据库设计工具"
         ],
         "audience": {
@@ -95,84 +95,143 @@
             padding: 2rem;
         }
 
-        /* 头部样式 */
-        .header {
+        /* ========== Hero区域 - 与技术服务页完全统一 ========== */
+        .hero-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 80px 2rem;
             text-align: center;
-            margin-bottom: 5rem;
-            padding: 4rem 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            color: white;
             position: relative;
             overflow: hidden;
         }
 
-        .header::before {
+        .hero-section::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 1;
         }
 
-        .header h1 {
-            font-size: 3.2rem;
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
-            letter-spacing: -1px;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.2;
         }
 
-        .header .subtitle {
-            font-size: 1.3rem;
-            opacity: 0.95;
-            font-weight: 400;
-            max-width: 750px;
-            margin: 0 auto 2rem;
-            line-height: 1.6;
-            position: relative;
-            z-index: 1;
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.7;
         }
 
-        .header-features {
+        .hero-stats {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 48px;
             flex-wrap: wrap;
-            margin-top: 2rem;
-            position: relative;
-            z-index: 1;
         }
 
-        .header-feature {
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        /* 分类标签区域 */
+        .category-section {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem 0;
+        }
+
+        .category-tags {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .category-tag {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.15);
             padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #475569;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+            transition: all 0.2s ease;
         }
 
-        .header-feature:hover {
-            background: rgba(255, 255, 255, 0.25);
+        .category-tag:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            text-decoration: none;
             transform: translateY(-2px);
         }
 
-        .header-feature i {
-            font-size: 1.2rem;
+        .category-tag i {
+            font-size: 1rem;
         }
 
-        .header-feature span {
-            font-weight: 500;
-            font-size: 0.95rem;
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            .hero-stats {
+                gap: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-stats {
+                flex-direction: column;
+                gap: 24px;
+            }
         }
 
         /* 工具卡片网格 */
@@ -259,6 +318,14 @@
 
         .optimizer-tool .tool-icon {
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .detector-tool .tool-icon {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+        }
+
+        .flowchart-tool .tool-icon {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
         }
 
         .format-tool .tool-icon {
@@ -349,6 +416,25 @@
         .status-available:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .status-new {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .status-new:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
         }
 
         .status-ready {
@@ -1029,8 +1115,10 @@
                 <i class="fas fa-tools"></i> 在线工具集
             </a>
             <div class="nav-links">
-                <a href="#features" class="nav-link">功能特色</a>
-                <a href="#tools" class="nav-link">工具中心</a>
+                <!-- 技术服务按钮 -->
+                <a href="/services" class="nav-link" title="技术服务">
+                    <i class="fas fa-code"></i> 技术服务
+                </a>
 
                 <!-- 公告按钮 -->
                 <a href="/announcements" class="announcement-btn" title="查看系统公告">
@@ -1078,30 +1166,62 @@
         </div>
     </nav>
 
-    <div class="container">
-        <!-- 头部 -->
-        <header class="header">
-            <h1>智能文档处理平台</h1>
-            <p class="subtitle">基于AI技术的专业学术工具集，提供SQL转ER图、论文生成、测试用例生成、答辩助手等一站式解决方案</p>
-            <div class="header-features">
-                <div class="header-feature">
-                    <i class="fas fa-database"></i>
-                    <span>数据库设计</span>
+    <!-- Hero区域 - 与技术服务页统一风格 -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-rocket"></i>
+                专业学术工具 · 高效智能处理
+            </div>
+            <h1 class="hero-title">智能文档处理平台</h1>
+            <p class="hero-subtitle">
+                基于AI技术的专业学术工具集，提供SQL转ER图、文本优化、测试用例生成、答辩助手等一站式解决方案<br>
+                助力学术研究和软件开发，让您的工作更加高效便捷
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">7+</span>
+                    <span class="stat-label">专业工具</span>
                 </div>
-                <div class="header-feature">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>学术写作</span>
+                <div class="stat-item">
+                    <span class="stat-number">99%</span>
+                    <span class="stat-label">用户满意度</span>
                 </div>
-                <div class="header-feature">
-                    <i class="fas fa-cogs"></i>
-                    <span>软件测试</span>
-                </div>
-                <div class="header-feature">
-                    <i class="fas fa-chart-line"></i>
-                    <span>文档可视化</span>
+                <div class="stat-item">
+                    <span class="stat-number">24h</span>
+                    <span class="stat-label">在线服务</span>
                 </div>
             </div>
-        </header>
+        </div>
+    </section>
+
+    <!-- 分类标签区域 -->
+    <section class="category-section">
+        <div class="category-tags">
+            <a href="#tools" class="category-tag">
+                <i class="fas fa-database"></i>
+                数据库设计
+            </a>
+            <a href="#tools" class="category-tag">
+                <i class="fas fa-graduation-cap"></i>
+                学术写作
+            </a>
+            <a href="#tools" class="category-tag">
+                <i class="fas fa-robot"></i>
+                AI智能工具
+            </a>
+            <a href="#tools" class="category-tag">
+                <i class="fas fa-vial"></i>
+                软件测试
+            </a>
+            <a href="#tools" class="category-tag">
+                <i class="fas fa-project-diagram"></i>
+                流程可视化
+            </a>
+        </div>
+    </section>
+
+    <div class="container">
 
 
 
@@ -1200,27 +1320,6 @@
             </a>
 
 
-            <!-- AI论文生成器 -->
-            <a href="/paper-generator" class="tool-card paper-gen-tool">
-                <div class="tool-icon">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-                <h2 class="tool-title">AI论文生成器</h2>
-                <p class="tool-description">
-                    基于人工智能技术的学术论文写作助手，让学术写作更简单高效
-                </p>
-                <ul class="tool-features">
-                    <li>智能分析论文要求</li>
-                    <li>自动生成论文内容</li>
-                    <li>支持多种论文类型</li>
-                    <li>导出Word文档</li>
-                </ul>
-                <div class="tool-status">
-                    <span class="status-badge status-ready">
-                        <i class="fas fa-check-circle"></i> 立即使用
-                    </span>
-                </div>
-            </a>
 
             <!-- AI文本优化器 -->
             <a href="/text-optimizer" class="tool-card optimizer-tool">
@@ -1245,6 +1344,52 @@
                 </div>
             </a>
 
+            <!-- AI内容检测器 -->
+            <a href="/ai-detector" class="tool-card detector-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h2 class="tool-title">AI内容检测器</h2>
+                <p class="tool-description">
+                    基于困惑度和突发性算法，智能检测文本是否由ChatGPT等AI生成，提供详细分析报告
+                </p>
+                <ul class="tool-features">
+                    <li>困惑度(Perplexity)分析</li>
+                    <li>突发性(Burstiness)检测</li>
+                    <li>AI模板词识别</li>
+                    <li>逐句AI概率标注</li>
+                    <li>多维度综合评估</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-new">
+                        <i class="fas fa-star"></i> 全新上线
+                    </span>
+                </div>
+            </a>
+
+            <!-- AI系统流程图生成器 -->
+            <a href="/flowchart-generator" class="tool-card flowchart-tool">
+                <div class="tool-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h2 class="tool-title">AI系统流程图生成器</h2>
+                <p class="tool-description">
+                    输入自然语言描述，AI自动生成标准黑白系统流程图，支持PNG导出
+                </p>
+                <ul class="tool-features">
+                    <li>自然语言智能识别</li>
+                    <li>标准流程图符号</li>
+                    <li>黑白学术风格</li>
+                    <li>PNG高清导出</li>
+                    <li>快速模板一键生成</li>
+                </ul>
+                <div class="tool-status">
+                    <span class="status-badge status-new">
+                        <i class="fas fa-star"></i> 全新上线
+                    </span>
+                </div>
+            </a>
+
         </div>
 
         <!-- 常见问题 -->
@@ -1264,10 +1409,10 @@
                     <div class="faq-item">
                         <h3 class="faq-question">
                             <i class="fas fa-question-circle"></i>
-                            AI论文生成器支持哪些论文类型？
+                            AI文本优化器有什么作用？
                         </h3>
                         <p class="faq-answer">
-                            支持毕业论文、学术报告、研究论文、课程设计报告等多种类型。可以根据您的专业领域和具体要求生成相应的论文内容。
+                            AI文本优化器可以智能重写文本内容，降低AI生成痕迹，保持原意不变，让文章更自然流畅，适合对已有文本进行润色和优化。
                         </p>
                     </div>
                     <div class="faq-item">
@@ -1354,9 +1499,10 @@
                         <h4>产品功能</h4>
                         <ul>
                             <li><a href="/sql-to-er">SQL转ER图</a></li>
-                            <li><a href="/paper-generator">AI论文生成</a></li>
                             <li><a href="/test-case-generator">测试用例生成</a></li>
                             <li><a href="/thesis-defense">答辩助手</a></li>
+                            <li><a href="/text-optimizer">AI文本优化</a></li>
+                            <li><a href="/ai-detector">AI内容检测</a></li>
                         </ul>
                     </div>
                     <div class="footer-section">
@@ -1380,9 +1526,10 @@
                     <div class="footer-section">
                         <h4>关于我们</h4>
                         <p>专业的智能文档处理平台，致力于为学术研究和软件开发提供高效的工具支持。</p>
+                        <p><a href="/services" style="color: #10b981;"><i class="fas fa-code"></i> 技术服务与外包合作</a></p>
                         <div class="footer-keywords">
                             <span>SQL转ER图</span>
-                            <span>论文生成器</span>
+                            <span>文本优化</span>
                             <span>测试用例</span>
                             <span>答辩助手</span>
                         </div>
@@ -1391,7 +1538,7 @@
                 <div class="footer-bottom">
                     <p>&copy; 2024 智能文档处理平台. 专注于提供高效的学术工具与文档生成解决方案</p>
                     <p class="footer-seo">
-                        <strong>关键词：</strong>SQL转ER图生成器、AI论文写作助手、测试用例自动生成、论文答辩助手、数据库设计工具、学术写作平台
+                        <strong>关键词：</strong>SQL转ER图生成器、测试用例自动生成、论文答辩助手、AI文本优化、数据库设计工具、学术写作平台
                     </p>
                 </div>
             </div>

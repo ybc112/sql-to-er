@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术服务 - 智能文档处理平台</title>
+    <meta name="description" content="专业区块链开发、智能合约、DApp开发、PHP/Python/Java全栈开发服务，提供毕业设计、项目外包、技术咨询等服务">
+    <meta name="keywords" content="智能合约开发,DApp开发,区块链开发,Solidity,PHP开发,Python开发,Java开发,毕业设计,项目外包">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f8fafb;
+            min-height: 100vh;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        /* ========== 导航栏 ========== */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e8ecf0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e293b;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo:hover {
+            text-decoration: none;
+            color: #3b82f6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .nav-link.active {
+            color: #3b82f6;
+        }
+
+        .announcement-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 1rem;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+        }
+
+        .announcement-btn:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: 1rem;
+        }
+
+        .user-balance {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            color: #475569;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-trigger:hover {
+            background: #e2e8f0;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 160px;
+            display: none;
+            z-index: 1000;
+            margin-top: 4px;
+        }
+
+        .user-menu.show {
+            display: block;
+        }
+
+        .user-menu a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #475569;
+            text-decoration: none;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .user-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .user-menu a:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        .admin-link { color: #7c3aed !important; font-weight: 500; }
+        .logout-btn { color: #dc2626 !important; }
+
+        .login-btn {
+            padding: 0.5rem 1.25rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .login-btn:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* ========== Hero区域 ========== */
+        .hero-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 80px 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        /* ========== 主内容 ========== */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 2rem;
+        }
+
+        /* 服务分类标题 */
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            background: #eff6ff;
+            color: #3b82f6;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .section-desc {
+            font-size: 1rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 服务卡片 */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid #e8ecf0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .service-icon.blue { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; }
+        .service-icon.green { background: linear-gradient(135deg, #22c55e, #4ade80); color: white; }
+        .service-icon.purple { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; }
+        .service-icon.orange { background: linear-gradient(135deg, #f97316, #fb923c); color: white; }
+        .service-icon.cyan { background: linear-gradient(135deg, #06b6d4, #22d3ee); color: white; }
+        .service-icon.red { background: linear-gradient(135deg, #ef4444, #f87171); color: white; }
+        .service-icon.indigo { background: linear-gradient(135deg, #6366f1, #818cf8); color: white; }
+
+        .service-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .service-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .service-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .service-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .service-card:hover .service-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        /* ========== 为什么选择我 ========== */
+        .why-section {
+            background: white;
+            border-radius: 20px;
+            padding: 64px;
+            margin-bottom: 64px;
+            border: 1px solid #e8ecf0;
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        .why-item {
+            text-align: center;
+        }
+
+        .why-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #3b82f6;
+            margin: 0 auto 20px;
+            transition: all 0.3s;
+        }
+
+        .why-item:hover .why-icon {
+            background: #3b82f6;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .why-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .why-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* ========== 联系区域 ========== */
+        .contact-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 24px;
+            padding: 64px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .contact-info {
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-tag {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .contact-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .contact-desc {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+
+        .contact-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .contact-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        .contact-feature i {
+            width: 24px;
+            height: 24px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #60a5fa;
+            font-size: 12px;
+        }
+
+        .qr-wrapper {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .qr-card {
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-card img {
+            width: 200px;
+            height: 200px;
+            display: block;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .qr-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .qr-hint {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* ========== 页脚 ========== */
+        .footer {
+            text-align: center;
+            padding: 32px 0;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-top: 48px;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 1024px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .why-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .contact-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .contact-features {
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                gap: 32px;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .why-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+
+            .why-section {
+                padding: 40px 24px;
+            }
+
+            .contact-section {
+                padding: 40px 24px;
+            }
+
+            .main-content {
+                padding: 40px 1rem;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .user-balance {
+                display: none;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .why-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-tools"></i> 在线工具集
+            </a>
+            <div class="nav-links">
+                <a href="/services" class="nav-link active" title="技术服务">
+                    <i class="fas fa-code"></i> 技术服务
+                </a>
+
+                <a href="/announcements" class="announcement-btn" title="系统公告">
+                    <i class="fas fa-bell"></i>
+                </a>
+
+                {% if user_info %}
+                <div class="user-info">
+                    <div class="user-balance">
+                        余额: ¥{{ "%.2f"|format(user_info.balance) }}
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-trigger" onclick="toggleUserMenu()">
+                            <i class="fas fa-user"></i>
+                            <span>{{ user_info.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-menu" id="userMenu">
+                            <a href="/profile">
+                                <i class="fas fa-user-circle"></i> 个人中心
+                            </a>
+                            {% if user_info.role == 'admin' %}
+                            <a href="/admin" class="admin-link">
+                                <i class="fas fa-cog"></i> 管理员面板
+                            </a>
+                            {% endif %}
+                            <a href="#" onclick="logout()" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <a href="/login" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> 登录
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero区域 -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-rocket"></i>
+                专业技术团队 · 高效交付
+            </div>
+            <h1 class="hero-title">专业软件开发服务</h1>
+            <p class="hero-subtitle">
+                提供区块链开发、智能合约、DApp、全栈Web开发等技术服务<br>
+                承接毕业设计、项目外包、技术咨询，助力您的项目成功
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">200+</span>
+                    <span class="stat-label">项目经验</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">99%</span>
+                    <span class="stat-label">客户满意度</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">5+</span>
+                    <span class="stat-label">年开发经验</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- 区块链开发 -->
+        <div class="section-header">
+            <span class="section-tag"><i class="fas fa-link"></i> 核心技术</span>
+            <h2 class="section-title">区块链 & DApp 开发</h2>
+            <p class="section-desc">专注于区块链技术研究与应用开发，提供完整的去中心化解决方案</p>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon blue">
+                    <i class="fab fa-ethereum"></i>
+                </div>
+                <h3 class="service-name">智能合约开发</h3>
+                <p class="service-desc">专业以太坊智能合约开发，包括ERC20/721/1155代币、DeFi协议、NFT市场等</p>
+                <div class="service-tags">
+                    <span class="service-tag">Solidity</span>
+                    <span class="service-tag">Remix</span>
+                    <span class="service-tag">Hardhat</span>
+                    <span class="service-tag">Truffle</span>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon purple">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <h3 class="service-name">DApp全栈开发</h3>
+                <p class="service-desc">去中心化应用前后端开发，钱包连接、链上交互、数据展示一站式服务</p>
+                <div class="service-tags">
+                    <span class="service-tag">Web3.js</span>
+                    <span class="service-tag">Ethers.js</span>
+                    <span class="service-tag">Vue/React</span>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon green">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <h3 class="service-name">Hyperledger Fabric</h3>
+                <p class="service-desc">企业级联盟链开发，Go语言链码编写，多组织网络搭建与部署</p>
+                <div class="service-tags">
+                    <span class="service-tag">Go</span>
+                    <span class="service-tag">Fabric</span>
+                    <span class="service-tag">联盟链</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Web全栈开发 -->
+        <div class="section-header">
+            <span class="section-tag"><i class="fas fa-globe"></i> 全栈开发</span>
+            <h2 class="section-title">Web 应用开发</h2>
+            <p class="section-desc">覆盖主流技术栈，满足各类Web应用开发需求</p>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon orange">
+                    <i class="fab fa-php"></i>
+                </div>
+                <h3 class="service-name">PHP开发</h3>
+                <p class="service-desc">企业级Web应用、后台管理系统、API接口开发</p>
+                <div class="service-tags">
+                    <span class="service-tag">ThinkPHP</span>
+                    <span class="service-tag">Laravel</span>
+                    <span class="service-tag">MySQL</span>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon cyan">
+                    <i class="fab fa-python"></i>
+                </div>
+                <h3 class="service-name">Python开发</h3>
+                <p class="service-desc">Web应用、数据分析、爬虫开发、自动化脚本</p>
+                <div class="service-tags">
+                    <span class="service-tag">Flask</span>
+                    <span class="service-tag">Django</span>
+                    <span class="service-tag">FastAPI</span>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon red">
+                    <i class="fab fa-java"></i>
+                </div>
+                <h3 class="service-name">Java开发</h3>
+                <p class="service-desc">企业级应用、微服务架构、分布式系统开发</p>
+                <div class="service-tags">
+                    <span class="service-tag">SpringBoot</span>
+                    <span class="service-tag">MyBatis</span>
+                    <span class="service-tag">微服务</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据与AI -->
+        <div class="section-header">
+            <span class="section-tag"><i class="fas fa-brain"></i> 数据智能</span>
+            <h2 class="section-title">数据分析 & 机器学习</h2>
+            <p class="section-desc">数据驱动决策，AI赋能业务</p>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon indigo">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="service-name">机器学习</h3>
+                <p class="service-desc">深度学习模型开发、训练与部署，AI应用落地</p>
+                <div class="service-tags">
+                    <span class="service-tag">TensorFlow</span>
+                    <span class="service-tag">PyTorch</span>
+                    <span class="service-tag">Scikit-learn</span>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon blue">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3 class="service-name">数据分析</h3>
+                <p class="service-desc">数据清洗、统计分析、可视化报表、BI系统</p>
+                <div class="service-tags">
+                    <span class="service-tag">Pandas</span>
+                    <span class="service-tag">NumPy</span>
+                    <span class="service-tag">ECharts</span>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon orange">
+                    <i class="fas fa-spider"></i>
+                </div>
+                <h3 class="service-name">爬虫 & NLP</h3>
+                <p class="service-desc">数据采集、文本分析、情感分析、智能问答</p>
+                <div class="service-tags">
+                    <span class="service-tag">Scrapy</span>
+                    <span class="service-tag">NLP</span>
+                    <span class="service-tag">BERT</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 为什么选择我 -->
+        <div class="why-section">
+            <div class="section-header" style="margin-bottom: 0;">
+                <span class="section-tag"><i class="fas fa-star"></i> 服务优势</span>
+                <h2 class="section-title">为什么选择我们</h2>
+            </div>
+
+            <div class="why-grid">
+                <div class="why-item">
+                    <div class="why-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="why-title">毕设全程指导</h3>
+                    <p class="why-desc">从选题、开题到答辩，提供完整的毕业设计支持服务</p>
+                </div>
+
+                <div class="why-item">
+                    <div class="why-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="why-title">快速响应</h3>
+                    <p class="why-desc">24小时内响应需求，高效沟通，确保按时交付</p>
+                </div>
+
+                <div class="why-item">
+                    <div class="why-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="why-title">质量保障</h3>
+                    <p class="why-desc">代码规范、文档齐全，提供长期售后技术支持</p>
+                </div>
+
+                <div class="why-item">
+                    <div class="why-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <h3 class="why-title">价格合理</h3>
+                    <p class="why-desc">根据项目复杂度合理定价，学生专享优惠</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 联系方式 -->
+        <div class="contact-section">
+            <div class="contact-info">
+                <span class="contact-tag"><i class="fas fa-envelope"></i> 联系合作</span>
+                <h2 class="contact-title">有项目需求？<br>立即联系我</h2>
+                <p class="contact-desc">
+                    无论是毕业设计、项目外包还是技术咨询，都可以扫码添加微信详细沟通，获取专业报价方案。
+                </p>
+                <div class="contact-features">
+                    <div class="contact-feature">
+                        <i class="fas fa-check"></i>
+                        <span>免费需求评估与技术方案</span>
+                    </div>
+                    <div class="contact-feature">
+                        <i class="fas fa-check"></i>
+                        <span>合理透明的项目报价</span>
+                    </div>
+                    <div class="contact-feature">
+                        <i class="fas fa-check"></i>
+                        <span>完善的售后技术支持</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qr-wrapper">
+                <div class="qr-card">
+                    <img src="/static/images/contact-qr.jpg" alt="微信二维码">
+                    <div class="qr-text">扫码添加微信</div>
+                    <div class="qr-hint">备注：项目咨询</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 智能文档处理平台 - 专业技术服务</p>
+    </footer>
+
+    <script>
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userMenu = document.getElementById('userMenu');
+            if (userDropdown && userMenu && !userDropdown.contains(event.target)) {
+                userMenu.classList.remove('show');
+            }
+        });
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

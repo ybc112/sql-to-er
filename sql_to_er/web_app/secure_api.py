@@ -63,15 +63,14 @@ def register_secure_api_routes(app: Flask, user_manager: UserManager, security_m
                 'password': data['password'],  # 密码不需要清理
                 'invite_code': security_middleware.sanitize_input(data.get('invite_code', '')) or None
             }
-            
+
             # 注册用户
             result = user_manager.register_user(
                 username=clean_data['username'],
                 email=clean_data['email'],
                 password=clean_data['password'],
                 invite_code=clean_data['invite_code'],
-                ip_address=g.client_ip,
-                user_agent=g.user_agent
+                ip_address=g.client_ip  # 传递IP用于防刷检查
             )
             
             if result['success']:

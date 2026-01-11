@@ -188,27 +188,36 @@ class AdminStats:
         """)
         stats['today_usage'] = cursor.fetchone()['count']
         
-        # 论文生成统计
-        cursor.execute("SELECT COUNT(*) as total FROM paper_generation_history")
-        stats['total_papers'] = cursor.fetchone()['total']
+        # 论文生成统计（使用 papers 表）
+        try:
+            cursor.execute("SELECT COUNT(*) as total FROM papers")
+            stats['total_papers'] = cursor.fetchone()['total']
+        except:
+            stats['total_papers'] = 0
         
         # 答辩问题生成统计
-        cursor.execute("SELECT COUNT(*) as total FROM defense_question_history")
-        stats['total_defense_questions'] = cursor.fetchone()['total']
+        try:
+            cursor.execute("SELECT COUNT(*) as total FROM defense_question_history")
+            stats['total_defense_questions'] = cursor.fetchone()['total']
+        except:
+            stats['total_defense_questions'] = 0
         
         return stats
     
     def _get_activity_stats(self, cursor):
         """获取系统活动统计"""
         stats = {}
-        
+
         # 今日登录次数
-        cursor.execute("""
-            SELECT COUNT(*) as count
-            FROM login_logs
-            WHERE DATE(created_at) = CURDATE() AND status = 'success'
-        """)
-        stats['today_logins'] = cursor.fetchone()['count']
+        try:
+            cursor.execute("""
+                SELECT COUNT(*) as count
+                FROM login_logs
+                WHERE DATE(created_at) = CURDATE() AND status = 'success'
+            """)
+            stats['today_logins'] = cursor.fetchone()['count']
+        except:
+            stats['today_logins'] = 0
         
         # 在线用户数（基于最近登录时间）
         cursor.execute("""
@@ -1074,6 +1083,360 @@ class AdminStats:
             if conn:
                 conn.rollback()
             return {'success': False, 'message': '删除失败'}
+        finally:
+            if conn:
+                conn.close()
+
+    def get_system_info(self):
+        """获取系统信息"""
+        import platform
+        import sys
+        import os
+
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                # 获取数据库信息
+                cursor.execute("SELECT VERSION() as version")
+                db_version = cursor.fetchone()['version']
+
+                # 获取数据库大小
+                cursor.execute("""
+                    SELECT
+                        ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size_mb
+                    FROM information_schema.tables
+                    WHERE table_schema = %s
+                """, (self.db_config['database'],))
+                db_size = cursor.fetchone()['size_mb'] or 0
+
+                # 获取表数量
+                cursor.execute("""
+                    SELECT COUNT(*) as table_count
+                    FROM information_schema.tables
+                    WHERE table_schema = %s
+                """, (self.db_config['database'],))
+                table_count = cursor.fetchone()['table_count']
+
+                # 获取总记录数（主要表）
+                cursor.execute("SELECT COUNT(*) as c FROM users")
+                user_count = cursor.fetchone()['c']
+                cursor.execute("SELECT COUNT(*) as c FROM consumption_records")
+                consumption_count = cursor.fetchone()['c']
+                cursor.execute("SELECT COUNT(*) as c FROM recharge_records")
+                recharge_count = cursor.fetchone()['c']
+
+            return {
+                'success': True,
+                'data': {
+                    'server': {
+                        'os': platform.system(),
+                        'os_version': platform.version(),
+                        'hostname': platform.node(),
+                        'python_version': sys.version.split()[0],
+                        'platform': platform.platform(),
+                    },
+                    'database': {
+                        'version': db_version,
+                        'name': self.db_config['database'],
+                        'size_mb': float(db_size),
+                        'table_count': table_count,
+                    },
+                    'statistics': {
+                        'user_count': user_count,
+                        'consumption_count': consumption_count,
+                        'recharge_count': recharge_count,
+                    },
+                    'app': {
+                        'version': '2.0.0',
+                        'env': os.environ.get('FLASK_ENV', 'production'),
+                    }
+                }
+            }
+        except Exception as e:
+            logger.error(f"获取系统信息失败: {e}")
+            return {'success': False, 'message': str(e)}
+        finally:
+            if conn:
+                conn.close()
+
+    def clear_logs(self, days=30):
+        """清理日志记录"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                deleted_count = 0
+
+                # 清理登录日志
+                cursor.execute("""
+                    DELETE FROM login_logs
+                    WHERE created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
+                """, (days,))
+                deleted_count += cursor.rowcount
+
+                conn.commit()
+
+                return {
+                    'success': True,
+                    'message': f'成功清理 {deleted_count} 条日志记录',
+                    'deleted_count': deleted_count
+                }
+        except Exception as e:
+            logger.error(f"清理日志失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': str(e)}
+        finally:
+            if conn:
+                conn.close()
+
+    def clear_expired_data(self, days=90):
+        """清理过期数据"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                deleted_counts = {}
+
+                # 清理过期的未支付订单
+                cursor.execute("""
+                    DELETE FROM recharge_records
+                    WHERE status IN ('pending', 'unpaid', '0')
+                    AND created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
+                """, (days,))
+                deleted_counts['expired_orders'] = cursor.rowcount
+
+                # 清理过期的论文生成历史（可选）
+                cursor.execute("""
+                    DELETE FROM paper_generation_history
+                    WHERE created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
+                """, (days * 2,))
+                deleted_counts['paper_history'] = cursor.rowcount
+
+                # 清理过期的答辩问题历史
+                cursor.execute("""
+                    DELETE FROM defense_question_history
+                    WHERE created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
+                """, (days * 2,))
+                deleted_counts['defense_history'] = cursor.rowcount
+
+                conn.commit()
+
+                total_deleted = sum(deleted_counts.values())
+                return {
+                    'success': True,
+                    'message': f'成功清理 {total_deleted} 条过期数据',
+                    'details': deleted_counts
+                }
+        except Exception as e:
+            logger.error(f"清理过期数据失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': str(e)}
+        finally:
+            if conn:
+                conn.close()
+
+    def export_config(self):
+        """导出系统配置"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT config_key, config_value, description
+                    FROM system_config
+                    ORDER BY config_key
+                """)
+                configs = cursor.fetchall()
+
+                # 转换为可导出的格式
+                export_data = {
+                    'export_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'version': '2.0.0',
+                    'configs': {}
+                }
+
+                for config in configs:
+                    # 敏感信息脱敏
+                    key = config['config_key']
+                    value = config['config_value']
+
+                    if any(s in key.lower() for s in ['password', 'secret', 'private_key', 'api_key']):
+                        value = '******'  # 脱敏处理
+
+                    export_data['configs'][key] = {
+                        'value': value,
+                        'description': config['description']
+                    }
+
+                return {'success': True, 'data': export_data}
+        except Exception as e:
+            logger.error(f"导出配置失败: {e}")
+            return {'success': False, 'message': str(e)}
+        finally:
+            if conn:
+                conn.close()
+
+    def import_config(self, config_data):
+        """导入系统配置"""
+        conn = None
+        try:
+            if not config_data or 'configs' not in config_data:
+                return {'success': False, 'message': '无效的配置数据'}
+
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                imported_count = 0
+                skipped_count = 0
+
+                for key, item in config_data['configs'].items():
+                    value = item.get('value', '')
+                    description = item.get('description', '')
+
+                    # 跳过脱敏的值
+                    if value == '******':
+                        skipped_count += 1
+                        continue
+
+                    cursor.execute("""
+                        INSERT INTO system_config (config_key, config_value, description)
+                        VALUES (%s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                        config_value = VALUES(config_value),
+                        description = COALESCE(VALUES(description), description)
+                    """, (key, value, description))
+                    imported_count += 1
+
+                conn.commit()
+
+                return {
+                    'success': True,
+                    'message': f'成功导入 {imported_count} 项配置，跳过 {skipped_count} 项敏感配置',
+                    'imported': imported_count,
+                    'skipped': skipped_count
+                }
+        except Exception as e:
+            logger.error(f"导入配置失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': str(e)}
+        finally:
+            if conn:
+                conn.close()
+
+    def reset_config_to_default(self):
+        """重置配置为默认值"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                # 默认配置
+                default_configs = [
+                    ('site_name', '智能文档处理平台', '网站名称'),
+                    ('site_description', '专业的智能文档处理和AI工具平台', '网站描述'),
+                    ('maintenance_mode', '0', '维护模式'),
+                    ('allow_registration', '1', '允许注册'),
+                    ('new_user_bonus', '10.00', '新用户注册奖励'),
+                    ('invite_reward', '5.00', '邀请奖励'),
+
+                    # 价格设置
+                    ('sql_to_er_cost', '1.00', 'SQL转ER图价格'),
+                    ('thesis_defense_cost', '5.00', '答辩问题生成价格'),
+                    ('paper_generation_cost', '10.00', '论文生成价格'),
+                    ('paper_structure_cost', '4.00', '论文结构生成价格'),
+                    ('ai_translation_cost', '2.00', 'AI翻译价格'),
+                    ('flowchart_cost', '2.00', '流程图生成价格'),
+                    ('text_optimizer_cost', '1.50', '文本优化价格'),
+                    ('ai_detector_cost', '1.00', 'AI检测价格'),
+
+                    # 系统设置
+                    ('debug_mode', '0', '调试模式'),
+                    ('api_rate_limit', '60', 'API速率限制'),
+                    ('session_timeout', '1440', '会话超时时间（分钟）'),
+
+                    # AI设置
+                    ('ai_model_name', 'deepseek-chat', 'AI模型名称'),
+                    ('ai_api_base', 'https://api.deepseek.com', 'AI API地址'),
+                ]
+
+                for key, value, desc in default_configs:
+                    cursor.execute("""
+                        INSERT INTO system_config (config_key, config_value, description)
+                        VALUES (%s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                        config_value = VALUES(config_value),
+                        description = VALUES(description)
+                    """, (key, value, desc))
+
+                conn.commit()
+                return {'success': True, 'message': f'成功重置 {len(default_configs)} 项配置'}
+        except Exception as e:
+            logger.error(f"重置配置失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': str(e)}
+        finally:
+            if conn:
+                conn.close()
+
+    def get_operation_logs(self, page=1, per_page=50, log_type=None, start_date=None, end_date=None):
+        """获取操作日志"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                where_conditions = []
+                params = []
+
+                if log_type:
+                    where_conditions.append("status = %s")
+                    params.append(log_type)
+
+                if start_date:
+                    where_conditions.append("DATE(created_at) >= %s")
+                    params.append(start_date)
+
+                if end_date:
+                    where_conditions.append("DATE(created_at) <= %s")
+                    params.append(end_date)
+
+                where_clause = " WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+
+                # 获取总数
+                cursor.execute(f"SELECT COUNT(*) as total FROM login_logs{where_clause}", params)
+                total = cursor.fetchone()['total']
+
+                # 获取分页数据
+                offset = (page - 1) * per_page
+                cursor.execute(f"""
+                    SELECT
+                        l.id, l.user_id, l.ip_address, l.user_agent,
+                        l.status, l.created_at,
+                        u.username
+                    FROM login_logs l
+                    LEFT JOIN users u ON l.user_id = u.id
+                    {where_clause}
+                    ORDER BY l.created_at DESC
+                    LIMIT %s OFFSET %s
+                """, params + [per_page, offset])
+
+                logs = cursor.fetchall()
+
+                return {
+                    'success': True,
+                    'data': {
+                        'logs': logs,
+                        'total': total,
+                        'page': page,
+                        'per_page': per_page,
+                        'total_pages': (total + per_page - 1) // per_page
+                    }
+                }
+        except Exception as e:
+            logger.error(f"获取操作日志失败: {e}")
+            return {'success': False, 'message': str(e)}
         finally:
             if conn:
                 conn.close()

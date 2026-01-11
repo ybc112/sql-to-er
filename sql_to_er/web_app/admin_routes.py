@@ -458,4 +458,343 @@ def create_admin_blueprint(admin_auth, admin_stats=None, user_manager=None):
         else:
             return jsonify(result), 400
     
+    @admin_bp.route('/api/users/<int:user_id>/edit', methods=['POST'])
+    @admin_required
+    def edit_user(user_id):
+        """编辑用户信息"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        data = request.get_json()
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        result = user_manager.update_user_info(user_id, username, email, password)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+
+    @admin_bp.route('/api/users/<int:user_id>/delete', methods=['DELETE'])
+    @admin_required
+    def delete_user(user_id):
+        """删除用户"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        result = user_manager.delete_user(user_id)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+
+    @admin_bp.route('/api/users/<int:user_id>/reset-password', methods=['POST'])
+    @admin_required
+    def reset_user_password(user_id):
+        """重置用户密码"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        data = request.get_json()
+        new_password = data.get('password', '')
+
+        result = user_manager.reset_user_password(user_id, new_password)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+
+    @admin_bp.route('/api/users/<int:user_id>/role', methods=['POST'])
+    @admin_required
+    def update_user_role(user_id):
+        """更新用户角色"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        data = request.get_json()
+        new_role = data.get('role', 'user')
+
+        result = user_manager.update_user_role(user_id, new_role)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+
+    @admin_bp.route('/api/users/<int:user_id>/transactions')
+    @admin_required
+    def get_user_transactions(user_id):
+        """获取用户交易记录"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+
+        result = user_manager.get_user_transactions(user_id, page, per_page)
+        return jsonify({'success': True, 'data': result})
+
+    @admin_bp.route('/api/users/batch/status', methods=['POST'])
+    @admin_required
+    def batch_update_user_status():
+        """批量更新用户状态"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        data = request.get_json()
+        user_ids = data.get('user_ids', [])
+        status = data.get('status', 0)
+
+        result = user_manager.batch_update_status(user_ids, status)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+
+    @admin_bp.route('/api/users/batch/delete', methods=['POST'])
+    @admin_required
+    def batch_delete_users():
+        """批量删除用户"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        data = request.get_json()
+        user_ids = data.get('user_ids', [])
+
+        result = user_manager.batch_delete_users(user_ids)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+
+    @admin_bp.route('/api/users/export')
+    @admin_required
+    def export_users():
+        """导出用户列表"""
+        if not user_manager:
+            return jsonify({'success': False, 'message': '功能未启用'}), 400
+
+        from flask import Response
+        import csv
+        import io
+
+        # 获取筛选参数
+        search = request.args.get('search', '')
+        status = request.args.get('status', type=int)
+        date_start = request.args.get('date_start', '')
+        date_end = request.args.get('date_end', '')
+        balance_min = request.args.get('balance_min', type=float)
+        balance_max = request.args.get('balance_max', type=float)
+        sort_by = request.args.get('sort_by', 'created_at')
+        sort_order = request.args.get('sort_order', 'DESC')
+        export_format = request.args.get('format', 'csv')
+
+        users = user_manager.export_users(
+            search=search if search else None,
+            status=status,
+            date_start=date_start if date_start else None,
+            date_end=date_end if date_end else None,
+            balance_min=balance_min,
+            balance_max=balance_max,
+            sort_by=sort_by,
+            sort_order=sort_order
+        )
+
+        if export_format == 'csv':
+            # 生成CSV
+            output = io.StringIO()
+            writer = csv.writer(output)
+
+            # 写入表头
+            writer.writerow(['ID', '用户名', '邮箱', '余额', '累计充值', '累计消费',
+                           '邀请收益', '状态', '注册时间', '最后登录', '邀请码'])
+
+            # 写入数据
+            for user in users:
+                writer.writerow([
+                    user['id'],
+                    user['username'] or '',
+                    user['email'] or '',
+                    f"{user['balance']:.2f}",
+                    f"{user['total_recharge']:.2f}",
+                    f"{user['total_consumption']:.2f}",
+                    f"{user['invite_earnings']:.2f}",
+                    '正常' if user['status'] == 1 else '禁用',
+                    user['created_at'].strftime('%Y-%m-%d %H:%M:%S') if user['created_at'] else '',
+                    user['last_login_at'].strftime('%Y-%m-%d %H:%M:%S') if user['last_login_at'] else '',
+                    user['invite_code'] or ''
+                ])
+
+            output.seek(0)
+            return Response(
+                output.getvalue(),
+                mimetype='text/csv',
+                headers={'Content-Disposition': 'attachment; filename=users_export.csv'}
+            )
+        else:
+            # 返回JSON
+            return jsonify({'success': True, 'data': users})
+
+    # ============ 系统设置相关 API ============
+
+    @admin_bp.route('/api/system/info')
+    @admin_required
+    def get_system_info():
+        """获取系统信息"""
+        result = admin_stats.get_system_info()
+        return jsonify(result)
+
+    @admin_bp.route('/api/system/clear-logs', methods=['POST'])
+    @admin_required
+    def clear_logs():
+        """清理日志"""
+        data = request.get_json() or {}
+        days = data.get('days', 30)
+        result = admin_stats.clear_logs(days=int(days))
+        return jsonify(result)
+
+    @admin_bp.route('/api/system/clear-expired', methods=['POST'])
+    @admin_required
+    def clear_expired_data():
+        """清理过期数据"""
+        data = request.get_json() or {}
+        days = data.get('days', 90)
+        result = admin_stats.clear_expired_data(days=int(days))
+        return jsonify(result)
+
+    @admin_bp.route('/api/config/export')
+    @admin_required
+    def export_config():
+        """导出配置"""
+        result = admin_stats.export_config()
+        if result['success']:
+            return Response(
+                json.dumps(result['data'], ensure_ascii=False, indent=2),
+                mimetype='application/json',
+                headers={'Content-Disposition': 'attachment; filename=system_config.json'}
+            )
+        return jsonify(result)
+
+    @admin_bp.route('/api/config/import', methods=['POST'])
+    @admin_required
+    def import_config():
+        """导入配置"""
+        try:
+            if 'file' in request.files:
+                file = request.files['file']
+                config_data = json.load(file)
+            else:
+                config_data = request.get_json()
+
+            result = admin_stats.import_config(config_data)
+            return jsonify(result)
+        except json.JSONDecodeError:
+            return jsonify({'success': False, 'message': '无效的JSON格式'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+
+    @admin_bp.route('/api/config/reset', methods=['POST'])
+    @admin_required
+    def reset_config():
+        """重置配置为默认值"""
+        result = admin_stats.reset_config_to_default()
+        return jsonify(result)
+
+    @admin_bp.route('/api/system/test-email', methods=['POST'])
+    @admin_required
+    def test_email():
+        """测试邮件发送"""
+        data = request.get_json() or {}
+        test_to = data.get('email', '')
+
+        if not test_to:
+            return jsonify({'success': False, 'message': '请输入测试邮箱地址'})
+
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.header import Header
+
+            # 获取配置
+            configs = admin_stats.get_system_config()
+            smtp_host = configs.get('smtp_host', {}).get('value', 'smtp.qq.com')
+            smtp_port = int(configs.get('smtp_port', {}).get('value', '465'))
+            smtp_username = configs.get('smtp_username', {}).get('value', '')
+            smtp_password = configs.get('smtp_password', {}).get('value', '')
+            site_name = configs.get('site_name', {}).get('value', '智能文档处理平台')
+
+            if not smtp_username or not smtp_password:
+                return jsonify({'success': False, 'message': '请先配置SMTP用户名和密码'})
+
+            # 构建邮件
+            message = MIMEText(f'这是一封来自 {site_name} 的测试邮件，如果您收到此邮件，说明邮件配置正确。', 'plain', 'utf-8')
+            message['From'] = Header(f'{site_name} <{smtp_username}>', 'utf-8')
+            message['To'] = Header(test_to, 'utf-8')
+            message['Subject'] = Header(f'{site_name} - 邮件配置测试', 'utf-8')
+
+            # 发送邮件
+            if smtp_port == 465:
+                server = smtplib.SMTP_SSL(smtp_host, smtp_port)
+            else:
+                server = smtplib.SMTP(smtp_host, smtp_port)
+                server.starttls()
+
+            server.login(smtp_username, smtp_password)
+            server.sendmail(smtp_username, [test_to], message.as_string())
+            server.quit()
+
+            return jsonify({'success': True, 'message': f'测试邮件已发送到 {test_to}'})
+        except Exception as e:
+            logger.error(f"发送测试邮件失败: {e}")
+            return jsonify({'success': False, 'message': f'发送失败: {str(e)}'})
+
+    @admin_bp.route('/api/system/logs')
+    @admin_required
+    def get_operation_logs():
+        """获取操作日志"""
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 50, type=int)
+        log_type = request.args.get('type')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        result = admin_stats.get_operation_logs(
+            page=page,
+            per_page=per_page,
+            log_type=log_type,
+            start_date=start_date,
+            end_date=end_date
+        )
+        return jsonify(result)
+
+    @admin_bp.route('/api/config/batch', methods=['POST'])
+    @admin_required
+    def batch_update_config():
+        """批量更新配置"""
+        data = request.get_json() or {}
+        settings = data.get('settings', [])
+
+        if not settings:
+            return jsonify({'success': False, 'message': '没有要更新的配置'})
+
+        success_count = 0
+        error_count = 0
+
+        for setting in settings:
+            key = setting.get('key')
+            value = setting.get('value')
+            if key and value is not None:
+                if admin_stats.update_system_config(key, value):
+                    success_count += 1
+                else:
+                    error_count += 1
+
+        if error_count == 0:
+            return jsonify({'success': True, 'message': f'成功更新 {success_count} 项配置'})
+        else:
+            return jsonify({
+                'success': success_count > 0,
+                'message': f'成功 {success_count} 项，失败 {error_count} 项'
+            })
+
     return admin_bp

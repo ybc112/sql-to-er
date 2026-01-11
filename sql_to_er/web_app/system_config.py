@@ -159,6 +159,7 @@ class ServiceTypes:
     SQL_TO_ER = 'sql_to_er'
     ER_OPTIMIZATION = 'er_optimization'
     DATABASE_DESIGN = 'database_design'
+    FLOWCHART_GENERATION = 'flowchart_generation'
 
 # 默认价格配置
 DEFAULT_PRICES = {
@@ -167,6 +168,7 @@ DEFAULT_PRICES = {
     ServiceTypes.SQL_TO_ER: 1.50,
     ServiceTypes.ER_OPTIMIZATION: 1.00,
     ServiceTypes.DATABASE_DESIGN: 2.50,
+    ServiceTypes.FLOWCHART_GENERATION: 1.00,
 }
 
 def init_default_config():
@@ -187,6 +189,7 @@ def init_default_config():
                 ('sql_to_er_price', '1.50', 'SQL转ER图价格（元）'),
                 ('er_optimization_price', '1.00', 'ER图优化价格（元）'),
                 ('database_design_price', '2.50', '数据库设计价格（元）'),
+                ('flowchart_generation_price', '1.00', '流程图生成价格（元）'),
                 ('ai_model_name', 'deepseek-chat', '使用的AI模型'),
                 ('site_name', 'SQL转ER图工具', '网站名称'),
                 ('maintenance_mode', '0', '维护模式（0关闭，1开启）'),

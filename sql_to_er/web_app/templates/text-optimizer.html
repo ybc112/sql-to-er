@@ -3,60 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- SEO优化 -->
-    <title>AI文本优化器 - 智能去AI痕迹工具 | 文本重写与优化平台</title>
-    <meta name="description" content="专业的AI文本优化工具，智能重写文本内容，降低AI生成痕迹，保持原意不变。支持长文本分段处理，前后对比展示，一键优化文章内容。">
-    <meta name="keywords" content="AI文本优化,文本重写,去AI痕迹,文章优化,智能改写,文本润色,内容优化,文本处理">
-    <meta name="author" content="智能文档处理平台">
-    <meta name="robots" content="index, follow">
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="AI文本优化器 - 智能去AI痕迹工具">
-    <meta property="og:description" content="专业的文本优化工具，智能重写内容，降低AI生成痕迹">
-    <meta property="og:type" content="website">
-    
-    <!-- Font Awesome -->
+    <title>AI文本优化器 - 智能降低AI检测率</title>
+    <meta name="description" content="基于AI检测原理的专业文本优化工具，智能降低知网、Turnitin、GPTZero等平台的AI检测率。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            /* 现代企业级配色方案 */
-            --primary-50: #eff6ff;
-            --primary-100: #dbeafe;
-            --primary-200: #bfdbfe;
-            --primary-300: #93c5fd;
-            --primary-400: #60a5fa;
-            --primary-500: #3b82f6;
-            --primary-600: #2563eb;
-            --primary-700: #1d4ed8;
-            --primary-800: #1e40af;
-            --primary-900: #1e3a8a;
-            
-            /* 成功色系 */
-            --success-50: #ecfdf5;
-            --success-100: #d1fae5;
-            --success-500: #10b981;
-            --success-600: #059669;
-            --success-700: #047857;
-            
-            /* 警告色系 */
-            --warning-50: #fffbeb;
-            --warning-100: #fef3c7;
-            --warning-500: #f59e0b;
-            --warning-600: #d97706;
-            
-            /* 错误色系 */
-            --danger-50: #fef2f2;
-            --danger-100: #fee2e2;
-            --danger-500: #ef4444;
-            --danger-600: #dc2626;
-            
-            /* 中性色系 */
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
@@ -67,38 +24,10 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
-            
-            /* 阴影系统 */
-            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            
-            /* 高光颜色 */
-            --highlight-add: var(--success-50);
-            --highlight-add-border: var(--success-500);
-            --highlight-remove: var(--danger-50);
-            --highlight-remove-border: var(--danger-500);
-            --highlight-modify: var(--warning-50);
-            --highlight-modify-border: var(--warning-500);
-            
-            /* 边框半径 */
-            --radius-xs: 0.25rem;
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-2xl: 1.5rem;
-            
-            /* 间距系统 */
-            --space-xs: 0.25rem;
-            --space-sm: 0.5rem;
-            --space-md: 1rem;
-            --space-lg: 1.5rem;
-            --space-xl: 2rem;
-            --space-2xl: 3rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -107,1580 +36,2745 @@
             box-sizing: border-box;
         }
 
-        /* Toast 提示样式 */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            z-index: 9999;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            border-left: 4px solid var(--primary-500);
-            max-width: 400px;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast.success {
-            border-left-color: var(--success-500);
-            color: var(--success-700);
-        }
-
-        .toast.warning {
-            border-left-color: var(--warning-500);
-            color: var(--warning-700);
-        }
-
-        .toast.danger {
-            border-left-color: var(--danger-500);
-            color: var(--danger-700);
-        }
-
-        .toast.info {
-            border-left-color: var(--primary-500);
-            color: var(--primary-700);
-        }
-
-        /* 登录弹窗样式增强 */
-        .modal-content {
-            border: none;
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-2xl);
-        }
-
-        .modal-header {
-            border-bottom: 1px solid var(--gray-200);
-            padding: 1.5rem;
-        }
-
-        .modal-body {
-            padding: 2rem 1.5rem;
-        }
-
-        .modal-footer {
-            border-top: 1px solid var(--gray-200);
-            padding: 1rem 1.5rem;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: var(--gray-50);
-            color: var(--gray-900);
-            line-height: 1.6;
+            color: var(--gray-800);
+            min-height: 100vh;
             font-size: 14px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.5;
         }
 
-        /* 现代化头部设计 */
+        /* 顶部导航 */
         .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: #fff;
             border-bottom: 1px solid var(--gray-200);
-            padding: var(--space-lg) 0;
+            padding: 0 24px;
+            height: 64px;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            z-index: 100;
         }
-        
-        .header-container {
+
+        .header-inner {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 var(--space-xl);
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        
-        .header-left {
+
+        .logo {
             display: flex;
             align-items: center;
-            gap: var(--space-xl);
+            gap: 12px;
         }
-        
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-        }
-        
+
         .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
-            border-radius: var(--radius-xl);
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            box-shadow: var(--shadow-lg);
-            transition: all 0.3s ease;
+            color: #fff;
+            font-size: 18px;
         }
 
-        .logo-icon:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .header-title {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header-title h1 {
-            font-size: 1.75rem;
-            font-weight: 800;
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
             color: var(--gray-900);
-            margin: 0;
-            line-height: 1.2;
-            letter-spacing: -0.025em;
         }
 
-        .header-subtitle {
-            font-size: 0.875rem;
+        .logo-desc {
+            font-size: 12px;
             color: var(--gray-500);
-            margin: 0;
-            font-weight: 500;
         }
 
-        .nav-back {
+        .header-right {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
-            color: var(--gray-600);
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            padding: var(--space-sm) var(--space-md);
-            border-radius: var(--radius-lg);
-            transition: all 0.2s ease;
-            border: 1px solid var(--gray-200);
-            background: white;
-        }
-
-        .nav-back:hover {
-            color: var(--primary-600);
-            background: var(--primary-50);
-            border-color: var(--primary-200);
-            text-decoration: none;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
+            gap: 16px;
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: var(--space-md);
-            font-size: 0.875rem;
+            gap: 12px;
+            font-size: 14px;
             color: var(--gray-600);
         }
 
         .user-balance {
-            background: var(--gray-100);
-            padding: var(--space-sm) var(--space-md);
-            border-radius: var(--radius-lg);
-            font-weight: 600;
-            color: var(--gray-700);
+            background: var(--success);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 13px;
         }
 
-        /* 主要内容区域 */
-        .main-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: var(--space-xl);
-        }
-
-        /* 精美的使用说明卡片 */
-        .info-card {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
-            border: 1px solid var(--primary-200);
-            border-radius: var(--radius-2xl);
-            padding: var(--space-xl);
-            margin-bottom: var(--space-xl);
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .info-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-500), var(--success-500));
-        }
-
-        .info-card h6 {
+        .back-btn {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
-            font-size: 1.125rem;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #fff;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            color: var(--gray-700);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        /* 主内容 */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
             font-weight: 700;
             color: var(--gray-900);
-            margin-bottom: var(--space-lg);
+            margin-bottom: 8px;
         }
 
-        .info-card ul {
-            margin: 0;
-            padding-left: var(--space-lg);
-            color: var(--gray-700);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--space-sm);
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--gray-500);
         }
 
-        .info-card li {
-            margin-bottom: var(--space-sm);
-            font-size: 0.875rem;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .info-card li::marker {
-            color: var(--primary-500);
-        }
-
-        /* 现代化工作区域 */
-        .workspace {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--space-xl);
-            margin-bottom: var(--space-xl);
-        }
-
-        .work-panel {
-            background: white;
+        /* AI检测原理卡片 */
+        .info-card {
+            background: #fff;
             border: 1px solid var(--gray-200);
-            border-radius: var(--radius-2xl);
+            border-radius: 12px;
+            margin-bottom: 20px;
             overflow: hidden;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
         }
 
-        .work-panel:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .panel-header {
-            background: linear-gradient(135deg, var(--gray-50), white);
-            border-bottom: 1px solid var(--gray-200);
-            padding: var(--space-lg) var(--space-xl);
+        .info-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .info-header:hover {
+            background: var(--gray-50);
+        }
+
+        .info-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .info-title i {
+            color: var(--warning);
+            font-size: 18px;
+        }
+
+        .info-toggle {
+            color: var(--gray-400);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-toggle i {
+            transition: transform 0.3s;
+        }
+
+        .info-content {
+            display: none;
+            padding: 0 20px 20px;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .info-content.show {
+            display: block;
+        }
+
+        .principle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding-top: 16px;
+        }
+
+        .principle-item {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .principle-item h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .principle-item h4 i {
+            font-size: 16px;
+        }
+
+        .principle-item h4 .icon-perplexity { color: #8b5cf6; }
+        .principle-item h4 .icon-burstiness { color: #06b6d4; }
+        .principle-item h4 .icon-pattern { color: #f59e0b; }
+
+        .principle-item .badge {
+            font-size: 11px;
+            background: var(--gray-200);
+            color: var(--gray-600);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .principle-item p {
+            font-size: 13px;
+            color: var(--gray-600);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .principle-item ul {
+            padding-left: 18px;
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .principle-item li {
+            margin-bottom: 4px;
+        }
+
+        /* 提示卡片 */
+        .tips-card {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .tips-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tips-title i {
+            color: #f59e0b;
+        }
+
+        .tips-list {
+            font-size: 13px;
+            color: #78350f;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        .tips-list li {
+            margin-bottom: 4px;
+        }
+
+        .tips-list strong {
+            color: #92400e;
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .settings-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-title i {
+            color: var(--gray-400);
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .setting-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .setting-select {
+            padding: 10px 14px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--gray-700);
+            background: #fff;
+            min-width: 180px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .setting-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .intensity-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .intensity-slider {
+            width: 140px;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--gray-200);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .intensity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+
+        .intensity-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 24px;
+        }
+
+        .intensity-desc {
+            font-size: 13px;
+            color: var(--gray-500);
+            padding: 4px 10px;
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        /* 高级选项 */
+        .advanced-section {
+            border-top: 1px solid var(--gray-200);
+            margin-top: 20px;
+            padding-top: 16px;
+        }
+
+        .advanced-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--gray-600);
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .advanced-header:hover {
+            color: var(--gray-800);
+        }
+
+        .advanced-header i {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+
+        .advanced-header.expanded i {
+            transform: rotate(180deg);
+        }
+
+        .advanced-content {
+            display: none;
+            padding-top: 16px;
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--gray-300);
+            background: #fff;
+        }
+
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+            margin-top: 1px;
+        }
+
+        .checkbox-item .label-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .checkbox-item .label-desc {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-top: 2px;
+        }
+
+        /* 工作区 */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-200);
         }
 
         .panel-title {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin: 0;
-        }
-
-        .panel-body {
-            padding: var(--space-xl);
-        }
-
-        /* 精美的表单控件 */
-        .form-control {
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            padding: var(--space-md);
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            background: white;
-            resize: vertical;
-            font-family: inherit;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-500);
-            box-shadow: 0 0 0 4px var(--primary-100);
-            background: var(--primary-50);
-        }
-
-        .form-control::placeholder {
-            color: var(--gray-400);
-            font-weight: 400;
-        }
-
-        .form-label {
+            gap: 10px;
+            font-size: 15px;
             font-weight: 600;
-            color: var(--gray-700);
-            margin-bottom: var(--space-sm);
-            font-size: 0.875rem;
+            color: var(--gray-800);
         }
 
-        .form-text {
+        .panel-title i {
+            font-size: 18px;
+        }
+
+        .panel-title .icon-input { color: var(--primary); }
+        .panel-title .icon-output { color: var(--success); }
+
+        .panel-actions {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: var(--space-sm);
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            font-weight: 500;
+            gap: 8px;
         }
 
-        /* 现代化按钮系统 */
         .btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: var(--space-sm);
-            padding: var(--space-md) var(--space-xl);
-            border: none;
-            border-radius: var(--radius-lg);
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
+            gap: 6px;
+            padding: 8px 14px;
+            background: #fff;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            color: var(--gray-600);
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            line-height: 1;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.2s;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-outline-success {
-            background: white;
-            color: var(--success-600);
-            border: 2px solid var(--success-500);
-        }
-
-        .btn-outline-success:hover:not(:disabled) {
-            background: var(--success-500);
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-outline-success:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-lg {
-            padding: var(--space-lg) var(--space-2xl);
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        .btn-sm {
-            padding: var(--space-sm) var(--space-md);
-            font-size: 0.75rem;
-        }
-
-        /* 精美的进度条 */
-        .progress-area {
-            margin-top: var(--space-lg);
-            padding: var(--space-lg);
+        .btn:hover:not(:disabled) {
             background: var(--gray-50);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-200);
+            border-color: var(--gray-400);
+            color: var(--gray-700);
         }
 
-        .progress {
-            height: 8px;
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .panel-body {
+            flex: 1;
+            padding: 16px 20px;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 14px 16px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--gray-800);
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .textarea::placeholder {
+            color: var(--gray-400);
+        }
+
+        .panel-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--gray-500);
+            background: var(--gray-50);
+        }
+
+        .char-count {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* 提交按钮 */
+        .submit-section {
+            padding: 16px 20px;
+            background: #fff;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .submit-btn:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+        }
+
+        /* 进度条 */
+        .progress-section {
+            display: none;
+            padding: 16px 20px;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .progress-bar-bg {
+            height: 6px;
             background: var(--gray-200);
-            border-radius: var(--radius-sm);
+            border-radius: 3px;
             overflow: hidden;
-            position: relative;
         }
 
         .progress-bar {
-            background: linear-gradient(90deg, var(--primary-500), var(--success-500));
             height: 100%;
-            border-radius: var(--radius-sm);
-            transition: width 0.6s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background-image: linear-gradient(
-                -45deg,
-                rgba(255, 255, 255, 0.2) 25%,
-                transparent 25%,
-                transparent 50%,
-                rgba(255, 255, 255, 0.2) 50%,
-                rgba(255, 255, 255, 0.2) 75%,
-                transparent 75%,
-                transparent
-            );
-            background-size: 1rem 1rem;
-            animation: progress-bar-stripes 1s linear infinite;
-        }
-
-        @keyframes progress-bar-stripes {
-            0% { background-position: 1rem 0; }
-            100% { background-position: 0 0; }
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
         }
 
         .progress-text {
-            text-align: center;
-            margin-top: var(--space-md);
-            font-size: 0.875rem;
+            margin-top: 10px;
+            font-size: 13px;
             color: var(--gray-600);
-            font-weight: 600;
+            text-align: center;
         }
 
-        /* 精美的统计信息 */
-        .stats-grid {
+        /* AI检测结果卡片 */
+        .detect-card {
+            display: none;
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .detect-card.show {
+            display: block;
+        }
+
+        .detect-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+
+        .detect-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .detect-title i {
+            color: var(--primary);
+        }
+
+        .detect-body {
+            padding: 20px;
+        }
+
+        .detect-score-section {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 24px;
+        }
+
+        .score-circle {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+
+        .score-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-circle .bg {
+            fill: none;
+            stroke: var(--gray-200);
+            stroke-width: 10;
+        }
+
+        .score-circle .progress {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .score-circle .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-circle .score-value {
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .score-circle .score-label {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        .score-info {
+            flex: 1;
+        }
+
+        .score-level {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .score-level.high { background: #fef2f2; color: #dc2626; }
+        .score-level.medium { background: #fffbeb; color: #d97706; }
+        .score-level.low { background: #eff6ff; color: #2563eb; }
+        .score-level.safe { background: #ecfdf5; color: #059669; }
+
+        .score-suggestion {
+            font-size: 14px;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        .detect-details {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-lg);
-            background: white;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .detect-breakdown {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .breakdown-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 12px;
+        }
+
+        .breakdown-items {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .breakdown-item .bar {
+            width: 60px;
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .breakdown-item .bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .breakdown-item .bar-fill.high { background: #ef4444; }
+        .breakdown-item .bar-fill.medium { background: #f59e0b; }
+        .breakdown-item .bar-fill.low { background: #3b82f6; }
+
+        .detect-analysis {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .analysis-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-title i {
+            color: #f59e0b;
+        }
+
+        .analysis-text {
+            font-size: 13px;
+            color: #78350f;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        /* 统计卡片 */
+        .stats-card {
+            display: none;
+            background: #fff;
             border: 1px solid var(--gray-200);
-            border-radius: var(--radius-2xl);
-            padding: var(--space-xl);
-            margin-bottom: var(--space-xl);
-            box-shadow: var(--shadow-md);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-card.show {
+            display: block;
+        }
+
+        .stats-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .stats-header i {
+            color: var(--gray-400);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
         }
 
         .stat-item {
             text-align: center;
-            padding: var(--space-lg);
-            border-radius: var(--radius-lg);
-            background: linear-gradient(135deg, var(--gray-50), white);
-            transition: all 0.3s ease;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
         }
 
-        .stat-item:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary-600);
-            margin-bottom: var(--space-xs);
-            line-height: 1;
-        }
+        .stat-value.primary { color: var(--primary); }
+        .stat-value.success { color: var(--success); }
+        .stat-value.warning { color: var(--warning); }
 
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 12px;
             color: var(--gray-500);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        /* 精美的对比展示区域 */
-        .comparison-section {
-            background: white;
+        /* 对比区域 */
+        .compare-card {
+            display: none;
+            background: #fff;
             border: 1px solid var(--gray-200);
-            border-radius: var(--radius-2xl);
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
         }
 
-        .comparison-header {
-            background: linear-gradient(135deg, var(--warning-50), var(--warning-100));
-            border-bottom: 1px solid var(--warning-200);
-            padding: var(--space-lg) var(--space-xl);
+        .compare-header {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
         }
 
-        .comparison-header h5 {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin: 0;
+        .compare-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
         }
 
-        .comparison-content {
+        .compare-title i {
+            color: var(--gray-400);
+        }
+
+        .compare-legend {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--gray-600);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-dot.added { background: #d1fae5; border: 1px solid #10b981; }
+        .legend-dot.removed { background: #fee2e2; border: 1px solid #ef4444; }
+        .legend-dot.modified { background: #fef3c7; border: 1px solid #f59e0b; }
+
+        .compare-body {
             display: grid;
             grid-template-columns: 1fr 1fr;
         }
 
-        .comparison-panel {
+        .compare-panel {
             border-right: 1px solid var(--gray-200);
         }
 
-        .comparison-panel:last-child {
+        .compare-panel:last-child {
             border-right: none;
         }
 
-        .comparison-panel-header {
+        .compare-panel-header {
+            padding: 12px 20px;
             background: var(--gray-50);
             border-bottom: 1px solid var(--gray-200);
-            padding: var(--space-md) var(--space-lg);
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--gray-700);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-600);
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
+            gap: 8px;
         }
 
-        .comparison-panel-body {
-            padding: var(--space-lg);
-            height: 400px;
+        .compare-panel-header .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .compare-panel-header .dot-original { background: #ef4444; }
+        .compare-panel-header .dot-optimized { background: #10b981; }
+
+        .compare-content {
+            padding: 20px;
+            max-height: 400px;
             overflow-y: auto;
-            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
-            font-size: 0.8rem;
-            line-height: 1.8;
+            font-size: 14px;
+            line-height: 2;
+            color: var(--gray-700);
+        }
+
+        /* 差异样式 */
+        .diff-added {
+            background: #d1fae5;
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: #065f46;
+        }
+
+        .diff-removed {
+            background: #fee2e2;
+            padding: 1px 4px;
+            border-radius: 3px;
+            text-decoration: line-through;
+            color: #991b1b;
+        }
+
+        .diff-sentence {
+            display: block;
+            padding: 8px 12px;
+            margin: 6px 0;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+        }
+
+        .diff-sentence.added {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+        }
+
+        .diff-sentence.removed {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+
+        .diff-sentence.modified {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+        }
+
+        .diff-sentence.same {
+            color: var(--gray-500);
             background: var(--gray-50);
         }
 
-        /* 高光显示样式 */
-        .highlight-add {
-            background: var(--highlight-add);
-            border-left: 4px solid var(--highlight-add-border);
-            padding: var(--space-xs) var(--space-sm);
-            margin: var(--space-xs) 0;
-            border-radius: var(--radius-sm);
-            position: relative;
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
         }
 
-        .highlight-add::before {
-            content: '+ ';
-            color: var(--highlight-add-border);
-            font-weight: bold;
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.warning { border-left: 4px solid var(--warning); }
+
+        .toast i { font-size: 18px; }
+        .toast.success i { color: var(--success); }
+        .toast.error i { color: var(--danger); }
+        .toast.warning i { color: var(--warning); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .highlight-remove {
-            background: var(--highlight-remove);
-            border-left: 4px solid var(--highlight-remove-border);
-            padding: var(--space-xs) var(--space-sm);
-            margin: var(--space-xs) 0;
-            border-radius: var(--radius-sm);
-            text-decoration: line-through;
-            opacity: 0.7;
-            position: relative;
+        /* 快捷键提示 */
+        .shortcut-hint {
+            position: fixed;
+            left: 24px;
+            bottom: 24px;
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 12px;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
         }
 
-        .highlight-remove::before {
-            content: '- ';
-            color: var(--highlight-remove-border);
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .highlight-modify {
-            background: var(--highlight-modify);
-            border-left: 4px solid var(--highlight-modify-border);
-            padding: var(--space-xs) var(--space-sm);
-            margin: var(--space-xs) 0;
-            border-radius: var(--radius-sm);
-            position: relative;
-        }
-
-        .highlight-modify::before {
-            content: '~ ';
-            color: var(--highlight-modify-border);
-            font-weight: bold;
-        }
-
-        /* 精美的滚动条 */
-        .comparison-panel-body::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .comparison-panel-body::-webkit-scrollbar-track {
+        .shortcut-hint kbd {
             background: var(--gray-100);
-            border-radius: var(--radius-sm);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            border: 1px solid var(--gray-200);
         }
 
-        .comparison-panel-body::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, var(--gray-300), var(--gray-400));
-            border-radius: var(--radius-sm);
+        /* 登录弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
 
-        .comparison-panel-body::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, var(--gray-400), var(--gray-500));
+        .modal.show { display: flex; }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            width: 400px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
         }
 
-        /* 响应式设计 */
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-header i { color: var(--warning); margin-right: 10px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--gray-400);
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: var(--gray-600);
+        }
+
+        .modal-body {
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        .modal-body .icon {
+            font-size: 56px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .modal-body h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--gray-800);
+        }
+
+        .modal-body p {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 24px;
+        }
+
+        .modal-body .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-body .btn-primary {
+            padding: 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .modal-body .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .modal-body .btn-secondary {
+            padding: 14px;
+            background: #fff;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .modal-body .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        .modal-footer {
+            padding: 14px 24px;
+            border-top: 1px solid var(--gray-200);
+            text-align: center;
+            font-size: 13px;
+            color: var(--gray-500);
+            background: var(--gray-50);
+        }
+
+        .modal-footer i {
+            color: var(--warning);
+        }
+
+        /* 响应式 */
         @media (max-width: 1024px) {
-            .workspace {
-                grid-template-columns: 1fr;
-                gap: var(--space-lg);
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .comparison-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .comparison-panel {
-                border-right: none;
-                border-bottom: 1px solid var(--gray-200);
-            }
-            
-            .comparison-panel:last-child {
-                border-bottom: none;
-            }
+            .workspace { grid-template-columns: 1fr; }
+            .compare-body { grid-template-columns: 1fr; }
+            .compare-panel { border-right: none; border-bottom: 1px solid var(--gray-200); }
+            .compare-panel:last-child { border-bottom: none; }
+            .principle-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                padding: var(--space-md);
-            }
-            
-            .header-container {
-                padding: 0 var(--space-md);
-                flex-direction: column;
-                gap: var(--space-md);
-                align-items: flex-start;
-            }
-            
-            .header-left {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: var(--space-md);
-            }
-
-            .info-card ul {
-                grid-template-columns: 1fr;
-            }
+            .main { padding: 16px; }
+            .header { padding: 0 16px; }
+            .header-inner { flex-wrap: wrap; gap: 12px; height: auto; padding: 12px 0; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .checkbox-grid { grid-template-columns: 1fr; }
+            .settings-row { flex-direction: column; align-items: stretch; gap: 16px; }
+            .setting-group { flex-direction: column; align-items: stretch; }
+            .setting-select { width: 100%; }
         }
 
-        /* 精美的动画效果 */
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .slide-up {
-            animation: slideUp 0.4s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 加载状态 */
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid transparent;
-            border-top: 2px solid currentColor;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* 精美的提示消息 */
-        .toast {
+        /* 统一扣费确认弹窗样式 */
+        .charge-modal {
             position: fixed;
-            top: 24px;
-            right: 24px;
-            background: white;
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-xl);
-            padding: var(--space-lg) var(--space-xl);
-            box-shadow: var(--shadow-2xl);
-            z-index: 2000;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
             display: flex;
             align-items: center;
-            gap: var(--space-md);
-            font-size: 0.875rem;
-            font-weight: 500;
-            max-width: 420px;
-            animation: slideInRight 0.4s ease-out;
-            backdrop-filter: blur(20px);
+            justify-content: center;
         }
 
-        @keyframes slideInRight {
+        .charge-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .charge-modal-container {
+            position: relative;
+            background: #fff;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
             from {
                 opacity: 0;
-                transform: translateX(100%) scale(0.9);
+                transform: scale(0.9) translateY(-20px);
             }
             to {
                 opacity: 1;
-                transform: translateX(0) scale(1);
+                transform: scale(1) translateY(0);
             }
         }
 
-        .toast.success {
-            border-left: 4px solid var(--success-500);
-            color: var(--success-700);
-            background: linear-gradient(135deg, white, var(--success-50));
+        .charge-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #eee;
         }
 
-        .toast.warning {
-            border-left: 4px solid var(--warning-500);
-            color: var(--warning-700);
-            background: linear-gradient(135deg, white, var(--warning-50));
+        .charge-modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
         }
 
-        .toast.danger {
-            border-left: 4px solid var(--danger-500);
-            color: var(--danger-700);
-            background: linear-gradient(135deg, white, var(--danger-50));
+        .charge-modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
         }
 
-        .toast.info {
-            border-left: 4px solid var(--primary-500);
-            color: var(--primary-700);
-            background: linear-gradient(135deg, white, var(--primary-50));
+        .charge-modal-close:hover {
+            color: #333;
         }
 
-        /* 脉冲动画 */
-        .pulse {
-            animation: pulse 2s infinite;
+        .charge-modal-body {
+            padding: 24px;
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
+        .charge-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .charge-info-list {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .charge-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .charge-info-item:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+
+        .charge-info-result {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .charge-cost {
+            font-weight: 600;
+            color: #f59e0b;
+        }
+
+        .charge-modal-footer {
+            display: flex;
+            gap: 12px;
+            padding: 0 24px 24px;
+        }
+
+        .charge-btn-cancel,
+        .charge-btn-confirm {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .charge-btn-cancel {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+
+        .charge-btn-cancel:hover {
+            background: #eee;
+        }
+
+        .charge-btn-confirm {
+            background: #10b981;
+            border: none;
+            color: #fff;
+        }
+
+        .charge-btn-confirm:hover {
+            background: #059669;
         }
     </style>
 </head>
 <body>
-    <!-- 现代化头部 -->
+    <!-- 顶部导航 -->
     <header class="header">
-        <div class="header-container">
-            <div class="header-left">
-                <div class="logo-section">
-                    <div class="logo-icon">
-                        <i class="fas fa-wand-magic-sparkles"></i>
-                    </div>
-                    <div class="header-title">
-                        <h1>AI文本优化器</h1>
-                        <p class="header-subtitle">智能重写文本内容，降低AI生成痕迹</p>
-                    </div>
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <div class="logo-text">AI文本优化器</div>
+                    <div class="logo-desc">智能降低AI检测率</div>
                 </div>
             </div>
-            
-            <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="header-right">
                 {% if user_info %}
                 <div class="user-info">
-                    <i class="fas fa-user"></i>
+                    <i class="fas fa-user-circle"></i>
                     <span>{{ user_info.username }}</span>
-                    <div class="user-balance">
-                        余额: ¥{{ "%.2f"|format(user_info.balance) }}
-                    </div>
+                    <span class="user-balance">
+                        <i class="fas fa-wallet"></i> ¥{{ "%.2f"|format(user_info.balance) }}
+                    </span>
                 </div>
                 {% endif %}
-                
-                <a href="/" class="nav-back">
-                    <i class="fas fa-arrow-left"></i>
-                    返回首页
+                <a href="/" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> 返回首页
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- 主要内容 -->
-    <main class="main-content">
-        <!-- 使用说明（可折叠） -->
-        <div class="info-card slide-up" id="usageCard">
-            <div class="d-flex align-items-center justify-content-between">
-                <h6 class="m-0"><i class="fas fa-lightbulb"></i> 使用说明</h6>
-                <button id="toggleUsageBtn" class="btn btn-sm btn-outline-success" type="button">
-                    <i class="fas fa-chevron-up me-1"></i> 收起
-                </button>
+    <!-- 主内容 -->
+    <main class="main">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">AI文本优化</h1>
+            <p class="page-subtitle">基于Perplexity和Burstiness原理，智能降低知网、Turnitin等平台的AI检测率</p>
+        </div>
+
+        <!-- AI检测原理说明 -->
+        <div class="info-card">
+            <div class="info-header" onclick="toggleInfo()">
+                <div class="info-title">
+                    <i class="fas fa-lightbulb"></i>
+                    AI检测原理 - 了解算法，更有效降低AI率
+                </div>
+                <div class="info-toggle">
+                    <span id="infoToggleText">展开</span>
+                    <i class="fas fa-chevron-down" id="infoToggleIcon"></i>
+                </div>
             </div>
-            <div id="usageBody" class="mt-3">
-                <ul>
-                    <li>支持最大5万字符的长文本优化处理</li>
-                    <li>自动智能分段处理，保持上下文连贯性</li>
-                    <li>深度重写句式结构，降低AI生成特征</li>
-                    <li>严格保护专业术语和核心观点不变</li>
-                    <li>提供实时前后对比和高光显示修改</li>
-                </ul>
+            <div class="info-content" id="infoContent">
+                <div class="principle-grid">
+                    <div class="principle-item">
+                        <h4>
+                            <i class="fas fa-brain icon-perplexity"></i>
+                            Perplexity 困惑度
+                            <span class="badge">权重 30%</span>
+                        </h4>
+                        <p>AI检测器通过预测下一个词来判断。AI文本词汇选择高度可预测，困惑度低。</p>
+                        <ul>
+                            <li>AI总用"最标准"的表达</li>
+                            <li>人类会用同义词、变体</li>
+                            <li>策略：增加词汇多样性</li>
+                        </ul>
+                    </div>
+                    <div class="principle-item">
+                        <h4>
+                            <i class="fas fa-wave-square icon-burstiness"></i>
+                            Burstiness 突发性
+                            <span class="badge">权重 40%</span>
+                        </h4>
+                        <p>AI句子长度均匀(20-30字)，人类写作有节奏变化，长短句交替。最重要指标。</p>
+                        <ul>
+                            <li>AI句式工整对称</li>
+                            <li>人类长短句自然交替</li>
+                            <li>策略：制造句式突发性</li>
+                        </ul>
+                    </div>
+                    <div class="principle-item">
+                        <h4>
+                            <i class="fas fa-fingerprint icon-pattern"></i>
+                            模式识别
+                            <span class="badge">权重 30%</span>
+                        </h4>
+                        <p>AI有固定模式："首先、其次、最后"，每段"总-分-总"，连接词过多。</p>
+                        <ul>
+                            <li>三段式、对仗结构</li>
+                            <li>过渡词使用规范</li>
+                            <li>策略：打破固定模式</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tips-card">
+                    <div class="tips-title">
+                        <i class="fas fa-info-circle"></i>
+                        降AI率核心建议
+                    </div>
+                    <ul class="tips-list">
+                        <li><strong>句式突发性最重要：</strong>一个长句(40字+)后跟2-3个短句(10字内)</li>
+                        <li><strong>删除AI连接词：</strong>删除"首先、其次、此外、综上所述"等，用句号分隔</li>
+                        <li><strong>不要过于完美：</strong>使用括号补充、破折号连接，模拟人类边想边写</li>
+                        <li><strong>知网标准：</strong>一般要求AI率低于30%，严格学校要求低于10%</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- 工作区域 -->
-        <div class="workspace">
-            <!-- 输入区域 -->
-            <div class="work-panel slide-up">
-                <div class="panel-header">
-                    <h5 class="panel-title">
-                        <i class="fas fa-edit"></i>
-                        输入文本
-                    </h5>
+        <!-- 优化设置 -->
+        <div class="settings-card">
+            <div class="settings-title">
+                <i class="fas fa-sliders-h"></i>
+                优化设置
+            </div>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <span class="setting-label">文本类型</span>
+                    <select id="textType" class="setting-select">
+                        <option value="academic">学术论文 / 正式文档</option>
+                        <option value="article">一般文章 / 博客</option>
+                        <option value="casual">非正式内容</option>
+                    </select>
                 </div>
-                <div class="panel-body">
-                    <div class="mb-3">
-                        <label for="textInput" class="form-label">请粘贴需要优化的文本内容：</label>
-                        <textarea id="textInput" class="form-control" rows="15" 
-                            placeholder="在此粘贴您要优化的文本内容...&#10;&#10;支持类型：&#10;• 学术论文和研究报告&#10;• 技术文档和说明书&#10;• 商业文案和营销材料&#10;• 其他中文文本内容"></textarea>
-                        <div class="form-text">
-                            <span>当前字符数: <span id="inputCount" class="fw-bold">0</span></span>
-                            <span class="text-muted">建议单次处理5万字符以内</span>
-                        </div>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button id="optimizeBtn" class="btn btn-primary btn-lg">
-                            <i class="fas fa-wand-magic-sparkles"></i>
-                            开始智能优化
-                        </button>
-                    </div>
-                    
-                    <!-- 进度显示 -->
-                    <div id="progressArea" class="progress-area" style="display: none;">
-                        <div class="progress">
-                            <div id="progressBar" class="progress-bar" style="width: 0%"></div>
-                        </div>
-                        <div class="progress-text">
-                            <small id="progressText">准备中...</small>
-                        </div>
+                <div class="setting-group">
+                    <span class="setting-label">优化模式</span>
+                    <select id="optimizeMode" class="setting-select">
+                        <option value="moderate" selected>适度优化（推荐学术论文）</option>
+                        <option value="aggressive">深度优化（最大化降AI率）</option>
+                        <option value="rewrite">完全重写（激进模式）</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <span class="setting-label">优化强度</span>
+                    <div class="intensity-group">
+                        <input type="range" class="intensity-slider" id="intensityRange" min="1" max="5" value="4">
+                        <span class="intensity-value" id="intensityValue">4</span>
+                        <span class="intensity-desc" id="intensityDesc">深度改写</span>
                     </div>
                 </div>
             </div>
 
-            <!-- 输出区域 -->
-            <div class="work-panel slide-up">
+            <!-- 高级选项 -->
+            <div class="advanced-section">
+                <div class="advanced-header" onclick="toggleAdvanced()">
+                    <i class="fas fa-chevron-down" id="advancedIcon"></i>
+                    <span>高级选项（基于AI检测原理）</span>
+                </div>
+                <div class="advanced-content" id="advancedContent">
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="addBurstiness" checked>
+                            <div>
+                                <div class="label-text">增加句式突发性</div>
+                                <div class="label-desc">制造长短句交替，最重要的降AI策略</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="increasePerplexity" checked>
+                            <div>
+                                <div class="label-text">增加词汇多样性</div>
+                                <div class="label-desc">使用同义词变体，降低可预测性</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="breakPatterns" checked>
+                            <div>
+                                <div class="label-text">打破AI模式</div>
+                                <div class="label-desc">删除连接词，打散三段式结构</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="varyParagraph" checked>
+                            <div>
+                                <div class="label-text">段落结构变化</div>
+                                <div class="label-desc">段落长度差异，开头不总是主题句</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="preserveTerms" checked>
+                            <div>
+                                <div class="label-text">保留专业术语</div>
+                                <div class="label-desc">术语、数据、引用保持原样</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="keepFormalStyle" checked>
+                            <div>
+                                <div class="label-text">保持正式风格</div>
+                                <div class="label-desc">学术论文必选，禁止口语化</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工作区 -->
+        <div class="workspace">
+            <!-- 输入面板 -->
+            <div class="panel">
                 <div class="panel-header">
-                    <h5 class="panel-title">
-                        <i class="fas fa-check-circle"></i>
+                    <div class="panel-title">
+                        <i class="fas fa-edit icon-input"></i>
+                        输入文本
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn" id="detectBtn">
+                            <i class="fas fa-search"></i> AI检测
+                        </button>
+                        <button class="btn" id="pasteBtn">
+                            <i class="fas fa-paste"></i> 粘贴
+                        </button>
+                        <button class="btn" id="clearBtn">
+                            <i class="fas fa-eraser"></i> 清空
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <textarea id="inputText" class="textarea" placeholder="在此粘贴需要优化的文本...
+
+支持类型：
+• 学术论文和研究报告
+• 技术文档和说明书
+• 商业文案和营销材料
+
+优化原理：
+• 增加句式突发性（Burstiness）
+• 提高词汇多样性（Perplexity）
+• 打破AI固定模式"></textarea>
+                </div>
+                <div class="panel-footer">
+                    <span>字符数: <span class="char-count" id="inputCount">0</span></span>
+                    <span>建议单次不超过5万字符</span>
+                </div>
+                <!-- 费用显示区域 -->
+                <div class="cost-section" id="costSection" style="padding: 12px 20px; background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border-top: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-coins" style="color: #f59e0b;"></i>
+                            <span style="font-size: 14px; color: var(--gray-600);">预估费用:</span>
+                            <span id="estimatedCost" style="font-size: 18px; font-weight: 700; color: var(--primary);">¥0.00</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--gray-500);" id="costDetail">
+                            (基础费用 + 每千字费用)
+                        </div>
+                    </div>
+                    <div id="balanceInfo" style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                        <span style="color: var(--gray-500);">当前余额:</span>
+                        <span id="currentBalance" style="font-weight: 600; color: var(--success);">¥{{ "%.2f"|format(user_info.balance) if user_info else '0.00' }}</span>
+                    </div>
+                </div>
+                <div class="submit-section">
+                    <button class="submit-btn" id="submitBtn">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        开始智能优化
+                        <span id="submitCostHint" style="font-size: 12px; opacity: 0.9; margin-left: 8px;"></span>
+                    </button>
+                </div>
+                <div class="progress-section" id="progressSection">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">准备中...</div>
+                </div>
+            </div>
+
+            <!-- 输出面板 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-check-circle icon-output"></i>
                         优化结果
-                    </h5>
-                    <div class="result-toolbar d-flex gap-2">
-                        <button id="copyBtn" class="btn btn-outline-success btn-sm" disabled>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn" id="copyBtn" disabled>
                             <i class="fas fa-copy"></i> 复制
                         </button>
-                        <button id="downloadBtn" class="btn btn-outline-success btn-sm" disabled>
-                            <i class="fas fa-file-arrow-down"></i> 下载
+                        <button class="btn" id="downloadBtn" disabled>
+                            <i class="fas fa-download"></i> 下载
                         </button>
-                        <button id="compareBtn" class="btn btn-outline-success btn-sm" disabled>
+                        <button class="btn" id="compareBtn" disabled>
                             <i class="fas fa-code-compare"></i> 对比
-                        </button>
-                        <button id="cleanBtn" class="btn btn-outline-success btn-sm" disabled>
-                            <i class="fas fa-broom"></i> 清理格式
-                        </button>
-                        <button id="fullscreenBtn" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-maximize"></i> 全屏
                         </button>
                     </div>
                 </div>
                 <div class="panel-body">
-                    <textarea id="textOutput" class="form-control" rows="15" 
-                        placeholder="优化后的文本将在这里显示...&#10;&#10;处理特点：&#10;• 句式多样化重构&#10;• 保持专业术语准确&#10;• 增强自然语言特征&#10;• 保留原文核心观点" readonly></textarea>
-                    <div class="form-text">
-                        <span>优化后字符数: <span id="outputCount" class="fw-bold">0</span></span>
-                        <span id="optimizationInfo" class="text-muted"></span>
+                    <textarea id="outputText" class="textarea" placeholder="优化后的文本将显示在这里...
+
+优化特点：
+• 句式长短交替，增加突发性
+• 词汇多样化，降低可预测性
+• 删除AI连接词模式
+• 保持专业术语准确" readonly></textarea>
+                </div>
+                <div class="panel-footer">
+                    <span>字符数: <span class="char-count" id="outputCount">0</span></span>
+                    <span id="processingInfo"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI检测结果卡片 -->
+        <div class="detect-card" id="detectCard">
+            <div class="detect-header">
+                <div class="detect-title">
+                    <i class="fas fa-robot"></i>
+                    AI检测结果预估
+                </div>
+                <button class="btn" id="closeDetectBtn">
+                    <i class="fas fa-times"></i> 关闭
+                </button>
+            </div>
+            <div class="detect-body">
+                <div class="detect-score-section">
+                    <div class="score-circle">
+                        <svg width="140" height="140" viewBox="0 0 140 140">
+                            <circle class="bg" cx="70" cy="70" r="60"/>
+                            <circle class="progress" id="scoreProgress" cx="70" cy="70" r="60"
+                                stroke-dasharray="377" stroke-dashoffset="377"/>
+                        </svg>
+                        <div class="score-text">
+                            <div class="score-value" id="aiScoreValue">--</div>
+                            <div class="score-label">AI概率</div>
+                        </div>
+                    </div>
+                    <div class="score-info">
+                        <div class="score-level" id="scoreLevel">
+                            <i class="fas fa-circle-question"></i>
+                            <span>等待检测</span>
+                        </div>
+                        <div class="score-suggestion" id="scoreSuggestion">
+                            点击"AI检测"按钮开始分析文本的AI特征
+                        </div>
+                    </div>
+                </div>
+                <div class="detect-details" id="detectDetails">
+                    <div class="detail-item">
+                        <div class="detail-value" id="detailBurstiness">--</div>
+                        <div class="detail-label">突发性得分</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value" id="detailMarkers">--</div>
+                        <div class="detail-label">AI标记词</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value" id="detailPatterns">--</div>
+                        <div class="detail-label">模式匹配</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value" id="detailUniformity">--</div>
+                        <div class="detail-label">句长均匀度</div>
+                    </div>
+                </div>
+                <div class="detect-breakdown" id="detectBreakdown">
+                    <div class="breakdown-title">各项指标分析</div>
+                    <div class="breakdown-items">
+                        <div class="breakdown-item">
+                            <span>Burstiness</span>
+                            <div class="bar"><div class="bar-fill" id="barBurstiness" style="width:0%"></div></div>
+                            <span id="barBurstinessVal">0%</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>AI标记词</span>
+                            <div class="bar"><div class="bar-fill" id="barMarkers" style="width:0%"></div></div>
+                            <span id="barMarkersVal">0%</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>模式特征</span>
+                            <div class="bar"><div class="bar-fill" id="barPatterns" style="width:0%"></div></div>
+                            <span id="barPatternsVal">0%</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>均匀度</span>
+                            <div class="bar"><div class="bar-fill" id="barUniformity" style="width:0%"></div></div>
+                            <span id="barUniformityVal">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="detect-analysis" id="detectAnalysis">
+                    <div class="analysis-title">
+                        <i class="fas fa-lightbulb"></i>
+                        优化建议
+                    </div>
+                    <div class="analysis-text" id="analysisText">
+                        检测完成后将显示针对性的优化建议...
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 优化统计 -->
-        <div id="statsArea" class="stats-grid fade-in" style="display: none;">
-            <div class="stat-item">
-                <div class="stat-number" id="statSegments">0</div>
-                <div class="stat-label">处理片段</div>
+        <!-- 统计卡片 -->
+        <div class="stats-card" id="statsCard">
+            <div class="stats-header">
+                <i class="fas fa-chart-bar"></i>
+                优化统计
             </div>
-            <div class="stat-item">
-                <div class="stat-number" id="statOriginal">0</div>
-                <div class="stat-label">原文字符</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="statOptimized">0</div>
-                <div class="stat-label">优化后字符</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="statChange">0%</div>
-                <div class="stat-label">长度变化</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value primary" id="statSegments">1</div>
+                    <div class="stat-label">处理片段</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statOriginal">0</div>
+                    <div class="stat-label">原文字符</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value success" id="statOptimized">0</div>
+                    <div class="stat-label">优化后字符</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value warning" id="statChange">0%</div>
+                    <div class="stat-label">长度变化</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statTime">0s</div>
+                    <div class="stat-label">处理耗时</div>
+                </div>
             </div>
         </div>
 
-        <!-- 智能对比展示 -->
-        <div id="comparisonArea" class="comparison-section fade-in" style="display: none;">
-            <div class="comparison-header">
-                <i class="fas fa-code-compare"></i>
-                <h5>智能对比分析</h5>
-            </div>
-            <div class="comparison-content">
-                <div class="comparison-panel">
-                    <div class="comparison-panel-header">
-                        <i class="fas fa-file-alt"></i> 原始文本
-                    </div>
-                    <div id="originalPreview" class="comparison-panel-body"></div>
+        <!-- 对比区域 -->
+        <div class="compare-card" id="compareCard">
+            <div class="compare-header">
+                <div class="compare-title">
+                    <i class="fas fa-code-compare"></i>
+                    智能对比
                 </div>
-                <div class="comparison-panel">
-                    <div class="comparison-panel-header">
-                        <i class="fas fa-file-check"></i> 优化文本（高光显示修改）
+                <div class="compare-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot added"></div>
+                        <span>新增</span>
                     </div>
-                    <div id="optimizedPreview" class="comparison-panel-body"></div>
+                    <div class="legend-item">
+                        <div class="legend-dot removed"></div>
+                        <span>删除</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot modified"></div>
+                        <span>修改</span>
+                    </div>
+                </div>
+                <button class="btn" id="closeCompareBtn">
+                    <i class="fas fa-times"></i> 关闭
+                </button>
+            </div>
+            <div class="compare-body">
+                <div class="compare-panel">
+                    <div class="compare-panel-header">
+                        <span class="dot dot-original"></span>
+                        原始文本
+                    </div>
+                    <div class="compare-content" id="originalPreview"></div>
+                </div>
+                <div class="compare-panel">
+                    <div class="compare-panel-header">
+                        <span class="dot dot-optimized"></span>
+                        优化后文本
+                    </div>
+                    <div class="compare-content" id="optimizedPreview"></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- 底部浮动操作条 + 辅助样式 -->
-    <style>
-      .result-toolbar .btn { white-space: nowrap; }
-      .work-panel.fullscreen {
-        position: fixed; inset: 72px 16px 72px 16px; z-index: 1500; margin: 0 !important; width:auto !important; height:auto !important;
-      }
-      .work-panel.fullscreen .panel-body textarea { height: calc(100vh - 210px) !important; }
-      .action-bar { position: fixed; bottom: 12px; left: 0; right: 0; z-index: 1400; pointer-events: none; }
-      .action-bar-inner {
-        max-width: 1400px; margin: 0 auto; background: rgba(255,255,255,0.9); border:1px solid var(--gray-200);
-        border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); padding: 10px 16px; display:flex; align-items:center; justify-content:space-between;
-        pointer-events: all; backdrop-filter: blur(10px);
-      }
-      .action-bar .hint { color: var(--gray-600); font-size: 12px; display: none; }
-
-      /* 左侧悬浮快捷键徽标 */
-      .shortcut-badge{
-        position: fixed;
-        left: 12px;
-        bottom: 96px; /* 避开底部操作条 */
-        z-index: 1450;
-        background: rgba(255,255,255,0.95);
-        border: 1px solid var(--gray-200);
-        border-radius: 999px;
-        box-shadow: var(--shadow-xl);
-        padding: 6px 12px;
-        font-size: 12px;
-        color: var(--gray-700);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        backdrop-filter: blur(10px);
-      }
-      @media (max-width: 768px){
-        .shortcut-badge{ left: 8px; bottom: 80px; font-size: 11px; }
-      }
-    </style>
-
-    <div id="actionBar" class="action-bar" style="display:none;">
-      <div class="action-bar-inner">
-        <div class="left">
-          <span class="hint"><i class="fas fa-bolt text-warning me-1"></i> 快捷键：Ctrl/Cmd + Enter 开始优化</span>
-        </div>
-        <div class="right d-flex gap-2">
-          <button id="startBtnBottom" class="btn btn-primary btn-sm">
-            <i class="fas fa-wand-magic-sparkles"></i> 开始优化
-          </button>
-          <button id="copyBtnBottom" class="btn btn-outline-success btn-sm" disabled>
-            <i class="fas fa-copy"></i> 复制结果
-          </button>
-          <button id="toTopBtn" class="btn btn-outline-success btn-sm">
-            <i class="fas fa-arrow-up"></i> 回到顶部
-          </button>
-        </div>
-      </div>
+    <!-- 快捷键提示 -->
+    <div class="shortcut-hint">
+        <i class="fas fa-keyboard"></i>
+        <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 开始优化
     </div>
 
-    <div id="shortcutBadge" class="shortcut-badge">
-        <i class="fas fa-keyboard"></i> 快捷键：Ctrl/Cmd + Enter 开始优化
-    </div>
-    <!-- 登录提示弹窗 -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel">
-                        <i class="fas fa-lock text-warning"></i> 需要登录
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- 登录弹窗 -->
+    <div class="modal" id="loginModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span><i class="fas fa-lock"></i> 需要登录</span>
+                <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <i class="fas fa-user-circle icon"></i>
+                <h4>使用文本优化功能需要登录</h4>
+                <p>登录后即可享受AI智能文本优化服务</p>
+                <div class="btn-group">
+                    <a href="/login" class="btn-primary">立即登录</a>
+                    <a href="/register" class="btn-secondary">注册新账户</a>
                 </div>
-                <div class="modal-body text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-user-circle fa-3x text-primary mb-3"></i>
-                        <h6>使用文本优化功能需要登录</h6>
-                        <p class="text-muted">登录后即可享受AI智能文本优化服务</p>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <a href="/login" class="btn btn-primary">
-                            <i class="fas fa-sign-in-alt"></i> 立即登录
-                        </a>
-                        <a href="/register" class="btn btn-outline-secondary">
-                            <i class="fas fa-user-plus"></i> 注册新账户
-                        </a>
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <small class="text-muted">
-                        <i class="fas fa-gift"></i> 新用户注册即送10元体验额度
-                    </small>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <i class="fas fa-gift"></i> 新用户注册即送体验额度
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <!-- 扣费确认弹窗 -->
+    <div id="text-charge-modal" class="charge-modal" style="display: none;">
+        <div class="charge-modal-overlay" onclick="closeTextChargeModal()"></div>
+        <div class="charge-modal-container">
+            <div class="charge-modal-header">
+                <span class="charge-modal-title">确认支付</span>
+                <button class="charge-modal-close" onclick="closeTextChargeModal()">&times;</button>
+            </div>
+
+            <div class="charge-modal-body">
+                <p class="charge-desc">您即将使用 AI 文本优化服务</p>
+
+                <div class="charge-info-list">
+                    <div class="charge-info-item">
+                        <span>服务费用</span>
+                        <span class="charge-cost" id="text-charge-cost">¥0.00</span>
+                    </div>
+                    <div class="charge-info-item">
+                        <span>当前余额</span>
+                        <span id="text-charge-balance">¥0.00</span>
+                    </div>
+                    <div class="charge-info-item charge-info-result">
+                        <span>支付后余额</span>
+                        <span id="text-charge-after">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charge-modal-footer">
+                <button class="charge-btn-cancel" onclick="closeTextChargeModal()">取消</button>
+                <button class="charge-btn-confirm" onclick="confirmTextCharge()">确认支付</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 余额不足弹窗 -->
+    <div class="modal" id="rechargeModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span><i class="fas fa-wallet" style="color: #f59e0b;"></i> 余额不足</span>
+                <button class="modal-close" onclick="closeRechargeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <i class="fas fa-coins icon" style="color: #f59e0b;"></i>
+                <h4>当前余额不足以完成本次优化</h4>
+                <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: left;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #92400e;">本次优化费用:</span>
+                        <span style="font-weight: 600; color: #dc2626;">¥<span id="rechargeCost">0.00</span></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #92400e;">当前余额:</span>
+                        <span style="font-weight: 600; color: #059669;">¥<span id="rechargeBalance">0.00</span></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-top: 1px dashed #fcd34d; padding-top: 8px;">
+                        <span style="color: #92400e;">还需充值:</span>
+                        <span style="font-weight: 700; color: #dc2626;">¥<span id="rechargeDiff">0.00</span></span>
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: var(--gray-500);">请先充值后再使用文本优化功能</p>
+                <div class="btn-group">
+                    <a href="/profile#recharge" class="btn-primary">
+                        <i class="fas fa-credit-card"></i> 立即充值
+                    </a>
+                    <button onclick="closeRechargeModal()" class="btn-secondary">稍后再说</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <i class="fas fa-info-circle"></i> 充值后余额实时到账，可立即使用
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 获取DOM元素
-            const textInput = document.getElementById('textInput');
-            const textOutput = document.getElementById('textOutput');
-            const optimizeBtn = document.getElementById('optimizeBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const progressArea = document.getElementById('progressArea');
-            const progressBar = document.getElementById('progressBar');
-            const progressText = document.getElementById('progressText');
-            const inputCount = document.getElementById('inputCount');
-            const outputCount = document.getElementById('outputCount');
-            const optimizationInfo = document.getElementById('optimizationInfo');
-            const comparisonArea = document.getElementById('comparisonArea');
-            const statsArea = document.getElementById('statsArea');
+    // 获取CSRF Token
+    async function getCsrfToken() {
+        try {
+            const res = await fetch('/api/csrf-token');
+            const data = await res.json();
+            return data.csrf_token;
+        } catch (error) {
+            console.error('获取CSRF Token失败:', error);
+            return null;
+        }
+    }
 
-            // 使用说明折叠
-            const toggleUsageBtn = document.getElementById('toggleUsageBtn');
-            const usageBody = document.getElementById('usageBody');
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const submitBtn = document.getElementById('submitBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const compareBtn = document.getElementById('compareBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const inputCount = document.getElementById('inputCount');
+        const outputCount = document.getElementById('outputCount');
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const statsCard = document.getElementById('statsCard');
+        const compareCard = document.getElementById('compareCard');
+        const closeCompareBtn = document.getElementById('closeCompareBtn');
+        const intensityRange = document.getElementById('intensityRange');
+        const intensityValue = document.getElementById('intensityValue');
+        const intensityDesc = document.getElementById('intensityDesc');
+        const textTypeSelect = document.getElementById('textType');
+        const optimizeModeSelect = document.getElementById('optimizeMode');
 
-            // 工具栏与底部操作条
-            const downloadBtn = document.getElementById('downloadBtn');
-            const compareBtn = document.getElementById('compareBtn');
-            const cleanBtn = document.getElementById('cleanBtn');
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            const actionBar = document.getElementById('actionBar');
-            const startBtnBottom = document.getElementById('startBtnBottom');
-            const copyBtnBottom = document.getElementById('copyBtnBottom');
-            const toTopBtn = document.getElementById('toTopBtn');
-            
-            // 字符计数功能
-            textInput.addEventListener('input', function() {
-                const count = this.value.length;
-                inputCount.textContent = count.toLocaleString();
-                inputCount.style.color = count > 50000 ? 'var(--danger-500)' : 'var(--primary-600)';
-            });
-            
-            // 优化按钮点击事件
-            optimizeBtn.addEventListener('click', function() {
-                const text = textInput.value.trim();
-                if (!text) {
-                    showToast('请先输入要优化的文本内容', 'warning');
-                    return;
-                }
-                
-                if (text.length > 50000) {
-                    showToast('文本长度超出限制，请控制在5万字符以内', 'danger');
-                    return;
-                }
-                
-                optimizeText(text);
-            });
-            
-            // 复制按钮事件
-            copyBtn.addEventListener('click', function() {
-                textOutput.select();
-                document.execCommand('copy');
-                showToast('优化结果已复制到剪贴板', 'success');
-            });
+        let startTime = null;
+        let originalText = '';
+        let optimizedText = '';
 
-            // 使用说明折叠交互
-            if (toggleUsageBtn && usageBody) {
-                toggleUsageBtn.addEventListener('click', () => {
-                    const collapsed = usageBody.style.display === 'none';
-                    usageBody.style.display = collapsed ? 'block' : 'none';
-                    toggleUsageBtn.innerHTML = collapsed ? '<i class="fas fa-chevron-up me-1"></i> 收起' : '<i class="fas fa-chevron-down me-1"></i> 展开';
-                });
-                // 首屏默认折叠以扩大可用区域
-                usageBody.style.display = 'none';
-                toggleUsageBtn.innerHTML = '<i class="fas fa-chevron-down me-1"></i> 展开';
+        const intensityDescs = {
+            1: '轻微调整',
+            2: '适度改写',
+            3: '中等强度',
+            4: '深度改写',
+            5: '极限重写'
+        };
+
+        // 强度滑块
+        intensityRange.addEventListener('input', function() {
+            intensityValue.textContent = this.value;
+            intensityDesc.textContent = intensityDescs[this.value];
+        });
+
+        // 文本类型联动
+        textTypeSelect.addEventListener('change', function() {
+            const type = this.value;
+            if (type === 'academic') {
+                optimizeModeSelect.value = 'moderate';
+                intensityRange.value = 4;
+                intensityValue.textContent = '4';
+                intensityDesc.textContent = intensityDescs[4];
+                document.getElementById('keepFormalStyle').checked = true;
+            } else if (type === 'article') {
+                optimizeModeSelect.value = 'aggressive';
+                intensityRange.value = 4;
+                intensityValue.textContent = '4';
+                intensityDesc.textContent = intensityDescs[4];
+            } else {
+                optimizeModeSelect.value = 'rewrite';
+                intensityRange.value = 5;
+                intensityValue.textContent = '5';
+                intensityDesc.textContent = intensityDescs[5];
+                document.getElementById('keepFormalStyle').checked = false;
+            }
+        });
+
+        // 粘贴
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                inputText.value = text;
+                inputCount.textContent = text.length.toLocaleString();
+                showToast('已粘贴', 'success');
+            } catch (e) {
+                showToast('粘贴失败', 'warning');
+            }
+        });
+
+        // 清空
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+            inputCount.textContent = '0';
+            outputCount.textContent = '0';
+            statsCard.classList.remove('show');
+            compareCard.style.display = 'none';
+            document.getElementById('detectCard').classList.remove('show');
+            copyBtn.disabled = true;
+            downloadBtn.disabled = true;
+            compareBtn.disabled = true;
+        });
+
+        // AI检测按钮
+        const detectBtn = document.getElementById('detectBtn');
+        const detectCard = document.getElementById('detectCard');
+        const closeDetectBtn = document.getElementById('closeDetectBtn');
+
+        detectBtn.addEventListener('click', detectAI);
+        closeDetectBtn.addEventListener('click', () => {
+            detectCard.classList.remove('show');
+        });
+
+        // AI检测函数
+        async function detectAI() {
+            const text = inputText.value.trim();
+            if (!text) {
+                showToast('请输入要检测的文本', 'warning');
+                return;
+            }
+            if (text.length < 100) {
+                showToast('文本太短，至少需要100字', 'warning');
+                return;
             }
 
-            // 底部操作条与辅助按钮
-            actionBar.style.display = 'block';
-            startBtnBottom.addEventListener('click', () => optimizeBtn.click());
-            copyBtnBottom.addEventListener('click', () => copyBtn.click());
-            toTopBtn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+            detectBtn.disabled = true;
+            detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 检测中...';
 
-            // 工具栏按钮
-            downloadBtn.addEventListener('click', () => {
-                const text = textOutput.value || '';
-                const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = 'optimized.txt'; a.click();
-                URL.revokeObjectURL(url);
-            });
-            compareBtn.addEventListener('click', () => {
-                comparisonArea.style.display = comparisonArea.style.display === 'none' ? 'block' : 'none';
-            });
-            cleanBtn.addEventListener('click', () => {
-                let t = textOutput.value || '';
-                t = t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n'); // 清理多余空格与空行
-                textOutput.value = t;
-                outputCount.textContent = t.length.toLocaleString();
-                showToast('已清理多余空行与空格', 'success');
-            });
-            fullscreenBtn.addEventListener('click', () => {
-                const panel = document.getElementById('textOutput').closest('.work-panel');
-                panel.classList.toggle('fullscreen');
-                fullscreenBtn.innerHTML = panel.classList.contains('fullscreen') ? '<i class="fas fa-minimize"></i> 退出全屏' : '<i class="fas fa-maximize"></i> 全屏';
-            });
+            try {
+                const csrfToken = await getCsrfToken();
+                const response = await fetch('/api/estimate-ai-score', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(csrfToken ? {'X-CSRF-Token': csrfToken} : {})
+                    },
+                    body: JSON.stringify({ text })
+                });
 
-            // 文本优化主函数
-            async function optimizeText(text) {
-                let timeoutId = null;
-                
-                try {
-                    // 显示进度
-                    showProgress(true);
-                    updateProgress(10, '正在分析文本结构...');
-                    optimizeBtn.disabled = true;
-                    optimizeBtn.innerHTML = '<span class="loading-spinner"></span> 优化中...';
-                    
-                    // 清空之前的结果
-                    textOutput.value = '';
-                    outputCount.textContent = '0';
-                    optimizationInfo.textContent = '';
-                    comparisonArea.style.display = 'none';
-                    statsArea.style.display = 'none';
-                    
-                    updateProgress(30, '正在连接优化服务...');
-                    
-                    // 使用Promise.race来实现超时控制，避免AbortController的问题
-                    const fetchPromise = fetch('/api/optimize-text', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({
-                            text: text,
-                            options: {
-                                preserve_structure: true,
-                                enhance_readability: true,
-                                reduce_ai_traces: true
-                            }
-                        })
-                    });
-                    
-                    const timeoutPromise = new Promise((_, reject) => {
-                        timeoutId = setTimeout(() => {
-                            reject(new Error('请求超时，请稍后重试'));
-                        }, 600000); // 10分钟超时
-                    });
-                    
-                    // 发送优化请求
-                    const response = await Promise.race([fetchPromise, timeoutPromise]);
-                    
-                    clearTimeout(timeoutId);
-                    updateProgress(60, '正在处理优化结果...');
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('API响应错误:', errorText);
-                        
-                        // 特别处理401未授权错误
-                        if (response.status === 401) {
-                            // 尝试解析错误消息
-                            try {
-                                const errorData = JSON.parse(errorText);
-                                if (errorData.message && errorData.message.includes('登录')) {
-                                    throw new Error('UNAUTHORIZED_LOGIN_REQUIRED');
-                                }
-                            } catch (parseError) {
-                                // 如果解析失败，仍然抛出401错误
-                                throw new Error('UNAUTHORIZED_LOGIN_REQUIRED');
-                            }
-                        }
-                        
-                        throw new Error(`服务器错误 ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    // 尝试解析JSON响应
-                    let result;
-                    const responseText = await response.text();
-                    console.log('API原始响应:', responseText);
-                    
-                    try {
-                        result = JSON.parse(responseText);
-                    } catch (parseError) {
-                        console.error('JSON解析失败:', parseError);
-                        // 如果不是JSON，可能直接返回了优化后的文本
-                        if (responseText && responseText.trim()) {
-                            result = { optimized_text: responseText.trim() };
+                if (!response.ok) {
+                    throw new Error('检测请求失败');
+                }
+
+                const result = await response.json();
+                if (result.error) throw new Error(result.error);
+
+                // 显示检测结果
+                showDetectionResult(result);
+                detectCard.classList.add('show');
+                detectCard.scrollIntoView({ behavior: 'smooth' });
+                showToast('检测完成', 'success');
+
+            } catch (error) {
+                showToast(error.message || '检测失败', 'error');
+            } finally {
+                detectBtn.disabled = false;
+                detectBtn.innerHTML = '<i class="fas fa-search"></i> AI检测';
+            }
+        }
+
+        // 显示检测结果
+        function showDetectionResult(data) {
+            const score = data.ai_score || 0;
+            const details = data.details || {};
+
+            // 更新分数圆环
+            const scoreProgress = document.getElementById('scoreProgress');
+            const circumference = 2 * Math.PI * 60; // r=60
+            const offset = circumference - (score / 100) * circumference;
+            scoreProgress.style.strokeDashoffset = offset;
+
+            // 根据分数设置颜色
+            let color, levelClass, levelText;
+            if (score >= 70) {
+                color = '#ef4444'; levelClass = 'high'; levelText = '高风险 - 很可能被判定为AI生成';
+            } else if (score >= 40) {
+                color = '#f59e0b'; levelClass = 'medium'; levelText = '中等风险 - 建议进一步优化';
+            } else if (score >= 20) {
+                color = '#3b82f6'; levelClass = 'low'; levelText = '低风险 - 相对安全';
+            } else {
+                color = '#10b981'; levelClass = 'safe'; levelText = '安全 - 很可能通过检测';
+            }
+
+            scoreProgress.style.stroke = color;
+            document.getElementById('aiScoreValue').textContent = score + '%';
+            document.getElementById('aiScoreValue').style.color = color;
+
+            const scoreLevel = document.getElementById('scoreLevel');
+            scoreLevel.className = 'score-level ' + levelClass;
+            scoreLevel.innerHTML = `<i class="fas fa-${levelClass === 'safe' ? 'check-circle' : levelClass === 'low' ? 'info-circle' : levelClass === 'medium' ? 'exclamation-circle' : 'times-circle'}"></i><span>${levelText.split(' - ')[0]}</span>`;
+
+            document.getElementById('scoreSuggestion').textContent = levelText.split(' - ')[1] || '';
+
+            // 更新详细指标
+            const burstScore = Math.round((1 - (details.burstiness_ratio || 0)) * 100);
+            const markerScore = Math.round((details.marker_ratio || 0) * 100);
+            const patternScore = (details.pattern_count || 0) * 20;
+            const uniformScore = Math.round((details.uniformity_score || 0) * 100);
+
+            document.getElementById('detailBurstiness').textContent = (details.burstiness_ratio || 0).toFixed(2);
+            document.getElementById('detailMarkers').textContent = details.marker_count || 0;
+            document.getElementById('detailPatterns').textContent = details.pattern_count || 0;
+            document.getElementById('detailUniformity').textContent = uniformScore + '%';
+
+            // 更新进度条
+            updateBreakdownBar('barBurstiness', 'barBurstinessVal', Math.min(100, burstScore), burstScore);
+            updateBreakdownBar('barMarkers', 'barMarkersVal', Math.min(100, markerScore * 10), markerScore);
+            updateBreakdownBar('barPatterns', 'barPatternsVal', Math.min(100, patternScore), patternScore);
+            updateBreakdownBar('barUniformity', 'barUniformityVal', uniformScore, uniformScore);
+
+            // 更新优化建议
+            let suggestions = [];
+            if (details.burstiness_ratio < 0.3) {
+                suggestions.push('• 句子长度太均匀，建议增加长短句变化');
+            }
+            if (details.marker_count > 3) {
+                suggestions.push('• 发现' + details.marker_count + '个AI标记词，建议删除"首先、其次、此外"等词');
+            }
+            if (details.pattern_count > 0) {
+                suggestions.push('• 发现' + details.pattern_count + '个AI典型模式，建议打破三段式结构');
+            }
+            if (uniformScore > 60) {
+                suggestions.push('• 段落结构太规整，建议增加段落长度变化');
+            }
+            if (suggestions.length === 0) {
+                suggestions.push('• 文本特征良好，AI检测风险较低');
+                suggestions.push('• 可以进一步添加个人观点和独特表达');
+            }
+
+            document.getElementById('analysisText').textContent = suggestions.join('\n');
+        }
+
+        function updateBreakdownBar(barId, valId, width, value) {
+            const bar = document.getElementById(barId);
+            const val = document.getElementById(valId);
+            bar.style.width = width + '%';
+            val.textContent = value + '%';
+
+            // 设置颜色
+            bar.classList.remove('high', 'medium', 'low');
+            if (width >= 60) {
+                bar.classList.add('high');
+            } else if (width >= 30) {
+                bar.classList.add('medium');
+            } else {
+                bar.classList.add('low');
+            }
+        }
+
+        // 字符计数
+        inputText.addEventListener('input', function() {
+            inputCount.textContent = this.value.length.toLocaleString();
+            updateCostEstimate(this.value.length);
+        });
+
+        // 费用计算和更新
+        let currentCostData = { base_cost: 1.00, per_1000_cost: 0.50, balance: 0, logged_in: false };
+
+        async function updateCostEstimate(charCount) {
+            try {
+                const response = await fetch('/api/text-optimize-cost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ char_count: charCount })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentCostData = data;
+                    document.getElementById('estimatedCost').textContent = '¥' + data.total_cost.toFixed(2);
+                    document.getElementById('costDetail').textContent =
+                        `(基础¥${data.base_cost.toFixed(2)} + ${(charCount/1000).toFixed(1)}千字×¥${data.per_1000_cost.toFixed(2)})`;
+                    document.getElementById('submitCostHint').textContent = `(¥${data.total_cost.toFixed(2)})`;
+
+                    if (data.logged_in) {
+                        document.getElementById('currentBalance').textContent = '¥' + data.balance.toFixed(2);
+                        // 余额不足时显示警告
+                        if (data.balance < data.total_cost && charCount > 0) {
+                            document.getElementById('currentBalance').style.color = '#ef4444';
+                            document.getElementById('estimatedCost').style.color = '#ef4444';
                         } else {
-                            throw new Error('API返回空响应');
+                            document.getElementById('currentBalance').style.color = '#10b981';
+                            document.getElementById('estimatedCost').style.color = 'var(--primary)';
                         }
                     }
-                    
-                    // 检查是否有错误信息
-                    if (result.error) {
-                        throw new Error(result.error);
-                    }
-                    
-                    updateProgress(90, '正在生成对比分析...');
-                    
-                    // 处理API返回的数据结构 - 更全面的兼容性处理
-                    let optimizedText = '';
-                    
-                    // 优先使用 optimized 字段（这是实际的API返回格式）
-                    if (result.optimized) {
-                        optimizedText = result.optimized;
-                    } else if (result.optimized_text) {
-                        optimizedText = result.optimized_text;
-                    } else if (result.result) {
-                        optimizedText = result.result;
-                    } else if (result.final_result) {
-                        optimizedText = result.final_result;
-                    } else if (result.content) {
-                        optimizedText = result.content;
-                    } else if (result.data) {
-                        optimizedText = result.data;
-                    } else if (typeof result === 'string') {
-                        optimizedText = result;
-                    } else if (result.success && result.text) {
-                        optimizedText = result.text;
-                    } else {
-                        console.error('未知的API响应格式:', result);
-                        console.error('可用的字段:', Object.keys(result));
-                        // 不要抛出错误，给出更友好的提示
-                        showToast('服务响应格式异常，请稍后重试', 'warning');
-                        return;
-                    }
-                    
-                    // 验证优化结果
-                    if (!optimizedText || typeof optimizedText !== 'string') {
-                        throw new Error('优化结果为空或格式错误');
-                    }
-                    
-                    if (optimizedText.length === 0) {
-                        throw new Error('优化后文本为空，请重试');
-                    }
-                    
-                    // 更新结果
-                    updateProgress(100, '优化完成！');
-                    textOutput.value = optimizedText;
-                    outputCount.textContent = optimizedText.length.toLocaleString();
-                    
-                    // 显示统计信息 - 使用API返回的详细信息
-                    const stats = {
-                        segments: result.segments || result.segment_count || (result.processing_info ? parseInt(result.processing_info.match(/\d+/)?.[0]) || 1 : 1),
-                        original_length: result.original_length || text.length,
-                        optimized_length: result.optimized_length || optimizedText.length,
-                        change_percentage: result.change_percentage || ((optimizedText.length - text.length) / text.length * 100).toFixed(1)
-                    };
-                    
-                    // 显示处理信息
-                    if (result.processing_info) {
-                        optimizationInfo.textContent = result.processing_info;
-                    }
-                    
-                    showStats(stats);
-                    
-                    // 显示对比
-                    showComparison(text, optimizedText);
-                    
-                    // 启用复制按钮与工具栏、底部按钮
-                    copyBtn.disabled = false;
-                    copyBtnBottom.disabled = false;
-                    downloadBtn.disabled = false;
-                    compareBtn.disabled = false;
-                    cleanBtn.disabled = false;
-                    
-                    showToast('文本优化完成！', 'success');
-                    
-                } catch (error) {
-                    console.error('优化失败详细信息:', error);
-                    
-                    let errorMessage = '优化失败';
-                    
-                    // 检查是否是401未授权错误
-                    if (error.message && (error.message.includes('401') || error.message.includes('UNAUTHORIZED_LOGIN_REQUIRED'))) {
-                        // 显示登录提示弹窗
+                }
+            } catch (e) {
+                console.error('获取费用失败:', e);
+            }
+        }
+
+        // 初始化费用显示
+        updateCostEstimate(0);
+
+        // 提交
+        submitBtn.addEventListener('click', optimizeTextFn);
+
+        // 复制
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(outputText.value);
+            showToast('已复制到剪贴板', 'success');
+        });
+
+        // 下载
+        downloadBtn.addEventListener('click', () => {
+            const blob = new Blob([outputText.value], {type: 'text/plain;charset=utf-8'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = '优化文本_' + new Date().toISOString().slice(0,10) + '.txt';
+            a.click();
+            showToast('已下载', 'success');
+        });
+
+        // 对比
+        compareBtn.addEventListener('click', () => {
+            if (compareCard.style.display === 'block') {
+                compareCard.style.display = 'none';
+            } else {
+                showComparison();
+                compareCard.style.display = 'block';
+                compareCard.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        closeCompareBtn.addEventListener('click', () => {
+            compareCard.style.display = 'none';
+        });
+
+        // 待处理的优化数据
+        let pendingOptimizeData = null;
+
+        // 显示扣费确认弹窗
+        function showTextChargeModal(cost, balance) {
+            document.getElementById('text-charge-cost').textContent = `¥${cost.toFixed(2)}`;
+            document.getElementById('text-charge-balance').textContent = `¥${balance.toFixed(2)}`;
+            document.getElementById('text-charge-after').textContent = `¥${(balance - cost).toFixed(2)}`;
+            document.getElementById('text-charge-modal').style.display = 'flex';
+        }
+
+        // 关闭扣费确认弹窗
+        function closeTextChargeModal() {
+            document.getElementById('text-charge-modal').style.display = 'none';
+            pendingOptimizeData = null;
+        }
+
+        // 确认扣费并优化
+        async function confirmTextCharge() {
+            const data = pendingOptimizeData;
+            pendingOptimizeData = null;
+            closeTextChargeModal();
+
+            if (data) {
+                await doOptimizeText(data.text, data.options);
+            }
+        }
+
+        // 优化函数 - 先检查费用并显示确认弹窗
+        async function optimizeTextFn() {
+            const text = inputText.value.trim();
+            if (!text) {
+                showToast('请输入文本', 'warning');
+                return;
+            }
+            if (text.length > 50000) {
+                showToast('文本超出限制', 'error');
+                return;
+            }
+
+            const textType = textTypeSelect.value;
+            const options = {
+                intensity: parseInt(intensityRange.value),
+                mode: optimizeModeSelect.value,
+                text_type: textType,
+                preserve_terms: document.getElementById('preserveTerms').checked,
+                diversify_sentence: true,
+                keep_formal_style: document.getElementById('keepFormalStyle').checked,
+                add_burstiness: document.getElementById('addBurstiness').checked,
+                increase_perplexity: document.getElementById('increasePerplexity').checked,
+                break_patterns: document.getElementById('breakPatterns').checked,
+                vary_paragraph: document.getElementById('varyParagraph').checked,
+                natural_transition: textType !== 'academic',
+                add_human_touch: textType !== 'academic'
+            };
+
+            // 先获取费用信息
+            try {
+                const priceResponse = await fetch('/api/text-optimize-cost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ char_count: text.length })
+                });
+                const priceData = await priceResponse.json();
+
+                if (!priceData.logged_in) {
+                    showLoginModal();
+                    return;
+                }
+
+                if (priceData.balance < priceData.total_cost) {
+                    showRechargeModal(priceData.total_cost, priceData.balance);
+                    return;
+                }
+
+                // 保存待处理数据，显示确认弹窗
+                pendingOptimizeData = { text, options };
+                showTextChargeModal(priceData.total_cost, priceData.balance);
+
+            } catch (error) {
+                console.error('获取费用信息失败:', error);
+                showToast('获取费用信息失败，请重试', 'error');
+            }
+        }
+
+        // 实际执行优化
+        async function doOptimizeText(text, options) {
+            originalText = text;
+            startTime = Date.now();
+
+            // 保存费用提示，因为按钮HTML会被替换
+            const savedCostHint = document.getElementById('submitCostHint')?.textContent || '';
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 优化中...';
+            progressSection.style.display = 'block';
+            statsCard.classList.remove('show');
+            compareCard.style.display = 'none';
+            outputText.value = '';
+            outputCount.textContent = '0';
+
+            updateProgress(10, '分析文本特征...');
+
+            try {
+                updateProgress(30, '应用Burstiness策略...');
+                
+                const csrfToken = await getCsrfToken();
+                const response = await fetch('/api/optimize-text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(csrfToken ? {'X-CSRF-Token': csrfToken} : {})
+                    },
+                    body: JSON.stringify({ text, options })
+                });
+
+                updateProgress(70, '应用Perplexity策略...');
+
+                if (!response.ok) {
+                    if (response.status === 401) {
                         showLoginModal();
                         return;
                     }
-                    
-                    // 更好的错误分类处理
-                    if (error.message && error.message.includes('超时')) {
-                        errorMessage = '请求超时，文本可能过长，请尝试缩短文本';
-                    } else if (error.message && error.message.includes('Failed to fetch')) {
-                        errorMessage = '网络连接失败，请检查网络后重试';
-                    } else if (error.message && error.message.includes('JSON')) {
-                        errorMessage = '服务器响应格式错误，请稍后重试';
-                    } else if (error.message && error.message.includes('服务器错误')) {
-                        errorMessage = '服务器暂时不可用，请稍后重试';
-                    } else if (error.message) {
-                        errorMessage = error.message;
-                    }
-                    
-                    showToast(errorMessage, 'danger');
-                    
-                    // 重置UI状态
-                    textOutput.value = '';
-                    outputCount.textContent = '0';
-                    
-                } finally {
-                    // 清理资源
-                    if (timeoutId) {
-                        clearTimeout(timeoutId);
-                        timeoutId = null;
-                    }
-                    showProgress(false);
-                    optimizeBtn.disabled = false;
-                    optimizeBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> 开始智能优化';
+                    throw new Error('处理失败');
                 }
-            }
-            
-            // 显示进度
-            function showProgress(show) {
-                progressArea.style.display = show ? 'block' : 'none';
-                if (!show) {
-                    progressBar.style.width = '0%';
-                    progressText.textContent = '准备中...';
-                }
-            }
-            
-            // 更新进度
-            function updateProgress(percent, text) {
-                progressBar.style.width = percent + '%';
-                progressText.textContent = text;
-            }
-            
-            // 显示统计信息
-            function showStats(stats) {
-                document.getElementById('statSegments').textContent = stats.segments || 1;
-                document.getElementById('statOriginal').textContent = (stats.original_length || 0).toLocaleString();
-                document.getElementById('statOptimized').textContent = (stats.optimized_length || 0).toLocaleString();
-                
-                const changePercent = parseFloat(stats.change_percentage || 0);
-                const changeElement = document.getElementById('statChange');
-                changeElement.textContent = (changePercent >= 0 ? '+' : '') + changePercent + '%';
-                changeElement.style.color = changePercent >= 0 ? 'var(--success-600)' : 'var(--danger-600)';
-                
-                statsArea.style.display = 'grid';
-                statsArea.classList.add('fade-in');
-            }
-            
-            // 显示对比分析
-            function showComparison(originalText, optimizedText) {
-                const originalPreview = document.getElementById('originalPreview');
-                const optimizedPreview = document.getElementById('optimizedPreview');
-                
-                // 智能文本对比和高光显示
-                const originalSentences = splitIntoSentences(originalText);
-                const optimizedSentences = splitIntoSentences(optimizedText);
-                
-                // 显示原文
-                originalPreview.innerHTML = originalSentences.map(sentence => 
-                    `<div style="margin-bottom: 0.5rem;">${escapeHtml(sentence)}</div>`
-                ).join('');
-                
-                // 显示优化文本并高光修改
-                optimizedPreview.innerHTML = optimizedSentences.map((sentence, index) => {
-                    const originalSentence = originalSentences[index] || '';
-                    let className = '';
-                    
-                    if (!originalSentence && sentence) {
-                        className = 'highlight-add';
-                    } else if (originalSentence && !sentence) {
-                        className = 'highlight-remove';
-                    } else if (originalSentence !== sentence && sentence) {
-                        // 计算相似度
-                        const similarity = calculateSimilarity(originalSentence, sentence);
-                        if (similarity < 0.7) {
-                            className = 'highlight-modify';
-                        }
+
+                const result = await response.json();
+
+                // 处理余额不足错误
+                if (result.error) {
+                    if (result.need_recharge) {
+                        showRechargeModal(result.cost, result.balance);
+                        return;
                     }
-                    
-                    return `<div class="${className}" style="margin-bottom: 0.5rem;">${escapeHtml(sentence)}</div>`;
-                }).join('');
-                
-                comparisonArea.style.display = 'block';
-                comparisonArea.classList.add('fade-in');
-            }
-            
-            // 智能分句函数
-            function splitIntoSentences(text) {
-                return text.split(/[。！？；\n]/).filter(s => s.trim().length > 0);
-            }
-            
-            // 计算文本相似度
-            function calculateSimilarity(str1, str2) {
-                const longer = str1.length > str2.length ? str1 : str2;
-                const shorter = str1.length > str2.length ? str2 : str1;
-                
-                if (longer.length === 0) return 1.0;
-                
-                const editDistance = levenshteinDistance(longer, shorter);
-                return (longer.length - editDistance) / longer.length;
-            }
-            
-            // 计算编辑距离
-            function levenshteinDistance(str1, str2) {
-                const matrix = [];
-                
-                for (let i = 0; i <= str2.length; i++) {
-                    matrix[i] = [i];
+                    throw new Error(result.error);
                 }
-                
-                for (let j = 0; j <= str1.length; j++) {
-                    matrix[0][j] = j;
-                }
-                
-                for (let i = 1; i <= str2.length; i++) {
-                    for (let j = 1; j <= str1.length; j++) {
-                        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-                            matrix[i][j] = matrix[i - 1][j - 1];
-                        } else {
-                            matrix[i][j] = Math.min(
-                                matrix[i - 1][j - 1] + 1,
-                                matrix[i][j - 1] + 1,
-                                matrix[i - 1][j] + 1
-                            );
-                        }
+
+                updateProgress(90, '打破AI模式...');
+                await new Promise(r => setTimeout(r, 200));
+                updateProgress(100, '完成');
+
+                optimizedText = result.optimized || '';
+                outputText.value = optimizedText;
+                outputCount.textContent = optimizedText.length.toLocaleString();
+                document.getElementById('processingInfo').textContent = result.processing_info || '';
+
+                // 更新余额显示
+                if (result.charged && result.new_balance !== undefined) {
+                    const newBalance = parseFloat(result.new_balance) || 0;
+                    const costAmount = parseFloat(result.cost) || 0;
+                    document.getElementById('currentBalance').textContent = '¥' + newBalance.toFixed(2);
+                    // 同时更新顶部余额显示
+                    const headerBalance = document.querySelector('.user-balance');
+                    if (headerBalance) {
+                        headerBalance.innerHTML = '<i class="fas fa-wallet"></i> ¥' + newBalance.toFixed(2);
                     }
+                    showToast(`优化完成，已扣费 ¥${costAmount.toFixed(2)}`, 'success');
+                } else {
+                    showToast('优化完成', 'success');
                 }
-                
-                return matrix[str2.length][str1.length];
+
+                const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                showStats({
+                    segments: result.segments_count || 1,
+                    original: text.length,
+                    optimized: optimizedText.length,
+                    change: ((optimizedText.length - text.length) / text.length * 100).toFixed(1),
+                    time: duration,
+                    cost: result.charged ? result.cost : 0
+                });
+
+                copyBtn.disabled = false;
+                downloadBtn.disabled = false;
+                compareBtn.disabled = false;
+
+            } catch (error) {
+                showToast(error.message || '优化失败', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> 开始智能优化 <span id="submitCostHint" style="font-size: 12px; opacity: 0.9; margin-left: 8px;">' + savedCostHint + '</span>';
+                setTimeout(() => progressSection.style.display = 'none', 500);
             }
-            
-            // HTML转义函数
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-            
-            // 显示提示消息
-            function showToast(message, type = 'info') {
-                // 移除现有的toast
-                const existingToast = document.querySelector('.toast');
-                if (existingToast) {
-                    existingToast.remove();
-                }
-                
-                // 创建新的toast
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                
-                const icon = type === 'success' ? 'check-circle' : 
-                           type === 'warning' ? 'exclamation-triangle' : 
-                           type === 'danger' ? 'exclamation-circle' : 'info-circle';
-                
-                toast.innerHTML = `
-                    <i class="fas fa-${icon}"></i>
-                    <span>${message}</span>
-                `;
-                
-                document.body.appendChild(toast);
-                
-                // 3秒后自动移除
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.remove();
-                    }
-                }, 3000);
-            }
-            
-            // 显示登录提示弹窗
-            function showLoginModal() {
-                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                loginModal.show();
-            }
-            
-            // 键盘快捷键
-            document.addEventListener('keydown', function(e) {
-                // Ctrl+Enter 开始优化
-                if (e.ctrlKey && e.key === 'Enter') {
-                    e.preventDefault();
-                    if (!optimizeBtn.disabled && textInput.value.trim()) {
-                        optimizeBtn.click();
-                    }
-                }
-                
-                // Ctrl+C 复制结果（当焦点在输出区域时）
-                if (e.ctrlKey && e.key === 'c' && document.activeElement === textOutput) {
-                    if (!copyBtn.disabled) {
-                        copyBtn.click();
-                    }
+        }
+
+        function updateProgress(percent, text) {
+            progressBar.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+
+        function showStats(data) {
+            document.getElementById('statSegments').textContent = data.segments;
+            document.getElementById('statOriginal').textContent = data.original.toLocaleString();
+            document.getElementById('statOptimized').textContent = data.optimized.toLocaleString();
+            document.getElementById('statChange').textContent = (data.change >= 0 ? '+' : '') + data.change + '%';
+            document.getElementById('statTime').textContent = data.time + 's';
+            statsCard.classList.add('show');
+        }
+
+        function showComparison() {
+            const origSentences = splitIntoSentences(originalText);
+            const optSentences = splitIntoSentences(optimizedText);
+            const alignment = alignSentences(origSentences, optSentences);
+
+            let origHtml = '';
+            let optHtml = '';
+
+            alignment.forEach(item => {
+                if (item.type === 'removed') {
+                    origHtml += `<span class="diff-sentence removed">${escapeHtml(item.original)}</span>`;
+                    optHtml += `<span class="diff-sentence" style="background:#f5f5f5;color:#999;font-style:italic;">（删除）</span>`;
+                } else if (item.type === 'modified') {
+                    const diff = diffWords(item.original, item.optimized);
+                    origHtml += `<span class="diff-sentence modified">${diff.originalHtml}</span>`;
+                    optHtml += `<span class="diff-sentence modified">${diff.optimizedHtml}</span>`;
+                } else if (item.type === 'same') {
+                    origHtml += `<span class="diff-sentence same">${escapeHtml(item.original)}</span>`;
+                    optHtml += `<span class="diff-sentence same">${escapeHtml(item.optimized)}</span>`;
+                } else if (item.type === 'added') {
+                    origHtml += `<span class="diff-sentence" style="background:#f5f5f5;color:#999;font-style:italic;">（新增）</span>`;
+                    optHtml += `<span class="diff-sentence added">${escapeHtml(item.optimized)}</span>`;
                 }
             });
-            
-            // 页面加载完成后的初始化
-            setTimeout(() => {
-                showToast('文本优化器已就绪，支持最大5万字符处理', 'info');
-            }, 500);
+
+            document.getElementById('originalPreview').innerHTML = origHtml;
+            document.getElementById('optimizedPreview').innerHTML = optHtml;
+        }
+
+        function splitIntoSentences(text) {
+            return text.split(/(?<=[。！？；\n])/g).map(s => s.trim()).filter(s => s.length > 0);
+        }
+
+        function alignSentences(origList, optList) {
+            const result = [];
+            const optUsed = new Array(optList.length).fill(false);
+
+            origList.forEach(orig => {
+                let bestMatch = -1;
+                let bestSim = 0;
+
+                optList.forEach((opt, j) => {
+                    if (!optUsed[j]) {
+                        const sim = calcSimilarity(orig, opt);
+                        if (sim > bestSim) { bestSim = sim; bestMatch = j; }
+                    }
+                });
+
+                if (bestMatch !== -1 && bestSim > 0.3) {
+                    optUsed[bestMatch] = true;
+                    result.push(bestSim > 0.9
+                        ? { type: 'same', original: orig, optimized: optList[bestMatch] }
+                        : { type: 'modified', original: orig, optimized: optList[bestMatch] });
+                } else {
+                    result.push({ type: 'removed', original: orig });
+                }
+            });
+
+            optList.forEach((opt, j) => {
+                if (!optUsed[j]) result.push({ type: 'added', optimized: opt });
+            });
+
+            return result;
+        }
+
+        function calcSimilarity(s1, s2) {
+            if (!s1 || !s2) return 0;
+            if (s1 === s2) return 1;
+            const set1 = new Set(s1.split(''));
+            const set2 = new Set(s2.split(''));
+            const inter = [...set1].filter(x => set2.has(x)).length;
+            return inter / new Set([...set1, ...set2]).size;
+        }
+
+        function diffWords(original, modified) {
+            const lcs = computeLCS(original.split(''), modified.split(''));
+            let origHtml = '', optHtml = '';
+            let lcsIdx = 0, buf = '';
+
+            for (let c of original) {
+                if (lcsIdx < lcs.length && c === lcs[lcsIdx]) {
+                    if (buf) { origHtml += `<span class="diff-removed">${escapeHtml(buf)}</span>`; buf = ''; }
+                    origHtml += escapeHtml(c);
+                    lcsIdx++;
+                } else buf += c;
+            }
+            if (buf) origHtml += `<span class="diff-removed">${escapeHtml(buf)}</span>`;
+
+            lcsIdx = 0; buf = '';
+            for (let c of modified) {
+                if (lcsIdx < lcs.length && c === lcs[lcsIdx]) {
+                    if (buf) { optHtml += `<span class="diff-added">${escapeHtml(buf)}</span>`; buf = ''; }
+                    optHtml += escapeHtml(c);
+                    lcsIdx++;
+                } else buf += c;
+            }
+            if (buf) optHtml += `<span class="diff-added">${escapeHtml(buf)}</span>`;
+
+            return { originalHtml: origHtml, optimizedHtml: optHtml };
+        }
+
+        function computeLCS(a, b) {
+            const m = a.length, n = b.length;
+            const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+            for (let i = 1; i <= m; i++)
+                for (let j = 1; j <= n; j++)
+                    dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+
+            const lcs = [];
+            let i = m, j = n;
+            while (i > 0 && j > 0) {
+                if (a[i-1] === b[j-1]) { lcs.unshift(a[i-1]); i--; j--; }
+                else if (dp[i-1][j] > dp[i][j-1]) i--;
+                else j--;
+            }
+            return lcs;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(msg, type) {
+            const old = document.querySelector('.toast');
+            if (old) old.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'exclamation-triangle';
+            toast.innerHTML = `<i class="fas fa-${icon}"></i> <span>${msg}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        window.closeLoginModal = function() {
+            document.getElementById('loginModal').classList.remove('show');
+        };
+
+        // 充值提示弹窗
+        function showRechargeModal(cost, balance) {
+            const modal = document.getElementById('rechargeModal');
+            if (modal) {
+                document.getElementById('rechargeCost').textContent = cost.toFixed(2);
+                document.getElementById('rechargeBalance').textContent = balance.toFixed(2);
+                document.getElementById('rechargeDiff').textContent = (cost - balance).toFixed(2);
+                modal.classList.add('show');
+            }
+        }
+
+        window.closeRechargeModal = function() {
+            const modal = document.getElementById('rechargeModal');
+            if (modal) modal.classList.remove('show');
+        };
+
+        // 快捷键
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!submitBtn.disabled && inputText.value.trim()) submitBtn.click();
+            }
         });
+    });
+
+    // 切换信息面板
+    function toggleInfo() {
+        const content = document.getElementById('infoContent');
+        const text = document.getElementById('infoToggleText');
+        const icon = document.getElementById('infoToggleIcon');
+
+        if (content.classList.contains('show')) {
+            content.classList.remove('show');
+            text.textContent = '展开';
+            icon.style.transform = 'rotate(0deg)';
+        } else {
+            content.classList.add('show');
+            text.textContent = '收起';
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    // 切换高级选项
+    function toggleAdvanced() {
+        const content = document.getElementById('advancedContent');
+        const header = document.querySelector('.advanced-header');
+
+        if (content.classList.contains('show')) {
+            content.classList.remove('show');
+            header.classList.remove('expanded');
+        } else {
+            content.classList.add('show');
+            header.classList.add('expanded');
+        }
+    }
+
+    // ========== 页面退出提示 ==========
+    // 标记页面是否有内容
+    let hasUnsavedContent = false;
+
+    // 监听内容变化
+    function markContentChanged() {
+        hasUnsavedContent = true;
+    }
+
+    // 页面离开时提示
+    window.addEventListener('beforeunload', function(e) {
+        if (hasUnsavedContent) {
+            const message = '您有未保存的优化内容，确定要离开此页面吗？';
+            e.preventDefault();
+            e.returnValue = message;
+            return message;
+        }
+    });
+
+    // 监听内容变化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 监听输入框变化
+        const inputField = document.getElementById('inputText');
+        if (inputField) {
+            inputField.addEventListener('input', markContentChanged);
+        }
+
+        // 监听输出框变化（表示已生成内容）
+        const outputField = document.getElementById('outputText');
+        if (outputField) {
+            const observer = new MutationObserver(function() {
+                if (outputField.value && outputField.value.trim()) {
+                    markContentChanged();
+                }
+            });
+            observer.observe(outputField, { attributes: true, childList: true, subtree: true });
+            outputField.addEventListener('input', markContentChanged);
+        }
+    });
     </script>
 </body>
 </html>

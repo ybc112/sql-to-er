@@ -102,6 +102,49 @@
             display: inline-block;
         }
 
+        .order-details {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .order-details-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .order-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 14px;
+        }
+
+        .order-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-detail-label {
+            color: #64748b;
+        }
+
+        .order-detail-value {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .order-detail-value.highlight {
+            color: #10b981;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
         .buttons-group {
             display: flex;
             gap: 16px;
@@ -215,17 +258,41 @@
         <div class="success-icon">
             <i class="fas fa-check"></i>
         </div>
-        
+
         <h1 class="success-title">支付成功！</h1>
-        
+
         <p class="success-message">
             恭喜您，充值已成功完成！<br>
             您的账户余额已实时更新，可以立即使用各项服务。
         </p>
-        
+
+        {% if order_info or order_amount %}
+        <div class="order-details">
+            <div class="order-details-title"><i class="fas fa-receipt"></i> 订单详情</div>
+            {% if order_no %}
+            <div class="order-detail-item">
+                <span class="order-detail-label">订单号</span>
+                <span class="order-detail-value">{{ order_no }}</span>
+            </div>
+            {% endif %}
+            <div class="order-detail-item">
+                <span class="order-detail-label">充值金额</span>
+                <span class="order-detail-value highlight">¥{{ "%.2f"|format(order_amount or order_info.amount) }}</span>
+            </div>
+            <div class="order-detail-item">
+                <span class="order-detail-label">支付方式</span>
+                <span class="order-detail-value">支付宝</span>
+            </div>
+            <div class="order-detail-item">
+                <span class="order-detail-label">支付状态</span>
+                <span class="order-detail-value" style="color: #10b981;"><i class="fas fa-check-circle"></i> 已完成</span>
+            </div>
+        </div>
+        {% else %}
         <div class="success-amount">
             <i class="fas fa-coins"></i> 充值金额已到账
         </div>
+        {% endif %}
         
         <div class="buttons-group">
             <a href="/profile" class="btn btn-primary">

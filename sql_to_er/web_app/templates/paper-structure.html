@@ -566,6 +566,140 @@
             10%, 30%, 50%, 70%, 90% { transform: translate(-52%, -50%); }
             20%, 40%, 60%, 80% { transform: translate(-48%, -50%); }
         }
+
+        /* 警告提示框样式 */
+        .warning-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(255, 152, 0, 0.3);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            min-width: 300px;
+            animation: warningPulse 0.5s ease-out;
+        }
+
+        .warning-toast .icon { font-size: 24px; }
+        .warning-toast .message { flex: 1; }
+        .warning-toast .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .warning-toast .close-btn:hover { opacity: 1; }
+
+        @keyframes warningPulse {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            50% { transform: translate(-50%, -50%) scale(1.02); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 自定义确认弹窗样式 */
+        .custom-confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .custom-confirm-modal.show { opacity: 1; }
+        .custom-confirm-modal .confirm-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .custom-confirm-modal .confirm-modal-container {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
+        }
+        .custom-confirm-modal.show .confirm-modal-container { transform: scale(1); }
+        .custom-confirm-modal .confirm-modal-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-confirm-modal .confirm-modal-icon i {
+            font-size: 32px;
+            color: white;
+        }
+        .custom-confirm-modal .confirm-modal-message {
+            font-size: 16px;
+            color: #334155;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .custom-confirm-modal .confirm-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .custom-confirm-modal .confirm-btn-cancel {
+            padding: 12px 28px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .custom-confirm-modal .confirm-btn-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .custom-confirm-modal .confirm-btn-ok {
+            padding: 12px 28px;
+            border: none;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .custom-confirm-modal .confirm-btn-ok:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -810,6 +944,191 @@
         </button>
     </div>
 
+    <!-- AI生成扣费确认弹窗 -->
+    <div id="structure-charge-modal" class="charge-modal" style="display: none;">
+        <div class="charge-modal-overlay" onclick="closeStructureChargeModal()"></div>
+        <div class="charge-modal-container">
+            <div class="charge-modal-header">
+                <span class="charge-modal-title">确认支付</span>
+                <button class="charge-modal-close" onclick="closeStructureChargeModal()">&times;</button>
+            </div>
+
+            <div class="charge-modal-body">
+                <p class="charge-desc">您即将使用 AI 智能生成结构图服务</p>
+
+                <div class="charge-info-list">
+                    <div class="charge-info-item">
+                        <span>服务费用</span>
+                        <span class="charge-cost" id="structure-charge-cost">¥4.00</span>
+                    </div>
+                    <div class="charge-info-item">
+                        <span>当前余额</span>
+                        <span id="structure-charge-balance">¥0.00</span>
+                    </div>
+                    <div class="charge-info-item charge-info-result">
+                        <span>支付后余额</span>
+                        <span id="structure-charge-after">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charge-modal-footer">
+                <button class="charge-btn-cancel" onclick="closeStructureChargeModal()">取消</button>
+                <button class="charge-btn-confirm" onclick="confirmStructureCharge()">确认支付</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* 统一扣费确认弹窗样式 */
+    .charge-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .charge-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .charge-modal-container {
+        position: relative;
+        background: #fff;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .charge-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .charge-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .charge-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .charge-modal-close:hover {
+        color: #333;
+    }
+
+    .charge-modal-body {
+        padding: 24px;
+    }
+
+    .charge-desc {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .charge-info-list {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .charge-info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .charge-info-item:not(:last-child) {
+        border-bottom: 1px solid #eee;
+    }
+
+    .charge-info-result {
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .charge-cost {
+        font-weight: 600;
+        color: #f59e0b;
+    }
+
+    .charge-modal-footer {
+        display: flex;
+        gap: 12px;
+        padding: 0 24px 24px;
+    }
+
+    .charge-btn-cancel,
+    .charge-btn-confirm {
+        flex: 1;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .charge-btn-cancel {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+    .charge-btn-cancel:hover {
+        background: #eee;
+    }
+
+    .charge-btn-confirm {
+        background: #10b981;
+        border: none;
+        color: #fff;
+    }
+
+    .charge-btn-confirm:hover {
+        background: #059669;
+    }
+    </style>
+
     <!-- 导出模态框 -->
     <div id="export-modal" class="modal">
         <div class="modal-content">
@@ -879,6 +1198,18 @@
         let treeData = [];
         let nextNodeId = 0;
         let isEditing = false;
+
+        // 获取CSRF Token
+        async function getCsrfToken() {
+            try {
+                const res = await fetch('/api/csrf-token');
+                const data = await res.json();
+                return data.csrf_token;
+            } catch (error) {
+                console.error('获取CSRF Token失败:', error);
+                return null;
+            }
+        }
 
         // 系统模板
         const systemTemplates = {
@@ -1048,6 +1379,74 @@
                     toast.remove();
                 }
             }, 5000);
+        }
+
+        // 显示警告提示框
+        function showWarningToast(message) {
+            const existingToast = document.querySelector('.success-toast, .error-toast, .warning-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'warning-toast';
+            toast.innerHTML = `
+                <div class="icon">⚠️</div>
+                <div class="message">${message}</div>
+                <button class="close-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 4000);
+        }
+
+        // 显示自定义确认弹窗
+        function showConfirmModal(message, onConfirm, onCancel) {
+            const existingModal = document.getElementById('custom-confirm-modal');
+            if (existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'custom-confirm-modal';
+            modal.className = 'custom-confirm-modal';
+            modal.innerHTML = `
+                <div class="confirm-modal-overlay"></div>
+                <div class="confirm-modal-container">
+                    <div class="confirm-modal-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="confirm-modal-message">${message}</div>
+                    <div class="confirm-modal-buttons">
+                        <button class="confirm-btn-cancel">取消</button>
+                        <button class="confirm-btn-ok">确认</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+
+            const closeModal = () => {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 200);
+            };
+
+            modal.querySelector('.confirm-modal-overlay').onclick = () => {
+                closeModal();
+                if (onCancel) onCancel();
+            };
+            modal.querySelector('.confirm-btn-cancel').onclick = () => {
+                closeModal();
+                if (onCancel) onCancel();
+            };
+            modal.querySelector('.confirm-btn-ok').onclick = () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+            };
         }
 
         // 初始化
@@ -2145,7 +2544,7 @@
 
         function showExportModal() {
             if (!currentData) {
-                alert('请先创建结构图');
+                showWarningToast('请先创建结构图');
                 return;
             }
             document.getElementById('export-modal').style.display = 'block';
@@ -2289,7 +2688,7 @@
             try {
                 const svgElement = svg.node();
                 if (!svgElement) {
-                    alert('没有找到图表内容');
+                    showWarningToast('没有找到图表内容');
                     return;
                 }
 
@@ -2372,7 +2771,7 @@
             try {
                 const svgElement = svg.node();
                 if (!svgElement) {
-                    alert('没有找到图表内容');
+                    showWarningToast('没有找到图表内容');
                     return;
                 }
 
@@ -2419,7 +2818,7 @@
                 URL.revokeObjectURL(url);
 
                 console.log('SVG导出完成');
-                alert('SVG导出成功！');
+                showSuccessToast('SVG导出成功！');
 
             } catch (error) {
                 console.error('导出SVG失败:', error);
@@ -2439,17 +2838,17 @@
         }
 
         function clearDiagram() {
-            if (confirm('确定要清空当前结构图吗？')) {
+            showConfirmModal('确定要清空当前结构图吗？', () => {
                 currentData = null;
                 selectedNode = null;
                 nextNodeId = 0;
                 g.selectAll('*').remove();
                 updateTreeView(null);
-                
+
                 document.querySelectorAll('.template-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-            }
+            });
         }
 
         // 响应式处理
@@ -2472,16 +2871,83 @@
 
         // AI生成相关变量
         let generatedStructureData = null;
+        let pendingDescription = null;
+
+        // 显示扣费确认弹窗
+        function showStructureChargeModal(cost, balance) {
+            document.getElementById('structure-charge-cost').textContent = `¥${cost.toFixed(2)}`;
+            document.getElementById('structure-charge-balance').textContent = `¥${balance.toFixed(2)}`;
+            document.getElementById('structure-charge-after').textContent = `¥${(balance - cost).toFixed(2)}`;
+            
+            const modal = document.getElementById('structure-charge-modal');
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
+        
+        // 关闭扣费确认弹窗
+        function closeStructureChargeModal() {
+            const modal = document.getElementById('structure-charge-modal');
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+        }
+        
+        // 确认扣费并生成
+        async function confirmStructureCharge() {
+            // 先保存数据再关闭弹窗
+            const description = pendingDescription;
+            pendingDescription = null;
+            
+            const modal = document.getElementById('structure-charge-modal');
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            
+            if (description) {
+                await doGenerateStructure(description);
+            }
+        }
 
         // AI生成结构图
         async function generateStructureWithAI() {
             const description = document.getElementById('system-description').value.trim();
 
             if (!description) {
-                alert('请输入系统描述');
+                showWarningToast('请输入系统描述');
                 return;
             }
 
+            // 先检查费用和余额
+            try {
+                const priceResponse = await fetch('/api/get_structure_cost');
+                const priceData = await priceResponse.json();
+
+                if (!priceData.is_logged_in) {
+                    showErrorToast('AI生成功能需要登录后使用，请先登录');
+                    showConfirmModal('是否跳转到登录页面？', () => {
+                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                    });
+                    return;
+                }
+
+                if (!priceData.sufficient) {
+                    showErrorToast(`余额不足！AI生成需要 ${priceData.cost.toFixed(2)} 元，当前余额 ${priceData.balance.toFixed(2)} 元`);
+                    showConfirmModal('是否跳转到充值页面？', () => {
+                        window.location.href = '/profile#recharge';
+                    });
+                    return;
+                }
+
+                // 显示确认弹窗
+                pendingDescription = description;
+                showStructureChargeModal(priceData.cost, priceData.balance);
+
+            } catch (error) {
+                console.error('获取费用信息失败:', error);
+                showErrorToast('获取费用信息失败: ' + error.message);
+            }
+        }
+        
+        // 实际执行AI生成
+        async function doGenerateStructure(description) {
             const generateBtn = document.getElementById('generate-btn');
             const progressDiv = document.getElementById('ai-progress');
             const resultDiv = document.getElementById('ai-result-preview');
@@ -2493,10 +2959,14 @@
             resultDiv.style.display = 'none';
 
             try {
+                // 获取CSRF Token
+                const csrfToken = await getCsrfToken();
+                
                 const response = await fetch('/api/generate-structure', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...(csrfToken ? {'X-CSRF-Token': csrfToken} : {})
                     },
                     body: JSON.stringify({
                         description: description
@@ -2516,13 +2986,19 @@
                     progressDiv.style.display = 'none';
                     resultDiv.style.display = 'block';
 
-                    showSuccessToast('AI生成完成！');
+                    if (result.ai_success && result.charged) {
+                        showSuccessToast(`AI生成完成！已扣费 ¥${result.cost.toFixed(2)}`);
+                    } else if (!result.ai_success) {
+                        showErrorToast('AI服务暂时不可用，已使用备用方案生成，未扣费。请稍后重试获取更好的结果。');
+                    } else {
+                        showSuccessToast('AI生成完成！');
+                    }
                 } else {
                     throw new Error(result.message || '生成失败');
                 }
             } catch (error) {
                 console.error('AI生成失败:', error);
-                alert('生成失败：' + error.message);
+                showErrorToast('生成失败：' + error.message);
                 progressDiv.style.display = 'none';
             } finally {
                 generateBtn.disabled = false;
@@ -2533,13 +3009,21 @@
         // 应用生成的结构到画布
         function applyGeneratedStructure() {
             if (!generatedStructureData) {
-                alert('没有可应用的结构数据');
+                showWarningToast('没有可应用的结构数据');
                 return;
             }
 
             try {
                 // 清空当前画布
-                clearDiagram();
+                currentData = null;
+                selectedNode = null;
+                nextNodeId = 0;
+                g.selectAll('*').remove();
+                updateTreeView(null);
+
+                document.querySelectorAll('.template-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
 
                 // 应用生成的数据
                 currentData = generatedStructureData;
@@ -2560,10 +3044,58 @@
                 showSuccessToast('结构图已应用到画布！');
             } catch (error) {
                 console.error('应用结构失败:', error);
-                alert('应用结构失败：' + error.message);
+                showErrorToast('应用结构失败：' + error.message);
             }
         }
 
+    </script>
+
+    <!-- 页面退出提示 -->
+    <script>
+        // 标记页面是否有内容
+        let hasUnsavedContent = false;
+
+        // 监听内容变化
+        function markContentChanged() {
+            hasUnsavedContent = true;
+        }
+
+        // 页面离开时提示
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedContent) {
+                const message = '您有未保存的结构图内容，确定要离开此页面吗？';
+                e.preventDefault();
+                e.returnValue = message;
+                return message;
+            }
+        });
+
+        // 监听内容变化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听输入框变化
+            const inputField = document.getElementById('paper-content') || document.querySelector('textarea');
+            if (inputField) {
+                inputField.addEventListener('input', markContentChanged);
+            }
+
+            // 重写生成函数来标记内容变化
+            const originalGenerate = window.generateStructure;
+            if (originalGenerate) {
+                window.generateStructure = function() {
+                    markContentChanged();
+                    return originalGenerate.apply(this, arguments);
+                };
+            }
+
+            // 监听画布变化
+            const originalApply = window.applyStructure;
+            if (originalApply) {
+                window.applyStructure = function() {
+                    markContentChanged();
+                    return originalApply.apply(this, arguments);
+                };
+            }
+        });
     </script>
 </body>
 </html>

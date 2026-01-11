@@ -3,531 +3,1125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统设置 - SQL转ER图工具</title>
+    <title>系统设置 - 管理后台</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
         }
-        
-        /* 侧边栏样式 */
+
+        body {
+            background-color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* 侧边栏 */
         .sidebar {
             position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
             z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #343a40;
             width: 250px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding-top: 0;
         }
-        
-        .sidebar-sticky {
-            position: sticky;
-            top: 48px;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        
+
+        .sidebar-header h5 {
+            color: white;
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .sidebar-header small {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
         .sidebar .nav-link {
+            color: #94a3b8;
+            padding: 12px 20px;
+            font-size: 14px;
             font-weight: 500;
-            color: #adb5bd;
-            padding: 10px 20px;
-            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
         }
-        
+
         .sidebar .nav-link:hover {
-            color: #fff;
-            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            background: rgba(255,255,255,0.05);
         }
-        
+
         .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #007bff;
+            color: white;
+            background: rgba(79, 70, 229, 0.2);
+            border-left-color: var(--primary);
         }
-        
+
         .sidebar .nav-link i {
-            margin-right: 10px;
             width: 20px;
-            text-align: center;
+            margin-right: 10px;
         }
-        
-        /* 主内容区域 */
+
+        /* 主内容区 */
         .main {
             margin-left: 250px;
-            padding: 20px;
+            padding: 24px;
+            min-height: 100vh;
         }
-        
-        /* 顶部导航栏 */
-        .navbar {
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,.08);
-            padding: 15px 20px;
-            margin-bottom: 30px;
+
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
+        .top-bar h4 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 按钮样式 */
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        /* 标签页 */
+        .settings-tabs {
+            display: flex;
+            gap: 4px;
+            background: white;
+            padding: 6px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+        .settings-tabs .nav-link {
+            color: var(--gray-500);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+        }
+
+        .settings-tabs .nav-link:hover {
+            color: var(--gray-700);
+            background: var(--gray-100);
+        }
+
+        .settings-tabs .nav-link.active {
+            color: white;
+            background: var(--primary);
+        }
+
         /* 设置卡片 */
         .settings-card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            border-radius: 12px;
+            padding: 24px;
             margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
         .settings-card h5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
             margin-bottom: 20px;
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
+
+        .settings-card h5 i {
+            color: var(--primary);
+        }
+
         /* 设置项 */
         .setting-item {
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--gray-100);
         }
-        
+
         .setting-item:last-child {
             border-bottom: none;
+            padding-bottom: 0;
         }
-        
+
         .setting-label {
             font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .setting-description {
+            color: var(--gray-900);
+            margin-bottom: 4px;
             font-size: 14px;
-            color: #666;
+        }
+
+        .setting-description {
+            font-size: 13px;
+            color: var(--gray-500);
             margin-bottom: 10px;
         }
-        
+
         .setting-input {
-            max-width: 300px;
+            max-width: 400px;
         }
-        
-        /* 保存按钮 */
-        .save-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
+
+        .form-control, .form-select {
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
         }
-        
-        .save-btn:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
-        
-        .save-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
+
         /* 开关样式 */
-        .form-switch {
-            padding-left: 2.5em;
-        }
-        
         .form-switch .form-check-input {
-            width: 3em;
-            height: 1.5em;
+            width: 48px;
+            height: 24px;
             cursor: pointer;
         }
-        
-        /* 标签页 */
-        .nav-tabs {
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 20px;
+
+        .form-switch .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
         }
-        
-        .nav-tabs .nav-link {
-            color: #666;
-            border: none;
-            padding: 10px 20px;
-            margin-right: 10px;
-            border-radius: 5px 5px 0 0;
+
+        /* 系统信息卡片 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
         }
-        
-        .nav-tabs .nav-link:hover {
-            background: #f8f9fa;
-            color: #333;
+
+        .info-item {
+            background: var(--gray-50);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--gray-200);
         }
-        
-        .nav-tabs .nav-link.active {
-            background: #007bff;
+
+        .info-item .label {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 4px;
+        }
+
+        .info-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        /* 危险区域 */
+        .danger-zone {
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 20px;
+            background: #fef2f2;
+        }
+
+        .danger-zone h6 {
+            color: var(--danger);
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .danger-btn {
+            background: var(--danger);
             color: white;
             border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
         }
-        
-        /* 成功提示 */
-        .success-toast {
+
+        .danger-btn:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* 日志表格 */
+        .logs-table {
+            width: 100%;
+            font-size: 13px;
+        }
+
+        .logs-table th {
+            background: var(--gray-50);
+            padding: 12px;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .logs-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .log-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .log-status.success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .log-status.failed {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Toast提示 */
+        .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #28a745;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,.2);
-            display: none;
-            z-index: 1000;
+            z-index: 9999;
         }
-        
-        /* 危险操作区域 */
-        .danger-zone {
-            border: 2px solid #dc3545;
+
+        .custom-toast {
+            background: white;
             border-radius: 10px;
-            padding: 20px;
-            background: #fff5f5;
+            padding: 16px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
         }
-        
-        .danger-zone h6 {
-            color: #dc3545;
-            margin-bottom: 15px;
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        
-        .danger-btn {
-            background: #dc3545;
-            color: white;
+
+        .custom-toast.success { border-left: 4px solid var(--success); }
+        .custom-toast.error { border-left: 4px solid var(--danger); }
+        .custom-toast.warning { border-left: 4px solid var(--warning); }
+
+        .custom-toast i {
+            font-size: 20px;
+        }
+
+        .custom-toast.success i { color: var(--success); }
+        .custom-toast.error i { color: var(--danger); }
+        .custom-toast.warning i { color: var(--warning); }
+
+        /* 模态框 */
+        .modal-content {
             border: none;
-            padding: 8px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
+            border-radius: 16px;
         }
-        
-        .danger-btn:hover {
-            background: #c82333;
+
+        .modal-header {
+            border-bottom: 1px solid var(--gray-200);
+            padding: 20px 24px;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--gray-200);
+            padding: 16px 24px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main {
+                margin-left: 0;
+            }
+            .settings-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
 <body>
     <!-- 侧边栏 -->
     <nav class="sidebar">
-        <div class="sidebar-sticky">
-            <div class="text-center text-white mb-4">
-                <i class="fas fa-user-shield fa-3x mb-2"></i>
-                <h5>管理员后台</h5>
-                <small>{{ admin_info.username }}</small>
+        <div class="sidebar-header">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-user-shield fa-2x text-white"></i>
+                <div>
+                    <h5>管理后台</h5>
+                    <small>{{ admin_info.username }}</small>
+                </div>
             </div>
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
-                        <i class="fas fa-tachometer-alt"></i>
-                        仪表盘
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.users') }}">
-                        <i class="fas fa-users"></i>
-                        用户管理
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.announcements') }}">
-                        <i class="fas fa-bullhorn"></i>
-                        公告管理
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('admin.settings') }}">
-                        <i class="fas fa-cog"></i>
-                        系统设置
-                    </a>
-                </li>
-            </ul>
-            
-            <hr class="text-white">
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('homepage') }}">
-                        <i class="fas fa-home"></i>
-                        返回首页
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.logout') }}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        退出登录
-                    </a>
-                </li>
-            </ul>
         </div>
+
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>仪表盘
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.users') }}">
+                    <i class="fas fa-users"></i>用户管理
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.announcements') }}">
+                    <i class="fas fa-bullhorn"></i>公告管理
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ url_for('admin.settings') }}">
+                    <i class="fas fa-cog"></i>系统设置
+                </a>
+            </li>
+        </ul>
+
+        <hr class="mx-3" style="border-color: rgba(255,255,255,0.1);">
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('homepage') }}">
+                    <i class="fas fa-home"></i>返回首页
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>退出登录
+                </a>
+            </li>
+        </ul>
     </nav>
-    
-    <!-- 主内容区域 -->
+
+    <!-- 主内容区 -->
     <main class="main">
-        <!-- 顶部导航 -->
-        <nav class="navbar">
-            <div class="d-flex justify-content-between align-items-center w-100">
-                <h4 class="mb-0">系统设置</h4>
-                <button class="save-btn" onclick="saveAllSettings()">
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <h4><i class="fas fa-cog me-2"></i>系统设置</h4>
+            <div class="top-bar-actions">
+                <button class="btn btn-outline-custom" onclick="exportConfig()">
+                    <i class="fas fa-download me-2"></i>导出配置
+                </button>
+                <button class="btn btn-outline-custom" onclick="document.getElementById('importFile').click()">
+                    <i class="fas fa-upload me-2"></i>导入配置
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importConfig(this)">
+                <button class="btn btn-primary-custom" onclick="saveAllSettings()">
                     <i class="fas fa-save me-2"></i>保存所有设置
                 </button>
             </div>
-        </nav>
-        
-        <!-- 标签页 -->
-        <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+        </div>
+
+        <!-- 标签页导航 -->
+        <ul class="settings-tabs nav" id="settingsTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic">
                     <i class="fas fa-sliders-h me-2"></i>基础设置
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="price-tab" data-bs-toggle="tab" data-bs-target="#price" type="button" role="tab">
-                    <i class="fas fa-dollar-sign me-2"></i>价格设置
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#price">
+                    <i class="fas fa-tags me-2"></i>价格设置
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab">
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#ai">
+                    <i class="fas fa-robot me-2"></i>AI设置
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#payment">
                     <i class="fas fa-credit-card me-2"></i>支付设置
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab">
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#email">
                     <i class="fas fa-envelope me-2"></i>邮件设置
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab">
-                    <i class="fas fa-tools me-2"></i>高级设置
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#security">
+                    <i class="fas fa-shield-alt me-2"></i>安全设置
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#system">
+                    <i class="fas fa-server me-2"></i>系统信息
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#logs">
+                    <i class="fas fa-history me-2"></i>操作日志
                 </button>
             </li>
         </ul>
-        
+
         <!-- 标签内容 -->
-        <div class="tab-content" id="settingsTabContent">
+        <div class="tab-content">
             <!-- 基础设置 -->
-            <div class="tab-pane fade show active" id="basic" role="tabpanel">
+            <div class="tab-pane fade show active" id="basic">
                 <div class="settings-card">
-                    <h5><i class="fas fa-globe me-2"></i>网站设置</h5>
-                    
+                    <h5><i class="fas fa-globe"></i>网站设置</h5>
+
                     <div class="setting-item">
                         <div class="setting-label">网站名称</div>
                         <div class="setting-description">显示在网站标题和各处的名称</div>
-                        <input type="text" class="form-control setting-input" id="site_name" value="{{ configs.get('site_name', {}).value or 'SQL转ER图工具' }}">
+                        <input type="text" class="form-control setting-input" id="site_name"
+                            value="{{ configs.get('site_name', {}).value or '智能文档处理平台' }}">
                     </div>
-                    
+
                     <div class="setting-item">
                         <div class="setting-label">网站描述</div>
                         <div class="setting-description">用于SEO和网站介绍</div>
-                        <textarea class="form-control setting-input" id="site_description" rows="3">{{ configs.get('site_description', {}).value or '专业的SQL转ER图在线工具' }}</textarea>
+                        <textarea class="form-control setting-input" id="site_description" rows="2">{{ configs.get('site_description', {}).value or '专业的智能文档处理和AI工具平台' }}</textarea>
                     </div>
-                    
+
                     <div class="setting-item">
                         <div class="setting-label">维护模式</div>
                         <div class="setting-description">开启后普通用户将无法访问网站</div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="maintenance_mode" {{ 'checked' if configs.get('maintenance_mode', {}).value == '1' else '' }}>
-                            <label class="form-check-label" for="maintenance_mode">启用维护模式</label>
+                            <input class="form-check-input" type="checkbox" id="maintenance_mode"
+                                {{ 'checked' if configs.get('maintenance_mode', {}).value == '1' else '' }}>
+                            <label class="form-check-label">启用维护模式</label>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="settings-card">
-                    <h5><i class="fas fa-user-plus me-2"></i>用户设置</h5>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">新用户注册奖励</div>
-                        <div class="setting-description">新用户注册时赠送的余额（元）</div>
-                        <input type="number" class="form-control setting-input" id="new_user_bonus" value="{{ configs.get('new_user_bonus', {}).value or '10.00' }}" step="0.01">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">邀请奖励金额</div>
-                        <div class="setting-description">邀请新用户注册时获得的奖励（元）</div>
-                        <input type="number" class="form-control setting-input" id="invite_reward" value="{{ configs.get('invite_reward', {}).value or '5.00' }}" step="0.01">
-                    </div>
-                    
+                    <h5><i class="fas fa-user-plus"></i>用户设置</h5>
+
                     <div class="setting-item">
                         <div class="setting-label">允许用户注册</div>
                         <div class="setting-description">关闭后将禁止新用户注册</div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="allow_registration" {{ 'checked' if configs.get('allow_registration', {}).value != '0' else '' }}>
-                            <label class="form-check-label" for="allow_registration">允许注册</label>
+                            <input class="form-check-input" type="checkbox" id="allow_registration"
+                                {{ 'checked' if configs.get('allow_registration', {}).value != '0' else '' }}>
+                            <label class="form-check-label">允许注册</label>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">新用户注册奖励</div>
+                        <div class="setting-description">新用户注册时赠送的余额（元）</div>
+                        <div class="input-group setting-input">
+                            <span class="input-group-text">¥</span>
+                            <input type="number" class="form-control" id="new_user_bonus"
+                                value="{{ configs.get('new_user_bonus', {}).value or '10.00' }}" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">邀请奖励金额</div>
+                        <div class="setting-description">邀请新用户注册时获得的奖励（元）</div>
+                        <div class="input-group setting-input">
+                            <span class="input-group-text">¥</span>
+                            <input type="number" class="form-control" id="invite_reward"
+                                value="{{ configs.get('invite_reward', {}).value or '5.00' }}" step="0.01">
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- 价格设置 -->
-            <div class="tab-pane fade" id="price" role="tabpanel">
+            <div class="tab-pane fade" id="price">
                 <div class="settings-card">
-                    <h5><i class="fas fa-tags me-2"></i>服务价格设置</h5>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">SQL转ER图</div>
-                        <div class="setting-description">生成ER图的费用（元/次）</div>
-                        <input type="number" class="form-control setting-input" id="sql_to_er_cost" value="{{ configs.get('sql_to_er_cost', {}).value or '1.00' }}" step="0.01">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">答辩问题生成</div>
-                        <div class="setting-description">生成答辩问题的费用（元/次）</div>
-                        <input type="number" class="form-control setting-input" id="thesis_defense_cost" value="{{ configs.get('thesis_defense_cost', {}).value or '5.00' }}" step="0.01">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">论文生成</div>
-                        <div class="setting-description">生成论文的费用（元/次）</div>
-                        <input type="number" class="form-control setting-input" id="paper_generation_cost" value="{{ configs.get('paper_generation_cost', {}).value or '10.00' }}" step="0.01">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">AI翻译</div>
-                        <div class="setting-description">AI翻译服务的费用（元/次）</div>
-                        <input type="number" class="form-control setting-input" id="ai_translation_cost" value="{{ configs.get('ai_translation_cost', {}).value or '2.00' }}" step="0.01">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">论文结构生成</div>
-                        <div class="setting-description">生成论文结构的费用（元/次）</div>
-                        <input type="number" class="form-control setting-input" id="paper_structure_cost" value="{{ configs.get('paper_structure_cost', {}).value or '4.00' }}" step="0.01">
+                    <h5><i class="fas fa-tags"></i>服务价格设置</h5>
+                    <p class="text-muted mb-4">设置各项AI服务的收费标准（元/次）</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">SQL转ER图</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="sql_to_er_cost"
+                                        value="{{ configs.get('sql_to_er_cost', {}).value or '1.00' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">答辩问题生成</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="thesis_defense_cost"
+                                        value="{{ configs.get('thesis_defense_cost', {}).value or '5.00' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">论文生成</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="paper_generation_cost"
+                                        value="{{ configs.get('paper_generation_cost', {}).value or '10.00' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">论文结构生成</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="paper_structure_cost"
+                                        value="{{ configs.get('paper_structure_cost', {}).value or '4.00' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">流程图生成</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="flowchart_cost"
+                                        value="{{ configs.get('flowchart_cost', {}).value or '2.00' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">文本优化</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="text_optimizer_cost"
+                                        value="{{ configs.get('text_optimizer_cost', {}).value or '1.50' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">AI检测</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="ai_detector_cost"
+                                        value="{{ configs.get('ai_detector_cost', {}).value or '1.00' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-label">AI翻译</div>
+                                <div class="input-group setting-input">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="ai_translation_cost"
+                                        value="{{ configs.get('ai_translation_cost', {}).value or '2.00' }}" step="0.01">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- 支付设置 -->
-            <div class="tab-pane fade" id="payment" role="tabpanel">
+
+            <!-- AI设置 -->
+            <div class="tab-pane fade" id="ai">
                 <div class="settings-card">
-                    <h5><i class="fas fa-wallet me-2"></i>支付接口设置</h5>
-                    
+                    <h5><i class="fas fa-robot"></i>AI模型配置</h5>
+
                     <div class="setting-item">
-                        <div class="setting-label">支付宝APP ID</div>
-                        <div class="setting-description">支付宝开放平台应用ID</div>
-                        <input type="text" class="form-control setting-input" id="alipay_app_id" value="{{ configs.get('alipay_app_id', {}).value or '' }}">
+                        <div class="setting-label">AI服务提供商</div>
+                        <div class="setting-description">选择使用的AI服务</div>
+                        <select class="form-select setting-input" id="ai_provider">
+                            <option value="deepseek" {{ 'selected' if configs.get('ai_provider', {}).value == 'deepseek' or not configs.get('ai_provider', {}).value else '' }}>DeepSeek</option>
+                            <option value="openai" {{ 'selected' if configs.get('ai_provider', {}).value == 'openai' else '' }}>OpenAI</option>
+                            <option value="anthropic" {{ 'selected' if configs.get('ai_provider', {}).value == 'anthropic' else '' }}>Anthropic Claude</option>
+                            <option value="custom" {{ 'selected' if configs.get('ai_provider', {}).value == 'custom' else '' }}>自定义API</option>
+                        </select>
                     </div>
-                    
+
                     <div class="setting-item">
-                        <div class="setting-label">支付宝私钥</div>
-                        <div class="setting-description">支付宝应用私钥（请确保安全）</div>
-                        <textarea class="form-control setting-input" id="alipay_private_key" rows="3">{{ configs.get('alipay_private_key', {}).value or '' }}</textarea>
+                        <div class="setting-label">API Base URL</div>
+                        <div class="setting-description">AI服务的API地址</div>
+                        <input type="text" class="form-control setting-input" id="ai_api_base"
+                            value="{{ configs.get('ai_api_base', {}).value or 'https://api.deepseek.com' }}"
+                            placeholder="https://api.deepseek.com">
                     </div>
-                    
+
                     <div class="setting-item">
-                        <div class="setting-label">支付宝公钥</div>
-                        <div class="setting-description">支付宝公钥</div>
-                        <textarea class="form-control setting-input" id="alipay_public_key" rows="3">{{ configs.get('alipay_public_key', {}).value or '' }}</textarea>
+                        <div class="setting-label">API Key</div>
+                        <div class="setting-description">AI服务的API密钥（敏感信息）</div>
+                        <div class="input-group setting-input">
+                            <input type="password" class="form-control" id="ai_api_key"
+                                value="{{ configs.get('ai_api_key', {}).value or '' }}"
+                                placeholder="sk-xxxxxxxxxxxxxxxx">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('ai_api_key')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
-                    
+
+                    <div class="setting-item">
+                        <div class="setting-label">默认模型</div>
+                        <div class="setting-description">使用的AI模型名称</div>
+                        <input type="text" class="form-control setting-input" id="ai_model_name"
+                            value="{{ configs.get('ai_model_name', {}).value or 'deepseek-chat' }}"
+                            placeholder="deepseek-chat / gpt-4 / claude-3">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">最大Token数</div>
+                        <div class="setting-description">单次请求的最大Token限制</div>
+                        <input type="number" class="form-control setting-input" id="ai_max_tokens"
+                            value="{{ configs.get('ai_max_tokens', {}).value or '4096' }}">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">Temperature</div>
+                        <div class="setting-description">AI输出的随机性（0-2，越低越确定性）</div>
+                        <input type="number" class="form-control setting-input" id="ai_temperature"
+                            value="{{ configs.get('ai_temperature', {}).value or '0.7' }}" step="0.1" min="0" max="2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 支付设置 -->
+            <div class="tab-pane fade" id="payment">
+                <div class="settings-card">
+                    <h5><i class="fab fa-alipay" style="color:#1677ff"></i>支付宝设置</h5>
+
                     <div class="setting-item">
                         <div class="setting-label">启用支付宝支付</div>
-                        <div class="setting-description">是否启用支付宝支付功能</div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="enable_alipay" {{ 'checked' if configs.get('enable_alipay', {}).value == '1' else '' }}>
-                            <label class="form-check-label" for="enable_alipay">启用</label>
+                            <input class="form-check-input" type="checkbox" id="enable_alipay"
+                                {{ 'checked' if configs.get('enable_alipay', {}).value == '1' else '' }}>
+                            <label class="form-check-label">启用</label>
                         </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">App ID</div>
+                        <input type="text" class="form-control setting-input" id="alipay_app_id"
+                            value="{{ configs.get('alipay_app_id', {}).value or '' }}">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">应用私钥</div>
+                        <textarea class="form-control setting-input" id="alipay_private_key" rows="3"
+                            placeholder="请输入支付宝应用私钥">{{ configs.get('alipay_private_key', {}).value or '' }}</textarea>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">支付宝公钥</div>
+                        <textarea class="form-control setting-input" id="alipay_public_key" rows="3"
+                            placeholder="请输入支付宝公钥">{{ configs.get('alipay_public_key', {}).value or '' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h5><i class="fab fa-weixin" style="color:#07c160"></i>微信支付设置</h5>
+
+                    <div class="setting-item">
+                        <div class="setting-label">启用微信支付</div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="enable_wechat"
+                                {{ 'checked' if configs.get('enable_wechat', {}).value == '1' else '' }}>
+                            <label class="form-check-label">启用</label>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">商户号</div>
+                        <input type="text" class="form-control setting-input" id="wechat_mch_id"
+                            value="{{ configs.get('wechat_mch_id', {}).value or '' }}">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">App ID</div>
+                        <input type="text" class="form-control setting-input" id="wechat_app_id"
+                            value="{{ configs.get('wechat_app_id', {}).value or '' }}">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">API密钥</div>
+                        <input type="password" class="form-control setting-input" id="wechat_api_key"
+                            value="{{ configs.get('wechat_api_key', {}).value or '' }}">
                     </div>
                 </div>
             </div>
-            
+
             <!-- 邮件设置 -->
-            <div class="tab-pane fade" id="email" role="tabpanel">
+            <div class="tab-pane fade" id="email">
                 <div class="settings-card">
-                    <h5><i class="fas fa-mail-bulk me-2"></i>邮件服务设置</h5>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">SMTP服务器</div>
-                        <div class="setting-description">邮件服务器地址</div>
-                        <input type="text" class="form-control setting-input" id="smtp_host" value="{{ configs.get('smtp_host', {}).value or 'smtp.qq.com' }}">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">SMTP端口</div>
-                        <div class="setting-description">邮件服务器端口（通常为465或587）</div>
-                        <input type="number" class="form-control setting-input" id="smtp_port" value="{{ configs.get('smtp_port', {}).value or '465' }}">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">发件人邮箱</div>
-                        <div class="setting-description">系统发送邮件的邮箱地址</div>
-                        <input type="email" class="form-control setting-input" id="smtp_username" value="{{ configs.get('smtp_username', {}).value or '' }}">
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="setting-label">邮箱密码/授权码</div>
-                        <div class="setting-description">邮箱密码或SMTP授权码</div>
-                        <input type="password" class="form-control setting-input" id="smtp_password" value="{{ configs.get('smtp_password', {}).value or '' }}">
-                    </div>
-                    
+                    <h5><i class="fas fa-mail-bulk"></i>SMTP邮件配置</h5>
+
                     <div class="setting-item">
                         <div class="setting-label">启用邮件服务</div>
-                        <div class="setting-description">是否启用邮件发送功能</div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="enable_email" {{ 'checked' if configs.get('enable_email', {}).value == '1' else '' }}>
-                            <label class="form-check-label" for="enable_email">启用</label>
+                            <input class="form-check-input" type="checkbox" id="enable_email"
+                                {{ 'checked' if configs.get('enable_email', {}).value == '1' else '' }}>
+                            <label class="form-check-label">启用</label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="setting-item">
+                                <div class="setting-label">SMTP服务器</div>
+                                <input type="text" class="form-control" id="smtp_host"
+                                    value="{{ configs.get('smtp_host', {}).value or 'smtp.qq.com' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="setting-item">
+                                <div class="setting-label">端口</div>
+                                <input type="number" class="form-control" id="smtp_port"
+                                    value="{{ configs.get('smtp_port', {}).value or '465' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">发件人邮箱</div>
+                        <input type="email" class="form-control setting-input" id="smtp_username"
+                            value="{{ configs.get('smtp_username', {}).value or '' }}">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">邮箱密码/授权码</div>
+                        <input type="password" class="form-control setting-input" id="smtp_password"
+                            value="{{ configs.get('smtp_password', {}).value or '' }}">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">测试邮件</div>
+                        <div class="setting-description">发送测试邮件验证配置是否正确</div>
+                        <div class="input-group setting-input">
+                            <input type="email" class="form-control" id="test_email_address"
+                                placeholder="输入测试邮箱地址">
+                            <button class="btn btn-outline-primary" onclick="sendTestEmail()">
+                                <i class="fas fa-paper-plane me-2"></i>发送测试
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- 高级设置 -->
-            <div class="tab-pane fade" id="advanced" role="tabpanel">
+
+            <!-- 安全设置 -->
+            <div class="tab-pane fade" id="security">
                 <div class="settings-card">
-                    <h5><i class="fas fa-server me-2"></i>系统设置</h5>
-                    
+                    <h5><i class="fas fa-shield-alt"></i>安全配置</h5>
+
                     <div class="setting-item">
                         <div class="setting-label">调试模式</div>
                         <div class="setting-description">开启后将显示详细错误信息（生产环境请关闭）</div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="debug_mode" {{ 'checked' if configs.get('debug_mode', {}).value == '1' else '' }}>
-                            <label class="form-check-label" for="debug_mode">启用调试模式</label>
+                            <input class="form-check-input" type="checkbox" id="debug_mode"
+                                {{ 'checked' if configs.get('debug_mode', {}).value == '1' else '' }}>
+                            <label class="form-check-label">启用调试模式</label>
                         </div>
                     </div>
-                    
+
                     <div class="setting-item">
                         <div class="setting-label">API速率限制</div>
-                        <div class="setting-description">每分钟API调用次数限制</div>
-                        <input type="number" class="form-control setting-input" id="api_rate_limit" value="{{ configs.get('api_rate_limit', {}).value or '60' }}">
+                        <div class="setting-description">每分钟单用户API调用次数限制</div>
+                        <div class="input-group setting-input">
+                            <input type="number" class="form-control" id="api_rate_limit"
+                                value="{{ configs.get('api_rate_limit', {}).value or '60' }}">
+                            <span class="input-group-text">次/分钟</span>
+                        </div>
                     </div>
-                    
+
                     <div class="setting-item">
                         <div class="setting-label">会话超时时间</div>
-                        <div class="setting-description">用户会话超时时间（分钟）</div>
-                        <input type="number" class="form-control setting-input" id="session_timeout" value="{{ configs.get('session_timeout', {}).value or '1440' }}">
+                        <div class="setting-description">用户登录会话的有效时长</div>
+                        <div class="input-group setting-input">
+                            <input type="number" class="form-control" id="session_timeout"
+                                value="{{ configs.get('session_timeout', {}).value or '1440' }}">
+                            <span class="input-group-text">分钟</span>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">登录失败锁定</div>
+                        <div class="setting-description">连续登录失败后锁定账户的次数</div>
+                        <div class="input-group setting-input">
+                            <input type="number" class="form-control" id="login_fail_limit"
+                                value="{{ configs.get('login_fail_limit', {}).value or '5' }}">
+                            <span class="input-group-text">次</span>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">启用验证码</div>
+                        <div class="setting-description">登录和注册时需要输入验证码</div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="enable_captcha"
+                                {{ 'checked' if configs.get('enable_captcha', {}).value == '1' else '' }}>
+                            <label class="form-check-label">启用验证码</label>
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="settings-card">
-                    <h5><i class="fas fa-exclamation-triangle me-2"></i>危险操作</h5>
+                    <h5><i class="fas fa-exclamation-triangle text-warning"></i>危险操作</h5>
                     <div class="danger-zone">
-                        <h6>清理数据</h6>
-                        <p class="text-muted mb-3">清理系统中的过期数据和日志文件</p>
-                        <button class="danger-btn me-2" onclick="clearLogs()">
-                            <i class="fas fa-trash me-2"></i>清理日志
+                        <h6><i class="fas fa-skull-crossbones"></i>数据清理</h6>
+                        <p class="text-muted mb-3">清理系统中的过期数据和日志文件，此操作不可恢复</p>
+
+                        <div class="d-flex gap-3 flex-wrap">
+                            <button class="danger-btn" onclick="clearLogs()">
+                                <i class="fas fa-trash me-2"></i>清理日志（30天前）
+                            </button>
+                            <button class="danger-btn" onclick="clearExpiredData()">
+                                <i class="fas fa-broom me-2"></i>清理过期数据（90天前）
+                            </button>
+                            <button class="danger-btn" onclick="resetConfig()">
+                                <i class="fas fa-undo me-2"></i>重置为默认配置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统信息 -->
+            <div class="tab-pane fade" id="system">
+                <div class="settings-card">
+                    <h5><i class="fas fa-server"></i>服务器信息</h5>
+                    <div class="info-grid" id="serverInfo">
+                        <div class="info-item">
+                            <div class="label">操作系统</div>
+                            <div class="value" id="info_os">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">主机名</div>
+                            <div class="value" id="info_hostname">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">Python版本</div>
+                            <div class="value" id="info_python">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">运行环境</div>
+                            <div class="value" id="info_env">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h5><i class="fas fa-database"></i>数据库信息</h5>
+                    <div class="info-grid" id="dbInfo">
+                        <div class="info-item">
+                            <div class="label">MySQL版本</div>
+                            <div class="value" id="info_db_version">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">数据库名</div>
+                            <div class="value" id="info_db_name">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">数据库大小</div>
+                            <div class="value" id="info_db_size">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">数据表数量</div>
+                            <div class="value" id="info_table_count">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h5><i class="fas fa-chart-bar"></i>数据统计</h5>
+                    <div class="info-grid" id="statsInfo">
+                        <div class="info-item">
+                            <div class="label">用户总数</div>
+                            <div class="value" id="info_user_count">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">消费记录数</div>
+                            <div class="value" id="info_consumption_count">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">充值记录数</div>
+                            <div class="value" id="info_recharge_count">加载中...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">应用版本</div>
+                            <div class="value" id="info_app_version">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline-custom" onclick="loadSystemInfo()">
+                    <i class="fas fa-sync-alt me-2"></i>刷新系统信息
+                </button>
+            </div>
+
+            <!-- 操作日志 -->
+            <div class="tab-pane fade" id="logs">
+                <div class="settings-card">
+                    <h5><i class="fas fa-history"></i>登录日志</h5>
+
+                    <div class="d-flex gap-3 mb-4 flex-wrap">
+                        <select class="form-select" style="width:auto" id="logTypeFilter" onchange="loadLogs()">
+                            <option value="">全部状态</option>
+                            <option value="success">成功</option>
+                            <option value="failed">失败</option>
+                        </select>
+                        <input type="date" class="form-control" style="width:auto" id="logStartDate" onchange="loadLogs()">
+                        <input type="date" class="form-control" style="width:auto" id="logEndDate" onchange="loadLogs()">
+                        <button class="btn btn-outline-custom" onclick="loadLogs()">
+                            <i class="fas fa-search me-2"></i>查询
                         </button>
-                        <button class="danger-btn" onclick="clearExpiredData()">
-                            <i class="fas fa-broom me-2"></i>清理过期数据
-                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="logs-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>用户</th>
+                                    <th>IP地址</th>
+                                    <th>状态</th>
+                                    <th>时间</th>
+                                    <th>User-Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="text-muted" id="logsPagination">共 0 条记录</div>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-secondary btn-sm" id="logsPrevBtn" onclick="loadLogs(currentLogsPage - 1)" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" id="logsNextBtn" onclick="loadLogs(currentLogsPage + 1)" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- 成功提示 -->
-        <div class="success-toast" id="successToast">
-            <i class="fas fa-check-circle me-2"></i>
-            <span id="successMessage">设置保存成功！</span>
-        </div>
     </main>
-    
+
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script>
+        let currentLogsPage = 1;
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSystemInfo();
+            loadLogs();
+        });
+
+        // 显示Toast提示
+        function showToast(message, type = 'success') {
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-circle'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <span>${message}</span>
+            `;
+
+            document.getElementById('toastContainer').appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 切换密码显示
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
         // 保存所有设置
         async function saveAllSettings() {
             const settings = [
@@ -535,117 +1129,266 @@
                 { key: 'site_name', value: document.getElementById('site_name').value },
                 { key: 'site_description', value: document.getElementById('site_description').value },
                 { key: 'maintenance_mode', value: document.getElementById('maintenance_mode').checked ? '1' : '0' },
+                { key: 'allow_registration', value: document.getElementById('allow_registration').checked ? '1' : '0' },
                 { key: 'new_user_bonus', value: document.getElementById('new_user_bonus').value },
                 { key: 'invite_reward', value: document.getElementById('invite_reward').value },
-                { key: 'allow_registration', value: document.getElementById('allow_registration').checked ? '1' : '0' },
-                
+
                 // 价格设置
                 { key: 'sql_to_er_cost', value: document.getElementById('sql_to_er_cost').value },
                 { key: 'thesis_defense_cost', value: document.getElementById('thesis_defense_cost').value },
                 { key: 'paper_generation_cost', value: document.getElementById('paper_generation_cost').value },
-                { key: 'ai_translation_cost', value: document.getElementById('ai_translation_cost').value },
                 { key: 'paper_structure_cost', value: document.getElementById('paper_structure_cost').value },
-                
+                { key: 'flowchart_cost', value: document.getElementById('flowchart_cost').value },
+                { key: 'text_optimizer_cost', value: document.getElementById('text_optimizer_cost').value },
+                { key: 'ai_detector_cost', value: document.getElementById('ai_detector_cost').value },
+                { key: 'ai_translation_cost', value: document.getElementById('ai_translation_cost').value },
+
+                // AI设置
+                { key: 'ai_provider', value: document.getElementById('ai_provider').value },
+                { key: 'ai_api_base', value: document.getElementById('ai_api_base').value },
+                { key: 'ai_api_key', value: document.getElementById('ai_api_key').value },
+                { key: 'ai_model_name', value: document.getElementById('ai_model_name').value },
+                { key: 'ai_max_tokens', value: document.getElementById('ai_max_tokens').value },
+                { key: 'ai_temperature', value: document.getElementById('ai_temperature').value },
+
                 // 支付设置
+                { key: 'enable_alipay', value: document.getElementById('enable_alipay').checked ? '1' : '0' },
                 { key: 'alipay_app_id', value: document.getElementById('alipay_app_id').value },
                 { key: 'alipay_private_key', value: document.getElementById('alipay_private_key').value },
                 { key: 'alipay_public_key', value: document.getElementById('alipay_public_key').value },
-                { key: 'enable_alipay', value: document.getElementById('enable_alipay').checked ? '1' : '0' },
-                
+                { key: 'enable_wechat', value: document.getElementById('enable_wechat').checked ? '1' : '0' },
+                { key: 'wechat_mch_id', value: document.getElementById('wechat_mch_id').value },
+                { key: 'wechat_app_id', value: document.getElementById('wechat_app_id').value },
+                { key: 'wechat_api_key', value: document.getElementById('wechat_api_key').value },
+
                 // 邮件设置
+                { key: 'enable_email', value: document.getElementById('enable_email').checked ? '1' : '0' },
                 { key: 'smtp_host', value: document.getElementById('smtp_host').value },
                 { key: 'smtp_port', value: document.getElementById('smtp_port').value },
                 { key: 'smtp_username', value: document.getElementById('smtp_username').value },
                 { key: 'smtp_password', value: document.getElementById('smtp_password').value },
-                { key: 'enable_email', value: document.getElementById('enable_email').checked ? '1' : '0' },
-                
-                // 高级设置
+
+                // 安全设置
                 { key: 'debug_mode', value: document.getElementById('debug_mode').checked ? '1' : '0' },
                 { key: 'api_rate_limit', value: document.getElementById('api_rate_limit').value },
-                { key: 'session_timeout', value: document.getElementById('session_timeout').value }
+                { key: 'session_timeout', value: document.getElementById('session_timeout').value },
+                { key: 'login_fail_limit', value: document.getElementById('login_fail_limit').value },
+                { key: 'enable_captcha', value: document.getElementById('enable_captcha').checked ? '1' : '0' }
             ];
-            
-            // 禁用保存按钮
-            const saveBtn = document.querySelector('.save-btn');
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>保存中...';
-            
-            let successCount = 0;
-            let errorCount = 0;
-            
-            // 批量保存设置
-            for (const setting of settings) {
-                try {
-                    const response = await fetch('/admin/api/config/update', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(setting)
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        successCount++;
-                    } else {
-                        errorCount++;
-                    }
-                } catch (error) {
-                    errorCount++;
+
+            try {
+                const response = await fetch('/admin/api/config/batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ settings })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                } else {
+                    showToast(result.message || '保存失败', 'error');
                 }
-            }
-            
-            // 恢复按钮
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>保存所有设置';
-            
-            // 显示结果
-            if (errorCount === 0) {
-                showSuccess('所有设置保存成功！');
-            } else if (successCount > 0) {
-                showSuccess(`${successCount}项设置保存成功，${errorCount}项失败`);
-            } else {
-                showSuccess('保存失败，请重试', 'error');
+            } catch (error) {
+                showToast('保存失败: ' + error.message, 'error');
             }
         }
-        
-        // 显示成功提示
-        function showSuccess(message, type = 'success') {
-            const toast = document.getElementById('successToast');
-            const messageEl = document.getElementById('successMessage');
-            
-            messageEl.textContent = message;
-            toast.style.background = type === 'success' ? '#28a745' : '#dc3545';
-            toast.style.display = 'block';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+
+        // 加载系统信息
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch('/admin/api/system/info');
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+
+                    // 服务器信息
+                    document.getElementById('info_os').textContent = data.server.os + ' ' + data.server.os_version.substring(0, 30);
+                    document.getElementById('info_hostname').textContent = data.server.hostname;
+                    document.getElementById('info_python').textContent = data.server.python_version;
+                    document.getElementById('info_env').textContent = data.app.env;
+
+                    // 数据库信息
+                    document.getElementById('info_db_version').textContent = data.database.version;
+                    document.getElementById('info_db_name').textContent = data.database.name;
+                    document.getElementById('info_db_size').textContent = data.database.size_mb + ' MB';
+                    document.getElementById('info_table_count').textContent = data.database.table_count + ' 个';
+
+                    // 统计信息
+                    document.getElementById('info_user_count').textContent = data.statistics.user_count + ' 人';
+                    document.getElementById('info_consumption_count').textContent = data.statistics.consumption_count + ' 条';
+                    document.getElementById('info_recharge_count').textContent = data.statistics.recharge_count + ' 条';
+                    document.getElementById('info_app_version').textContent = 'v' + data.app.version;
+                }
+            } catch (error) {
+                console.error('加载系统信息失败:', error);
+            }
         }
-        
+
+        // 加载日志
+        async function loadLogs(page = 1) {
+            currentLogsPage = page;
+            const type = document.getElementById('logTypeFilter').value;
+            const startDate = document.getElementById('logStartDate').value;
+            const endDate = document.getElementById('logEndDate').value;
+
+            let url = `/admin/api/system/logs?page=${page}&per_page=20`;
+            if (type) url += `&type=${type}`;
+            if (startDate) url += `&start_date=${startDate}`;
+            if (endDate) url += `&end_date=${endDate}`;
+
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    const tbody = document.getElementById('logsTableBody');
+
+                    if (data.logs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">暂无日志记录</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.logs.map(log => `
+                            <tr>
+                                <td>${log.id}</td>
+                                <td>${log.username || '-'}</td>
+                                <td>${log.ip_address || '-'}</td>
+                                <td>
+                                    <span class="log-status ${log.status}">${log.status === 'success' ? '成功' : '失败'}</span>
+                                </td>
+                                <td>${formatDate(log.created_at)}</td>
+                                <td title="${log.user_agent || ''}">${(log.user_agent || '-').substring(0, 40)}...</td>
+                            </tr>
+                        `).join('');
+                    }
+
+                    // 更新分页
+                    document.getElementById('logsPagination').textContent = `共 ${data.total} 条记录，第 ${data.page}/${data.total_pages} 页`;
+                    document.getElementById('logsPrevBtn').disabled = page <= 1;
+                    document.getElementById('logsNextBtn').disabled = page >= data.total_pages;
+                }
+            } catch (error) {
+                console.error('加载日志失败:', error);
+            }
+        }
+
+        // 格式化日期
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN');
+        }
+
         // 清理日志
         async function clearLogs() {
-            if (!confirm('确定要清理所有日志文件吗？此操作不可恢复！')) {
-                return;
+            if (!confirm('确定要清理30天前的所有日志吗？此操作不可恢复！')) return;
+
+            try {
+                const response = await fetch('/admin/api/system/clear-logs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ days: 30 })
+                });
+
+                const result = await response.json();
+                showToast(result.message, result.success ? 'success' : 'error');
+                if (result.success) loadLogs();
+            } catch (error) {
+                showToast('操作失败: ' + error.message, 'error');
             }
-            
-            // TODO: 实现清理日志功能
-            showSuccess('日志清理功能正在开发中', 'error');
         }
-        
+
         // 清理过期数据
         async function clearExpiredData() {
-            if (!confirm('确定要清理过期数据吗？此操作不可恢复！')) {
+            if (!confirm('确定要清理90天前的过期数据吗？此操作不可恢复！')) return;
+
+            try {
+                const response = await fetch('/admin/api/system/clear-expired', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ days: 90 })
+                });
+
+                const result = await response.json();
+                showToast(result.message, result.success ? 'success' : 'error');
+            } catch (error) {
+                showToast('操作失败: ' + error.message, 'error');
+            }
+        }
+
+        // 重置配置
+        async function resetConfig() {
+            if (!confirm('确定要重置所有配置为默认值吗？')) return;
+
+            try {
+                const response = await fetch('/admin/api/config/reset', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                showToast(result.message, result.success ? 'success' : 'error');
+                if (result.success) location.reload();
+            } catch (error) {
+                showToast('操作失败: ' + error.message, 'error');
+            }
+        }
+
+        // 导出配置
+        function exportConfig() {
+            window.location.href = '/admin/api/config/export';
+        }
+
+        // 导入配置
+        async function importConfig(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/admin/api/config/import', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                showToast(result.message, result.success ? 'success' : 'error');
+                if (result.success) location.reload();
+            } catch (error) {
+                showToast('导入失败: ' + error.message, 'error');
+            }
+
+            input.value = '';
+        }
+
+        // 发送测试邮件
+        async function sendTestEmail() {
+            const email = document.getElementById('test_email_address').value;
+            if (!email) {
+                showToast('请输入测试邮箱地址', 'warning');
                 return;
             }
-            
-            // TODO: 实现清理过期数据功能
-            showSuccess('数据清理功能正在开发中', 'error');
+
+            try {
+                const response = await fetch('/admin/api/system/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const result = await response.json();
+                showToast(result.message, result.success ? 'success' : 'error');
+            } catch (error) {
+                showToast('发送失败: ' + error.message, 'error');
+            }
         }
-        
-        // Enter键保存
+
+        // Ctrl+S 保存
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
                 saveAllSettings();
             }
         });

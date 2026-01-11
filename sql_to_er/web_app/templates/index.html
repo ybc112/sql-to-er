@@ -337,7 +337,241 @@
     </div>
 
 
+    <!-- AI翻译扣费确认弹窗 -->
+    <div id="charge-confirm-modal" class="charge-modal" style="display: none;">
+        <div class="charge-modal-overlay" onclick="closeChargeConfirm()"></div>
+        <div class="charge-modal-container">
+            <div class="charge-modal-header">
+                <span class="charge-modal-title">确认支付</span>
+                <button class="charge-modal-close" onclick="closeChargeConfirm()">&times;</button>
+            </div>
+
+            <div class="charge-modal-body">
+                <p class="charge-desc">您即将使用 AI 智能翻译服务</p>
+
+                <div class="charge-info-list">
+                    <div class="charge-info-item">
+                        <span>服务费用</span>
+                        <span class="charge-cost" id="charge-cost">¥2.00</span>
+                    </div>
+                    <div class="charge-info-item">
+                        <span>当前余额</span>
+                        <span id="charge-balance">¥96.00</span>
+                    </div>
+                    <div class="charge-info-item charge-info-result">
+                        <span>支付后余额</span>
+                        <span id="charge-after">¥94.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charge-modal-footer">
+                <button class="charge-btn-cancel" onclick="closeChargeConfirm()">取消</button>
+                <button class="charge-btn-confirm" onclick="confirmCharge()">确认支付</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* 统一扣费确认弹窗样式 */
+    .charge-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .charge-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .charge-modal-container {
+        position: relative;
+        background: #fff;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .charge-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .charge-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .charge-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .charge-modal-close:hover {
+        color: #333;
+    }
+
+    .charge-modal-body {
+        padding: 24px;
+    }
+
+    .charge-desc {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .charge-info-list {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .charge-info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .charge-info-item:not(:last-child) {
+        border-bottom: 1px solid #eee;
+    }
+
+    .charge-info-result {
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .charge-cost {
+        font-weight: 600;
+        color: #f59e0b;
+    }
+
+    .charge-modal-footer {
+        display: flex;
+        gap: 12px;
+        padding: 0 24px 24px;
+    }
+
+    .charge-btn-cancel,
+    .charge-btn-confirm {
+        flex: 1;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .charge-btn-cancel {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+    .charge-btn-cancel:hover {
+        background: #eee;
+    }
+
+    .charge-btn-confirm {
+        background: #10b981;
+        border: none;
+        color: #fff;
+    }
+
+    .charge-btn-confirm:hover {
+        background: #059669;
+    }
+    </style>
+
     <!-- 加载JavaScript -->
     <script src="{{ url_for('static', filename='js/er-editor.js') }}?v=20250823-1900-canvas-fixed&t={{ range(1000000, 9999999) | random }}"></script>
+
+    <!-- 页面离开提示 -->
+    <script>
+        // 标记页面是否有内容
+        let hasUnsavedContent = false;
+
+        // 监听内容变化
+        function markContentChanged() {
+            hasUnsavedContent = true;
+        }
+
+        // 页面离开时提示
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedContent) {
+                const message = '您有未保存的ER图内容，确定要离开此页面吗？';
+                e.preventDefault();
+                e.returnValue = message;
+                return message;
+            }
+        });
+
+        // 监听SQL导入和图表变化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听SQL编辑器变化
+            const sqlEditor = document.getElementById('sql-editor');
+            if (sqlEditor) {
+                sqlEditor.addEventListener('input', markContentChanged);
+            }
+
+            // 重写一些关键函数来标记内容变化
+            const originalImportSQL = window.importSQL;
+            if (originalImportSQL) {
+                window.importSQL = function() {
+                    const result = originalImportSQL.apply(this, arguments);
+                    markContentChanged();
+                    return result;
+                };
+            }
+
+            const originalLoadExample = window.loadExample;
+            if (originalLoadExample) {
+                window.loadExample = function() {
+                    const result = originalLoadExample.apply(this, arguments);
+                    markContentChanged();
+                    return result;
+                };
+            }
+        });
+    </script>
 </body>
 </html>

@@ -931,6 +931,44 @@ CREATE TABLE Employee_Project (
     showModal('sql-modal');
 }
 
+// 全局变量用于存储待执行的导入操作
+let pendingImportData = null;
+
+// 显示扣费确认弹窗
+function showChargeConfirmModal(cost, balance) {
+    document.getElementById('charge-cost').textContent = `¥${cost.toFixed(2)}`;
+    document.getElementById('charge-balance').textContent = `¥${balance.toFixed(2)}`;
+    document.getElementById('charge-after').textContent = `¥${(balance - cost).toFixed(2)}`;
+    
+    // 使用新的显示方式
+    const modal = document.getElementById('charge-confirm-modal');
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+}
+
+// 关闭扣费确认弹窗
+function closeChargeConfirm() {
+    const modal = document.getElementById('charge-confirm-modal');
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    pendingImportData = null;
+}
+
+// 确认扣费并执行导入
+async function confirmCharge() {
+    // 先关闭弹窗
+    const modal = document.getElementById('charge-confirm-modal');
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    
+    // 执行导入
+    if (pendingImportData) {
+        const data = pendingImportData;
+        pendingImportData = null;
+        await doImport(data.sql, data.enableTranslation);
+    }
+}
+
 async function executeImport() {
     const sql = sqlEditor.getValue();
     if (!sql.trim()) {
@@ -941,6 +979,53 @@ async function executeImport() {
     // 获取翻译选项
     const enableTranslation = document.getElementById('enable-translation').checked;
 
+    // 如果启用了AI翻译，先获取价格并弹窗确认
+    if (enableTranslation) {
+        try {
+            // 获取翻译价格信息
+            const priceResponse = await fetch('/api/get_translation_price');
+            const priceData = await priceResponse.json();
+            
+            if (!priceData.success) {
+                showToast('获取价格信息失败', 'error');
+                return;
+            }
+            
+            // 检查是否登录
+            if (!priceData.logged_in) {
+                showToast('AI翻译功能需要登录后使用', 'warning');
+                if (confirm('是否跳转到登录页面？')) {
+                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                }
+                return;
+            }
+            
+            // 检查余额是否充足
+            if (!priceData.sufficient) {
+                showToast(`余额不足！AI翻译需要 ${priceData.cost.toFixed(2)} 元，当前余额 ${priceData.balance.toFixed(2)} 元`, 'warning');
+                if (confirm('是否跳转到充值页面？')) {
+                    window.location.href = '/profile#recharge';
+                }
+                return;
+            }
+            
+            // 保存待执行数据，显示美观的确认弹窗
+            pendingImportData = { sql, enableTranslation };
+            showChargeConfirmModal(priceData.cost, priceData.balance);
+            return; // 等待用户确认
+            
+        } catch (error) {
+            showToast('获取价格信息失败: ' + error.message, 'error');
+            return;
+        }
+    }
+
+    // 不需要翻译时直接执行
+    await doImport(sql, enableTranslation);
+}
+
+// 实际执行导入操作
+async function doImport(sql, enableTranslation) {
     const loader = showLoading(enableTranslation ? '正在解析SQL并智能翻译...' : '正在解析SQL...');
 
     try {
@@ -955,6 +1040,21 @@ async function executeImport() {
 
         const data = await response.json();
         if (!response.ok) {
+            // 处理特殊错误情况
+            if (data.need_login) {
+                showToast('AI翻译功能需要登录后使用，请先登录', 'warning');
+                if (confirm('是否跳转到登录页面？')) {
+                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                }
+                return;
+            }
+            if (data.need_recharge) {
+                showToast(`余额不足！AI翻译需要 ${data.cost?.toFixed(2) || '2.00'} 元，当前余额 ${data.balance?.toFixed(2) || '0.00'} 元`, 'warning');
+                if (confirm('是否跳转到充值页面？')) {
+                    window.location.href = '/profile#recharge';
+                }
+                return;
+            }
             throw new Error(data.error || '解析失败');
         }
         
@@ -1011,9 +1111,13 @@ async function executeImport() {
             let successMessage = `成功导入 ${entities.length} 个实体，${relationships.length} 个关系`;
             if (enableTranslation) {
                 if (data.translationApplied) {
-                    successMessage += ' (已应用AI智能翻译)';
+                    if (data.translationCharged) {
+                        successMessage += ' (已应用AI智能翻译，已扣费)';
+                    } else {
+                        successMessage += ' (已应用AI智能翻译)';
+                    }
                 } else {
-                    successMessage += ' (翻译失败，使用原始名称)';
+                    successMessage += ' (翻译失败，使用原始名称，未扣费)';
                 }
             }
 

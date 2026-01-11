@@ -100,8 +100,8 @@ class UserManager:
                 if conn:
                     conn.close()
 
-    def register_user(self, username=None, email=None, password=None, invite_code=None):
-        """用户注册 - 支持用户名或邮箱注册"""
+    def register_user(self, username=None, email=None, password=None, invite_code=None, ip_address=None):
+        """用户注册 - 支持用户名或邮箱注册，增加防刷机制"""
         conn = None
         try:
             # 参数验证
@@ -113,6 +113,18 @@ class UserManager:
 
             conn = self.get_db_connection()
             with conn.cursor() as cursor:
+                # 防刷检查：同一IP 24小时内最多注册3个账户
+                if ip_address:
+                    cursor.execute("""
+                        SELECT COUNT(*) as count FROM users
+                        WHERE register_ip = %s AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+                    """, (ip_address,))
+                    ip_count = cursor.fetchone()['count']
+                    max_register_per_ip = int(self.get_system_config('max_register_per_ip', 3))
+                    if ip_count >= max_register_per_ip:
+                        logger.warning(f"IP {ip_address} 注册频率过高，已拒绝")
+                        return {'success': False, 'message': '注册过于频繁，请稍后再试'}
+
                 # 检查用户名是否已存在（如果提供了用户名）
                 if username:
                     cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
@@ -127,12 +139,25 @@ class UserManager:
 
                 # 验证邀请码（如果提供）
                 inviter_id = None
+                inviter_email_domain = None
                 if invite_code:
-                    cursor.execute("SELECT id FROM users WHERE invite_code = %s", (invite_code,))
+                    cursor.execute("SELECT id, email FROM users WHERE invite_code = %s", (invite_code,))
                     inviter = cursor.fetchone()
                     if not inviter:
                         return {'success': False, 'message': '邀请码无效'}
                     inviter_id = inviter['id']
+                    # 获取邀请人邮箱域名用于防自邀请检查
+                    if inviter['email']:
+                        inviter_email_domain = inviter['email'].split('@')[-1] if '@' in inviter['email'] else None
+
+                    # 防自邀请：检查邮箱域名是否相同（防止同一人注册多个账号刷奖励）
+                    if email and inviter_email_domain:
+                        new_email_domain = email.split('@')[-1] if '@' in email else None
+                        # 如果是临时邮箱或相同域名，需要额外验证
+                        temp_email_domains = ['tempmail.com', 'guerrillamail.com', '10minutemail.com', 'mailinator.com']
+                        if new_email_domain and (new_email_domain in temp_email_domains):
+                            logger.warning(f"检测到临时邮箱注册: {email}")
+                            return {'success': False, 'message': '不支持使用临时邮箱注册'}
 
                 # 生成新用户的邀请码
                 user_invite_code = self.generate_invite_code()
@@ -142,9 +167,9 @@ class UserManager:
                 new_user_bonus = self.get_system_config('new_user_bonus', 10.00)
 
                 cursor.execute("""
-                    INSERT INTO users (username, email, password_hash, balance, invite_code, invited_by)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                """, (username, email, password_hash, new_user_bonus, user_invite_code, invite_code))
+                    INSERT INTO users (username, email, password_hash, balance, invite_code, invited_by, register_ip)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (username, email, password_hash, new_user_bonus, user_invite_code, invite_code, ip_address))
 
                 user_id = cursor.lastrowid
 
@@ -160,11 +185,11 @@ class UserManager:
                         WHERE id = %s
                     """, (invite_reward, invite_reward, inviter_id))
 
-                    # 记录邀请记录
+                    # 记录邀请记录 - 添加奖励类型
                     cursor.execute("""
-                        INSERT INTO invite_records (inviter_id, invitee_id, invite_code, reward_amount)
-                        VALUES (%s, %s, %s, %s)
-                    """, (inviter_id, user_id, invite_code, invite_reward))
+                        INSERT INTO invite_records (inviter_id, invitee_id, invite_code, reward_amount, reward_type)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (inviter_id, user_id, invite_code, invite_reward, 'registration'))
 
                 conn.commit()
 
@@ -220,11 +245,19 @@ class UserManager:
 
                 user = cursor.fetchone()
 
+                # 获取客户端信息
+                ip_address = request.remote_addr if request else None
+                user_agent = request.user_agent.string if request and request.user_agent else None
+
                 # 验证密码
                 if not user or not self.verify_password(password, user['password_hash']):
                     # 记录失败尝试
                     self.login_security.record_login_attempt(username_or_email, success=False)
                     remaining = self.login_security.get_remaining_attempts(username_or_email)
+
+                    # 记录登录失败日志
+                    self._record_login_log(cursor, user['id'] if user else None, ip_address, user_agent, 'failed')
+                    conn.commit()
 
                     if remaining > 0:
                         message = f'用户名/邮箱或密码错误，还可尝试{remaining}次'
@@ -243,10 +276,14 @@ class UserManager:
                 # 登录成功，记录成功尝试
                 self.login_security.record_login_attempt(username_or_email, success=True)
 
-                # 更新最后登录时间
+                # 更新最后登录时间和IP
                 cursor.execute("""
-                    UPDATE users SET last_login_at = NOW() WHERE id = %s
-                """, (user['id'],))
+                    UPDATE users SET last_login_at = NOW(), last_login_ip = %s WHERE id = %s
+                """, (ip_address, user['id']))
+
+                # 记录登录成功日志
+                self._record_login_log(cursor, user['id'], ip_address, user_agent, 'success')
+
                 conn.commit()
 
                 return {
@@ -261,6 +298,32 @@ class UserManager:
         finally:
             if conn:
                 conn.close()
+
+    def _record_login_log(self, cursor, user_id, ip_address, user_agent, status):
+        """记录登录日志"""
+        try:
+            # 确保 login_logs 表存在
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS login_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    ip_address VARCHAR(50),
+                    user_agent VARCHAR(500),
+                    status VARCHAR(20) DEFAULT 'success',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_created_at (created_at),
+                    INDEX idx_status (status)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """)
+
+            # 插入登录日志
+            cursor.execute("""
+                INSERT INTO login_logs (user_id, ip_address, user_agent, status)
+                VALUES (%s, %s, %s, %s)
+            """, (user_id, ip_address, user_agent[:500] if user_agent else None, status))
+        except Exception as e:
+            logger.error(f"记录登录日志失败: {e}")
 
     def get_user_info(self, user_id):
         """获取用户信息"""
@@ -330,18 +393,35 @@ class UserManager:
 
 
 
-    def add_balance(self, user_id, amount, operator_id=None, description="", method="alipay", transaction_id=None, trade_order_id=None):
-        """给用户增加余额 - 完善版"""
+    def add_balance(self, user_id, amount, operator_id=None, description="", method="alipay", transaction_id=None, trade_order_id=None, is_first_recharge=None):
+        """给用户增加余额 - 完善版，支持首充邀请奖励"""
         conn = None
         try:
             conn = self.get_db_connection()
             with conn.cursor() as cursor:
-                # 检查用户是否存在
-                cursor.execute("SELECT id, username FROM users WHERE id = %s", (user_id,))
+                # 防重复处理：检查订单是否已存在
+                if trade_order_id:
+                    cursor.execute("""
+                        SELECT id, status FROM recharge_records
+                        WHERE trade_order_id = %s AND status = 1
+                    """, (trade_order_id,))
+                    existing_order = cursor.fetchone()
+                    if existing_order:
+                        logger.warning(f"订单已处理过，跳过: {trade_order_id}")
+                        return True  # 返回成功，避免支付平台重复通知
+
+                # 检查用户是否存在，同时获取邀请信息
+                cursor.execute("""
+                    SELECT id, username, invited_by, total_recharge
+                    FROM users WHERE id = %s
+                """, (user_id,))
                 user = cursor.fetchone()
                 if not user:
                     logger.error(f"用户不存在: {user_id}")
                     return False
+
+                # 判断是否为首次充值（之前累计充值为0）
+                is_first = is_first_recharge if is_first_recharge is not None else (user['total_recharge'] == 0)
 
                 # 更新用户余额和累计充值
                 cursor.execute("""
@@ -351,12 +431,41 @@ class UserManager:
                     WHERE id = %s
                 """, (amount, amount, user_id))
 
-                # 插入充值记录（表已存在，不需要创建）
+                # 插入充值记录 - status=1表示已支付
                 cursor.execute("""
                     INSERT INTO recharge_records
-                    (user_id, amount, payment_method, status, description, admin_id, trade_no, trade_order_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                """, (user_id, amount, method, 'success', description, operator_id, transaction_id, trade_order_id))
+                    (user_id, amount, payment_method, status, description, admin_id, trade_no, trade_order_id, paid_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                """, (user_id, amount, method, 1, description, operator_id, transaction_id, trade_order_id))
+
+                # 首充邀请奖励：如果是首次充值且有邀请人，给邀请人10%奖励
+                if is_first and user['invited_by']:
+                    invite_recharge_rate = self.get_system_config('invite_recharge_rate', 0.10)  # 默认10%
+                    invite_recharge_reward = round(amount * invite_recharge_rate, 2)
+
+                    if invite_recharge_reward > 0:
+                        # 查找邀请人
+                        cursor.execute("""
+                            SELECT id, username FROM users WHERE invite_code = %s
+                        """, (user['invited_by'],))
+                        inviter = cursor.fetchone()
+
+                        if inviter:
+                            # 给邀请人增加余额和邀请收益
+                            cursor.execute("""
+                                UPDATE users SET
+                                    balance = balance + %s,
+                                    invite_earnings = invite_earnings + %s
+                                WHERE id = %s
+                            """, (invite_recharge_reward, invite_recharge_reward, inviter['id']))
+
+                            # 记录首充奖励
+                            cursor.execute("""
+                                INSERT INTO invite_records (inviter_id, invitee_id, invite_code, reward_amount, reward_type)
+                                VALUES (%s, %s, %s, %s, %s)
+                            """, (inviter['id'], user_id, user['invited_by'], invite_recharge_reward, 'first_recharge'))
+
+                            logger.info(f"首充邀请奖励: 邀请人 {inviter['username']} 获得 {invite_recharge_reward}元 (被邀请人 {user['username']} 首充 {amount}元)")
 
                 conn.commit()
                 logger.info(f"用户 {user['username']} (ID:{user_id}) 充值成功: {amount}元")
@@ -371,25 +480,276 @@ class UserManager:
             if conn:
                 conn.close()
 
-    def get_recharge_records(self, user_id, limit=50):
-        """获取用户充值记录"""
+    def create_pending_order(self, user_id, amount, payment_method='alipay'):
+        """
+        创建待支付订单
+        返回: {'success': bool, 'order_no': str, 'trade_order_id': str, 'message': str}
+        """
+        conn = None
+        try:
+            import time
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                # 生成订单号: RC + 时间戳 + 用户ID后6位
+                timestamp = int(time.time() * 1000)
+                order_no = f"RC{timestamp}{str(user_id).zfill(6)[-6:]}"
+                # 生成trade_order_id: 用户ID_时间戳（用于虎皮椒）
+                trade_order_id = f"{user_id}_{int(time.time())}"
+
+                # 插入待支付订单 (status=0 表示待支付)
+                cursor.execute("""
+                    INSERT INTO recharge_records
+                    (user_id, order_no, amount, payment_method, status, trade_order_id, description, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+                """, (user_id, order_no, amount, payment_method, 0, trade_order_id, '待支付订单'))
+
+                conn.commit()
+                logger.info(f"创建待支付订单: user_id={user_id}, order_no={order_no}, amount={amount}")
+
+                return {
+                    'success': True,
+                    'order_no': order_no,
+                    'trade_order_id': trade_order_id,
+                    'message': '订单创建成功'
+                }
+
+        except Exception as e:
+            logger.error(f"创建待支付订单失败: {e}")
+            if conn:
+                conn.rollback()
+            return {
+                'success': False,
+                'order_no': None,
+                'trade_order_id': None,
+                'message': f'订单创建失败: {str(e)}'
+            }
+        finally:
+            if conn:
+                conn.close()
+
+    def get_pending_order(self, trade_order_id):
+        """
+        获取待支付订单信息
+        返回订单详情或None
+        """
         conn = None
         try:
             conn = self.get_db_connection()
             with conn.cursor() as cursor:
                 cursor.execute("""
-                    SELECT amount, method, status, description, created_at, transaction_id, trade_order_id
+                    SELECT id, user_id, order_no, amount, payment_method, status,
+                           trade_order_id, created_at
                     FROM recharge_records
-                    WHERE user_id = %s AND status = 'success'
-                    ORDER BY created_at DESC
-                    LIMIT %s
-                """, (user_id, limit))
+                    WHERE trade_order_id = %s
+                """, (trade_order_id,))
+                return cursor.fetchone()
+        except Exception as e:
+            logger.error(f"获取待支付订单失败: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()
 
-                return cursor.fetchall()
+    def complete_order(self, trade_order_id, transaction_id, callback_amount):
+        """
+        完成订单支付（回调时调用）
+        包含金额核对和防重处理
+        返回: {'success': bool, 'message': str}
+        """
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                # 1. 查询订单
+                cursor.execute("""
+                    SELECT id, user_id, order_no, amount, status, trade_order_id
+                    FROM recharge_records
+                    WHERE trade_order_id = %s
+                    FOR UPDATE
+                """, (trade_order_id,))
+                order = cursor.fetchone()
+
+                # 订单不存在
+                if not order:
+                    logger.error(f"订单不存在: {trade_order_id}")
+                    return {'success': False, 'message': '订单不存在'}
+
+                # 2. 防重处理：订单已支付
+                if order['status'] == 1:
+                    logger.warning(f"订单已支付，跳过: {trade_order_id}")
+                    return {'success': True, 'message': '订单已处理'}  # 返回成功避免重复通知
+
+                # 3. 金额核对（允许0.01的误差，处理浮点精度问题）
+                order_amount = float(order['amount'])
+                if abs(order_amount - callback_amount) > 0.01:
+                    logger.error(f"金额不匹配: 订单金额={order_amount}, 回调金额={callback_amount}, trade_order_id={trade_order_id}")
+                    return {'success': False, 'message': '金额不匹配'}
+
+                user_id = order['user_id']
+
+                # 4. 获取用户信息
+                cursor.execute("""
+                    SELECT id, username, invited_by, total_recharge
+                    FROM users WHERE id = %s
+                """, (user_id,))
+                user = cursor.fetchone()
+                if not user:
+                    logger.error(f"用户不存在: {user_id}")
+                    return {'success': False, 'message': '用户不存在'}
+
+                # 5. 判断是否为首次充值
+                is_first = (user['total_recharge'] == 0)
+
+                # 6. 更新用户余额和累计充值
+                cursor.execute("""
+                    UPDATE users SET
+                        balance = balance + %s,
+                        total_recharge = total_recharge + %s
+                    WHERE id = %s
+                """, (order_amount, order_amount, user_id))
+
+                # 7. 更新订单状态为已支付
+                cursor.execute("""
+                    UPDATE recharge_records SET
+                        status = 1,
+                        trade_no = %s,
+                        description = %s,
+                        paid_at = NOW()
+                    WHERE id = %s
+                """, (transaction_id, f'支付宝充值 - 交易号:{transaction_id}', order['id']))
+
+                # 8. 首充邀请奖励
+                if is_first and user['invited_by']:
+                    invite_recharge_rate = self.get_system_config('invite_recharge_rate', 0.10)
+                    invite_recharge_reward = round(order_amount * float(invite_recharge_rate), 2)
+
+                    if invite_recharge_reward > 0:
+                        cursor.execute("""
+                            SELECT id, username FROM users WHERE invite_code = %s
+                        """, (user['invited_by'],))
+                        inviter = cursor.fetchone()
+
+                        if inviter:
+                            cursor.execute("""
+                                UPDATE users SET
+                                    balance = balance + %s,
+                                    invite_earnings = invite_earnings + %s
+                                WHERE id = %s
+                            """, (invite_recharge_reward, invite_recharge_reward, inviter['id']))
+
+                            cursor.execute("""
+                                INSERT INTO invite_records (inviter_id, invitee_id, invite_code, reward_amount, reward_type)
+                                VALUES (%s, %s, %s, %s, %s)
+                            """, (inviter['id'], user_id, user['invited_by'], invite_recharge_reward, 'first_recharge'))
+
+                            logger.info(f"首充邀请奖励: 邀请人 {inviter['username']} 获得 {invite_recharge_reward}元")
+
+                conn.commit()
+                logger.info(f"订单支付完成: user_id={user_id}, order_no={order['order_no']}, amount={order_amount}")
+                return {'success': True, 'message': '支付成功'}
+
+        except Exception as e:
+            logger.error(f"完成订单支付失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': f'处理失败: {str(e)}'}
+        finally:
+            if conn:
+                conn.close()
+
+    def cancel_expired_orders(self, expire_minutes=30):
+        """
+        取消过期的待支付订单
+        """
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                # 将超过指定时间的待支付订单标记为已取消(status=2)
+                cursor.execute("""
+                    UPDATE recharge_records
+                    SET status = 2, description = '订单超时自动取消'
+                    WHERE status = 0
+                    AND created_at < DATE_SUB(NOW(), INTERVAL %s MINUTE)
+                """, (expire_minutes,))
+
+                cancelled_count = cursor.rowcount
+                conn.commit()
+
+                if cancelled_count > 0:
+                    logger.info(f"取消了 {cancelled_count} 个过期订单")
+
+                return cancelled_count
+
+        except Exception as e:
+            logger.error(f"取消过期订单失败: {e}")
+            if conn:
+                conn.rollback()
+            return 0
+        finally:
+            if conn:
+                conn.close()
+
+    def get_order_by_order_no(self, order_no):
+        """
+        根据订单号获取订单信息（用于支付成功页面展示）
+        """
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT r.*, u.username
+                    FROM recharge_records r
+                    JOIN users u ON r.user_id = u.id
+                    WHERE r.order_no = %s OR r.trade_order_id = %s
+                """, (order_no, order_no))
+                return cursor.fetchone()
+        except Exception as e:
+            logger.error(f"获取订单信息失败: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def get_recharge_records(self, user_id, page=1, per_page=10):
+        """获取用户充值记录（分页）"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                # 获取总数
+                cursor.execute("""
+                    SELECT COUNT(*) as total
+                    FROM recharge_records
+                    WHERE user_id = %s AND status = 1
+                """, (user_id,))
+                total = cursor.fetchone()['total']
+
+                # 获取分页数据
+                offset = (page - 1) * per_page
+                cursor.execute("""
+                    SELECT amount, payment_method, status, description, created_at, trade_no, trade_order_id, paid_at
+                    FROM recharge_records
+                    WHERE user_id = %s AND status = 1
+                    ORDER BY created_at DESC
+                    LIMIT %s OFFSET %s
+                """, (user_id, per_page, offset))
+
+                records = cursor.fetchall()
+                total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+
+                return {
+                    'records': records,
+                    'total': total,
+                    'page': page,
+                    'per_page': per_page,
+                    'total_pages': total_pages
+                }
 
         except Exception as e:
             logger.error(f"获取充值记录失败: {e}")
-            return []
+            return {'records': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 1}
         finally:
             if conn:
                 conn.close()
@@ -430,25 +790,44 @@ class UserManager:
             if conn:
                 conn.close()
 
-    def get_consumption_records(self, user_id, limit=50):
-        """获取用户消费记录"""
+    def get_consumption_records(self, user_id, page=1, per_page=10):
+        """获取用户消费记录（分页）"""
         conn = None
         try:
             conn = self.get_db_connection()
             with conn.cursor() as cursor:
+                # 获取总数
+                cursor.execute("""
+                    SELECT COUNT(*) as total
+                    FROM consumption_records
+                    WHERE user_id = %s
+                """, (user_id,))
+                total = cursor.fetchone()['total']
+
+                # 获取分页数据
+                offset = (page - 1) * per_page
                 cursor.execute("""
                     SELECT amount, service_type, description, created_at
                     FROM consumption_records
                     WHERE user_id = %s
                     ORDER BY created_at DESC
-                    LIMIT %s
-                """, (user_id, limit))
+                    LIMIT %s OFFSET %s
+                """, (user_id, per_page, offset))
 
-                return cursor.fetchall()
+                records = cursor.fetchall()
+                total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+
+                return {
+                    'records': records,
+                    'total': total,
+                    'page': page,
+                    'per_page': per_page,
+                    'total_pages': total_pages
+                }
 
         except Exception as e:
             logger.error(f"获取消费记录失败: {e}")
-            return []
+            return {'records': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 1}
         finally:
             if conn:
                 conn.close()
@@ -1135,19 +1514,333 @@ class UserManager:
             conn = self.get_db_connection()
             with conn.cursor() as cursor:
                 cursor.execute("""
-                    UPDATE users 
-                    SET status = %s, updated_at = CURRENT_TIMESTAMP 
+                    UPDATE users
+                    SET status = %s, updated_at = CURRENT_TIMESTAMP
                     WHERE id = %s AND role = 'user'
                 """, (status, user_id))
-                
+
                 conn.commit()
                 return cursor.rowcount > 0
-                
+
         except Exception as e:
             logger.error(f"更新用户状态失败: {e}")
             if conn:
                 conn.rollback()
             return False
+        finally:
+            if conn:
+                conn.close()
+
+    def update_user_info(self, user_id, username=None, email=None, password=None):
+        """更新用户信息（管理员功能）"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                update_fields = []
+                params = []
+
+                if username is not None:
+                    # 检查用户名是否被其他人使用
+                    cursor.execute("SELECT id FROM users WHERE username = %s AND id != %s", (username, user_id))
+                    if cursor.fetchone():
+                        return {'success': False, 'message': '用户名已被其他用户使用'}
+                    update_fields.append("username = %s")
+                    params.append(username)
+
+                if email is not None:
+                    # 检查邮箱是否被其他人使用
+                    cursor.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, user_id))
+                    if cursor.fetchone():
+                        return {'success': False, 'message': '邮箱已被其他用户使用'}
+                    update_fields.append("email = %s")
+                    params.append(email)
+
+                if password is not None and password.strip():
+                    password_hash = self.hash_password(password)
+                    update_fields.append("password_hash = %s")
+                    params.append(password_hash)
+
+                if not update_fields:
+                    return {'success': False, 'message': '没有要更新的内容'}
+
+                params.append(user_id)
+                cursor.execute(f"""
+                    UPDATE users SET {', '.join(update_fields)}, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, params)
+
+                conn.commit()
+                return {'success': True, 'message': '用户信息更新成功'}
+
+        except Exception as e:
+            logger.error(f"更新用户信息失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': '更新失败'}
+        finally:
+            if conn:
+                conn.close()
+
+    def delete_user(self, user_id):
+        """删除用户（管理员功能）"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                # 检查用户是否存在
+                cursor.execute("SELECT id, role FROM users WHERE id = %s", (user_id,))
+                user = cursor.fetchone()
+                if not user:
+                    return {'success': False, 'message': '用户不存在'}
+
+                if user['role'] == 'admin':
+                    return {'success': False, 'message': '不能删除管理员账户'}
+
+                # 删除用户相关数据
+                cursor.execute("DELETE FROM consumption_records WHERE user_id = %s", (user_id,))
+                cursor.execute("DELETE FROM recharge_records WHERE user_id = %s", (user_id,))
+                cursor.execute("DELETE FROM defense_question_history WHERE user_id = %s", (user_id,))
+                cursor.execute("DELETE FROM invite_records WHERE inviter_id = %s OR invitee_id = %s", (user_id, user_id))
+
+                # 删除用户
+                cursor.execute("DELETE FROM users WHERE id = %s AND role = 'user'", (user_id,))
+
+                conn.commit()
+                return {'success': True, 'message': '用户删除成功'}
+
+        except Exception as e:
+            logger.error(f"删除用户失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': '删除失败'}
+        finally:
+            if conn:
+                conn.close()
+
+    def reset_user_password(self, user_id, new_password):
+        """管理员重置用户密码"""
+        conn = None
+        try:
+            if len(new_password) < 6:
+                return {'success': False, 'message': '密码长度不能少于6位'}
+
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                password_hash = self.hash_password(new_password)
+                cursor.execute("""
+                    UPDATE users SET password_hash = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s AND role = 'user'
+                """, (password_hash, user_id))
+
+                if cursor.rowcount == 0:
+                    return {'success': False, 'message': '用户不存在或不可操作'}
+
+                conn.commit()
+                return {'success': True, 'message': '密码重置成功'}
+
+        except Exception as e:
+            logger.error(f"重置密码失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': '重置失败'}
+        finally:
+            if conn:
+                conn.close()
+
+    def update_user_role(self, user_id, new_role):
+        """更新用户角色（管理员功能）"""
+        conn = None
+        try:
+            if new_role not in ['user', 'admin']:
+                return {'success': False, 'message': '无效的角色'}
+
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE users SET role = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (new_role, user_id))
+
+                if cursor.rowcount == 0:
+                    return {'success': False, 'message': '用户不存在'}
+
+                conn.commit()
+                return {'success': True, 'message': '角色更新成功'}
+
+        except Exception as e:
+            logger.error(f"更新用户角色失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': '更新失败'}
+        finally:
+            if conn:
+                conn.close()
+
+    def batch_update_status(self, user_ids, status):
+        """批量更新用户状态"""
+        conn = None
+        try:
+            if not user_ids:
+                return {'success': False, 'message': '请选择用户'}
+
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                placeholders = ','.join(['%s'] * len(user_ids))
+                cursor.execute(f"""
+                    UPDATE users SET status = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id IN ({placeholders}) AND role = 'user'
+                """, [status] + list(user_ids))
+
+                affected = cursor.rowcount
+                conn.commit()
+                return {'success': True, 'message': f'成功更新 {affected} 个用户', 'affected': affected}
+
+        except Exception as e:
+            logger.error(f"批量更新状态失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': '批量操作失败'}
+        finally:
+            if conn:
+                conn.close()
+
+    def batch_delete_users(self, user_ids):
+        """批量删除用户"""
+        conn = None
+        try:
+            if not user_ids:
+                return {'success': False, 'message': '请选择用户'}
+
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                placeholders = ','.join(['%s'] * len(user_ids))
+
+                # 删除关联数据
+                cursor.execute(f"DELETE FROM consumption_records WHERE user_id IN ({placeholders})", user_ids)
+                cursor.execute(f"DELETE FROM recharge_records WHERE user_id IN ({placeholders})", user_ids)
+                cursor.execute(f"DELETE FROM defense_question_history WHERE user_id IN ({placeholders})", user_ids)
+
+                # 删除用户（只删除普通用户）
+                cursor.execute(f"""
+                    DELETE FROM users WHERE id IN ({placeholders}) AND role = 'user'
+                """, user_ids)
+
+                affected = cursor.rowcount
+                conn.commit()
+                return {'success': True, 'message': f'成功删除 {affected} 个用户', 'affected': affected}
+
+        except Exception as e:
+            logger.error(f"批量删除用户失败: {e}")
+            if conn:
+                conn.rollback()
+            return {'success': False, 'message': '批量删除失败'}
+        finally:
+            if conn:
+                conn.close()
+
+    def get_user_transactions(self, user_id, page=1, per_page=20):
+        """获取用户交易记录（充值+消费）"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                offset = (page - 1) * per_page
+
+                # 合并充值和消费记录
+                cursor.execute("""
+                    (SELECT 'recharge' as type, amount, payment_method as detail,
+                            description, status, created_at
+                     FROM recharge_records WHERE user_id = %s)
+                    UNION ALL
+                    (SELECT 'consumption' as type, amount, service_type as detail,
+                            description, 'success' as status, created_at
+                     FROM consumption_records WHERE user_id = %s)
+                    ORDER BY created_at DESC
+                    LIMIT %s OFFSET %s
+                """, (user_id, user_id, per_page, offset))
+
+                records = cursor.fetchall()
+
+                # 获取总数
+                cursor.execute("""
+                    SELECT
+                        (SELECT COUNT(*) FROM recharge_records WHERE user_id = %s) +
+                        (SELECT COUNT(*) FROM consumption_records WHERE user_id = %s) as total
+                """, (user_id, user_id))
+                total = cursor.fetchone()['total']
+
+                return {
+                    'records': records,
+                    'total': total,
+                    'page': page,
+                    'per_page': per_page,
+                    'total_pages': (total + per_page - 1) // per_page
+                }
+
+        except Exception as e:
+            logger.error(f"获取用户交易记录失败: {e}")
+            return {'records': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 0}
+        finally:
+            if conn:
+                conn.close()
+
+    def export_users(self, search=None, status=None, role=None, date_start=None, date_end=None,
+                     balance_min=None, balance_max=None, sort_by='created_at', sort_order='DESC'):
+        """导出用户列表"""
+        conn = None
+        try:
+            conn = self.get_db_connection()
+            with conn.cursor() as cursor:
+                where_conditions = ["role = 'user'"]
+                params = []
+
+                if search:
+                    where_conditions.append("(username LIKE %s OR email LIKE %s)")
+                    params.extend([f"%{search}%", f"%{search}%"])
+
+                if status is not None:
+                    where_conditions.append("status = %s")
+                    params.append(status)
+
+                if date_start:
+                    where_conditions.append("DATE(created_at) >= %s")
+                    params.append(date_start)
+
+                if date_end:
+                    where_conditions.append("DATE(created_at) <= %s")
+                    params.append(date_end)
+
+                if balance_min is not None:
+                    where_conditions.append("balance >= %s")
+                    params.append(balance_min)
+
+                if balance_max is not None:
+                    where_conditions.append("balance <= %s")
+                    params.append(balance_max)
+
+                where_clause = " WHERE " + " AND ".join(where_conditions)
+
+                # 验证排序字段
+                valid_sort_fields = ['id', 'username', 'email', 'balance', 'total_recharge',
+                                   'total_consumption', 'created_at', 'last_login_at']
+                if sort_by not in valid_sort_fields:
+                    sort_by = 'created_at'
+                sort_order = 'DESC' if sort_order.upper() == 'DESC' else 'ASC'
+
+                cursor.execute(f"""
+                    SELECT
+                        id, username, email, balance, total_recharge, total_consumption,
+                        invite_earnings, status, created_at, last_login_at, invite_code
+                    FROM users{where_clause}
+                    ORDER BY {sort_by} {sort_order}
+                """, params)
+
+                return cursor.fetchall()
+
+        except Exception as e:
+            logger.error(f"导出用户列表失败: {e}")
+            return []
         finally:
             if conn:
                 conn.close()

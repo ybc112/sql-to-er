@@ -459,12 +459,234 @@
         </div>
     </div>
 
+    <!-- 扣费确认弹窗 -->
+    <div id="test-charge-modal" class="charge-modal" style="display: none;">
+        <div class="charge-modal-overlay" onclick="closeTestChargeModal()"></div>
+        <div class="charge-modal-container">
+            <div class="charge-modal-header">
+                <span class="charge-modal-title">确认支付</span>
+                <button class="charge-modal-close" onclick="closeTestChargeModal()">&times;</button>
+            </div>
+
+            <div class="charge-modal-body">
+                <p class="charge-desc">您即将使用 AI 测试用例生成服务</p>
+
+                <div class="charge-info-list">
+                    <div class="charge-info-item">
+                        <span>服务费用</span>
+                        <span class="charge-cost" id="test-charge-cost">¥3.00</span>
+                    </div>
+                    <div class="charge-info-item">
+                        <span>当前余额</span>
+                        <span id="test-charge-balance">¥0.00</span>
+                    </div>
+                    <div class="charge-info-item charge-info-result">
+                        <span>支付后余额</span>
+                        <span id="test-charge-after">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charge-modal-footer">
+                <button class="charge-btn-cancel" onclick="closeTestChargeModal()">取消</button>
+                <button class="charge-btn-confirm" onclick="confirmTestCharge()">确认支付</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* 统一扣费确认弹窗样式 */
+    .charge-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .charge-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .charge-modal-container {
+        position: relative;
+        background: #fff;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .charge-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .charge-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .charge-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .charge-modal-close:hover {
+        color: #333;
+    }
+
+    .charge-modal-body {
+        padding: 24px;
+    }
+
+    .charge-desc {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .charge-info-list {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .charge-info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .charge-info-item:not(:last-child) {
+        border-bottom: 1px solid #eee;
+    }
+
+    .charge-info-result {
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .charge-cost {
+        font-weight: 600;
+        color: #f59e0b;
+    }
+
+    .charge-modal-footer {
+        display: flex;
+        gap: 12px;
+        padding: 0 24px 24px;
+    }
+
+    .charge-btn-cancel,
+    .charge-btn-confirm {
+        flex: 1;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .charge-btn-cancel {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+    .charge-btn-cancel:hover {
+        background: #eee;
+    }
+
+    .charge-btn-confirm {
+        background: #10b981;
+        border: none;
+        color: #fff;
+    }
+
+    .charge-btn-confirm:hover {
+        background: #059669;
+    }
+    </style>
+
     <!-- 引入JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // 获取CSRF Token
+        async function getCsrfToken() {
+            try {
+                const res = await fetch('/api/csrf-token');
+                const data = await res.json();
+                return data.csrf_token;
+            } catch (error) {
+                console.error('获取CSRF Token失败:', error);
+                return null;
+            }
+        }
+
         // 全局变量存储生成的测试用例数据
         let generatedTestCases = [];
+        let pendingFormData = null;
+
+        // 显示扣费确认弹窗
+        function showTestChargeModal(cost, balance) {
+            document.getElementById('test-charge-cost').textContent = `¥${cost.toFixed(2)}`;
+            document.getElementById('test-charge-balance').textContent = `¥${balance.toFixed(2)}`;
+            document.getElementById('test-charge-after').textContent = `¥${(balance - cost).toFixed(2)}`;
+            document.getElementById('test-charge-modal').style.display = 'flex';
+        }
+        
+        // 关闭扣费确认弹窗
+        function closeTestChargeModal() {
+            document.getElementById('test-charge-modal').style.display = 'none';
+        }
+        
+        // 确认扣费并生成
+        async function confirmTestCharge() {
+            const formData = pendingFormData;
+            pendingFormData = null;
+            closeTestChargeModal();
+            
+            if (formData) {
+                await doGenerateTestCases(formData.systemName, formData.testType, formData.systemDescription);
+            }
+        }
 
         // 表单提交处理
         document.getElementById('generateForm').addEventListener('submit', async function(e) {
@@ -475,18 +697,53 @@
             const systemDescription = document.getElementById('systemDescription').value;
             
             if (!systemName || !testType || !systemDescription) {
-                alert('请填写完整的系统信息');
+                showWarning('请填写完整的系统信息');
                 return;
             }
-            
+
+            // 先检查费用和余额
+            try {
+                const priceResponse = await fetch('/api/get_test_case_cost');
+                const priceData = await priceResponse.json();
+
+                if (!priceData.is_logged_in) {
+                    showError('AI生成功能需要登录后使用，请先登录');
+                    showConfirmModal('是否跳转到登录页面？', () => {
+                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                    });
+                    return;
+                }
+
+                if (!priceData.sufficient) {
+                    showError(`余额不足！AI生成需要 ${priceData.cost.toFixed(2)} 元，当前余额 ${priceData.balance.toFixed(2)} 元`);
+                    showConfirmModal('是否跳转到充值页面？', () => {
+                        window.location.href = '/profile#recharge';
+                    });
+                    return;
+                }
+                
+                // 显示确认弹窗
+                pendingFormData = { systemName, testType, systemDescription };
+                showTestChargeModal(priceData.cost, priceData.balance);
+                
+            } catch (error) {
+                console.error('获取费用信息失败:', error);
+                showError('获取费用信息失败: ' + error.message);
+            }
+        });
+        
+        // 实际执行生成
+        async function doGenerateTestCases(systemName, testType, systemDescription) {
             // 显示加载动画
             showLoading();
             
             try {
+                const csrfToken = await getCsrfToken();
                 const response = await fetch('/api/generate-test-cases', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...(csrfToken ? {'X-CSRF-Token': csrfToken} : {})
                     },
                     body: JSON.stringify({
                         systemName: systemName,
@@ -497,10 +754,16 @@
                 
                 const result = await response.json();
                 
-                if (response.ok) {
+                if (response.ok && result.success) {
                     generatedTestCases = result.testCases;
                     displayTestCases(result.testCases);
-                    showSuccess('测试用例生成成功！');
+                    if (result.ai_success && result.charged) {
+                        showSuccess(`测试用例生成成功！已扣费 ¥${result.cost.toFixed(2)}`);
+                    } else if (!result.ai_success) {
+                        showError('AI服务暂时不可用，已使用备用方案生成，未扣费。请稍后重试获取更好的结果。');
+                    } else {
+                        showSuccess('测试用例生成成功！');
+                    }
                 } else {
                     showError(result.error || '生成失败，请重试');
                 }
@@ -510,7 +773,7 @@
             } finally {
                 hideLoading();
             }
-        });
+        }
 
         // 显示加载动画
         function showLoading() {
@@ -566,10 +829,58 @@
             alert.className = 'alert alert-danger';
             alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
             document.querySelector('.input-section').insertBefore(alert, document.querySelector('.input-section').firstChild);
-            
+
             setTimeout(() => {
                 alert.remove();
             }, 5000);
+        }
+
+        // 显示警告消息
+        function showWarning(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-warning';
+            alertDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            document.querySelector('.input-section').insertBefore(alertDiv, document.querySelector('.input-section').firstChild);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 4000);
+        }
+
+        // 显示自定义确认弹窗
+        function showConfirmModal(message, onConfirm, onCancel) {
+            const existingModal = document.getElementById('custom-confirm-modal');
+            if (existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'custom-confirm-modal';
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10001;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s ease;';
+            modal.innerHTML = `
+                <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);" class="confirm-overlay"></div>
+                <div style="position:relative;background:white;border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);transform:scale(0.9);transition:transform 0.2s ease;" class="confirm-container">
+                    <div style="width:64px;height:64px;margin:0 auto 20px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-question-circle" style="font-size:32px;color:white;"></i>
+                    </div>
+                    <div style="font-size:16px;color:#334155;line-height:1.6;margin-bottom:24px;">${message}</div>
+                    <div style="display:flex;gap:12px;justify-content:center;">
+                        <button class="confirm-btn-cancel" style="padding:12px 28px;border:1px solid #e2e8f0;background:white;color:#64748b;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;">取消</button>
+                        <button class="confirm-btn-ok" style="padding:12px 28px;border:none;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;">确认</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.confirm-container').style.transform = 'scale(1)'; }, 10);
+
+            const closeModal = () => {
+                modal.style.opacity = '0';
+                modal.querySelector('.confirm-container').style.transform = 'scale(0.9)';
+                setTimeout(() => modal.remove(), 200);
+            };
+
+            modal.querySelector('.confirm-overlay').onclick = () => { closeModal(); if (onCancel) onCancel(); };
+            modal.querySelector('.confirm-btn-cancel').onclick = () => { closeModal(); if (onCancel) onCancel(); };
+            modal.querySelector('.confirm-btn-ok').onclick = () => { closeModal(); if (onConfirm) onConfirm(); };
         }
 
         // 导出到Word
@@ -580,10 +891,12 @@
             }
             
             try {
+                const csrfToken = await getCsrfToken();
                 const response = await fetch('/api/export-test-cases-word', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...(csrfToken ? {'X-CSRF-Token': csrfToken} : {})
                     },
                     body: JSON.stringify({
                         testCases: generatedTestCases,
@@ -644,6 +957,43 @@
             
             window.getSelection().removeAllRanges();
         }
+
+        // ========== 页面退出提示 ==========
+        // 标记页面是否有内容
+        let hasUnsavedContent = false;
+
+        // 监听内容变化
+        function markContentChanged() {
+            hasUnsavedContent = true;
+        }
+
+        // 页面离开时提示
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedContent) {
+                const message = '您有未保存的测试用例内容，确定要离开此页面吗？';
+                e.preventDefault();
+                e.returnValue = message;
+                return message;
+            }
+        });
+
+        // 监听内容变化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听输入框变化
+            const inputField = document.getElementById('systemRequirements');
+            if (inputField) {
+                inputField.addEventListener('input', markContentChanged);
+            }
+
+            // 重写生成函数来标记内容变化
+            const originalGenerate = window.generateTestCases;
+            if (originalGenerate) {
+                window.generateTestCases = function() {
+                    markContentChanged();
+                    return originalGenerate.apply(this, arguments);
+                };
+            }
+        });
     </script>
 </body>
 </html>

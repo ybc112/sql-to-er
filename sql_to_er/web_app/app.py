@@ -35,6 +35,9 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from user_manager import UserManager, login_required
 
+# 导入配置模块
+from app_config import config
+
 # 导入虎皮椒支付类
 try:
     # 添加虎皮椒支付模块路径
@@ -56,26 +59,21 @@ try:
 except Exception as e:
     print(f"虎皮椒支付模块导入失败: {e}")
     # 创建一个备用的Hupi类以防止错误
+    hupi_config = config.get_hupi_config()
     class Hupi:
         def __init__(self):
-            self.appid = "201906173259"
-            self.AppSecret = "ad53393e3490b654819cfacc24af2c6f"
+            self.appid = hupi_config['appid']
+            self.AppSecret = hupi_config['appsecret']
 
         def Pay(self, *args, **kwargs):
             raise Exception("虎皮椒支付模块未正确导入")
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = 'your-secret-key-change-this-in-production'  # 用于session加密
+app.secret_key = config.SECRET_KEY  # 从环境变量加载
 
-# 数据库配置
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',  # 请修改为您的MySQL用户名
-    'password': '123456',  # 请修改为您的实际MySQL密码
-    'database': 'user_system',
-    'charset': 'utf8mb4'
-}
+# 数据库配置 - 从环境变量加载
+DB_CONFIG = config.get_db_config()
 
 # 初始化用户管理器
 user_manager = UserManager(DB_CONFIG)
@@ -83,13 +81,8 @@ user_manager = UserManager(DB_CONFIG)
 # 初始化稳定的邮件服务
 from stable_email_service import StableEmailService, PasswordResetManager
 
-# QQ邮箱配置
-EMAIL_CONFIG = {
-    'smtp_host': 'smtp.qq.com',
-    'smtp_port': 465,
-    'email_user': '398250338@qq.com',
-    'email_password': 'mnkivzpnazqcbjed'
-}
+# 邮箱配置 - 从环境变量加载
+EMAIL_CONFIG = config.get_email_config()
 
 # 创建邮件服务和密码重置管理器
 email_service = StableEmailService(**EMAIL_CONFIG)
@@ -114,9 +107,9 @@ admin_stats = AdminStats(DB_CONFIG)
 admin_blueprint = create_admin_blueprint(admin_auth, admin_stats, user_manager)
 app.register_blueprint(admin_blueprint)
 
-# DeepSeek API配置
-DEEPSEEK_API_KEY = "sk-40a181eea3cf4de6aa678e2cd09406a7"  # 您的实际API密钥
-DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
+# DeepSeek API配置 - 从环境变量加载
+DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY
+DEEPSEEK_API_URL = config.DEEPSEEK_API_URL
 
 # 内存中存储项目（实际应用中应使用数据库）
 projects = {}
@@ -334,6 +327,14 @@ def announcements_page():
         user_info = get_user_info(session['user_id'])
     return render_template('announcements.html', user_info=user_info)
 
+@app.route('/services')
+def services_page():
+    """技术服务推广页面"""
+    user_info = None
+    if 'user_id' in session:
+        user_info = get_user_info(session['user_id'])
+    return render_template('services.html', user_info=user_info)
+
 @app.route('/api/announcements')
 def api_get_announcements():
     """获取有效公告列表API"""
@@ -547,15 +548,6 @@ def thesis_defense():
     return render_template('thesis-defense-new.html')
 
 
-@app.route('/paper-generator')
-def paper_generator():
-    """AI论文生成器"""
-    user_info = None
-    if 'user_id' in session:
-        user_info = get_user_info(session['user_id'])
-    return render_template('paper-generator.html', user_info=user_info)
-
-
 @app.route('/text-optimizer')
 def text_optimizer_page():
     """文本优化器页面"""
@@ -571,8 +563,602 @@ def progress_test():
     return render_template('progress_test.html')
 
 
+# ==================== AI内容检测功能 ====================
+
+# 导入AI检测模块
+from ai_detector import get_detector, detect_ai_content
+
+@app.route('/ai-detector')
+def ai_detector_page():
+    """AI内容检测页面"""
+    user_info = None
+    if 'user_id' in session:
+        user_info = get_user_info(session['user_id'])
+    return render_template('ai-detector.html', user_info=user_info)
 
 
+@app.route('/api/detect-ai', methods=['POST'])
+def api_detect_ai():
+    """AI内容检测API"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        detailed = data.get('detailed', False)
+
+        if not text:
+            return jsonify({'success': False, 'message': '请输入待检测的文本'})
+
+        if len(text) < 50:
+            return jsonify({'success': False, 'message': '文本太短，至少需要50个字符'})
+
+        if len(text) > 50000:
+            return jsonify({'success': False, 'message': '文本太长，最多支持50000个字符'})
+
+        # 检查用户是否登录并扣费
+        if 'user_id' in session:
+            # 获取检测费用配置
+            cost = user_manager.get_system_config('ai_detect_cost', 0.5)
+
+            # 检查余额
+            user_info = user_manager.get_user_info(session['user_id'])
+            if user_info and user_info['balance'] < cost:
+                return jsonify({
+                    'success': False,
+                    'message': f'余额不足，AI检测需要 {cost} 元，当前余额 {user_info["balance"]} 元'
+                })
+
+            # 扣费
+            consume_result = user_manager.consume_balance(
+                session['user_id'],
+                cost,
+                'ai_detect',
+                f'AI内容检测 - {len(text)}字'
+            )
+            if not consume_result['success']:
+                return jsonify(consume_result)
+
+        # 执行检测
+        result = detect_ai_content(text, detailed=detailed)
+
+        if result.get('success'):
+            app.logger.info(f"AI检测完成: 文本长度={len(text)}, AI概率={result.get('ai_probability')}%")
+
+        return jsonify(result)
+
+    except Exception as e:
+        app.logger.error(f"AI检测失败: {e}")
+        return jsonify({'success': False, 'message': f'检测失败: {str(e)}'})
+
+
+@app.route('/api/detect-ai-sentences', methods=['POST'])
+def api_detect_ai_sentences():
+    """逐句AI检测API - 标注每个句子的AI概率"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+
+        if not text:
+            return jsonify({'success': False, 'message': '请输入待检测的文本'})
+
+        if len(text) < 50:
+            return jsonify({'success': False, 'message': '文本太短，至少需要50个字符'})
+
+        if len(text) > 20000:
+            return jsonify({'success': False, 'message': '逐句检测最多支持20000个字符'})
+
+        # 检查用户是否登录并扣费（逐句检测费用更高）
+        if 'user_id' in session:
+            cost = user_manager.get_system_config('ai_detect_sentence_cost', 1.0)
+
+            user_info = user_manager.get_user_info(session['user_id'])
+            if user_info and user_info['balance'] < cost:
+                return jsonify({
+                    'success': False,
+                    'message': f'余额不足，逐句检测需要 {cost} 元'
+                })
+
+            consume_result = user_manager.consume_balance(
+                session['user_id'],
+                cost,
+                'ai_detect_sentence',
+                f'AI逐句检测 - {len(text)}字'
+            )
+            if not consume_result['success']:
+                return jsonify(consume_result)
+
+        # 执行逐句检测
+        detector = get_detector()
+        sentences = detector.detect_sentences(text)
+
+        return jsonify({
+            'success': True,
+            'sentences': sentences,
+            'total_sentences': len(sentences)
+        })
+
+    except Exception as e:
+        app.logger.error(f"逐句AI检测失败: {e}")
+        return jsonify({'success': False, 'message': f'检测失败: {str(e)}'})
+
+
+@app.route('/api/detect-ai-free', methods=['POST'])
+def api_detect_ai_free():
+    """AI内容检测API - 免费版（有限制）"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+
+        if not text:
+            return jsonify({'success': False, 'message': '请输入待检测的文本'})
+
+        if len(text) < 50:
+            return jsonify({'success': False, 'message': '文本太短，至少需要50个字符'})
+
+        # 免费版限制1000字
+        if len(text) > 1000:
+            return jsonify({
+                'success': False,
+                'message': '免费版最多支持1000字，请登录后使用完整版',
+                'need_login': True
+            })
+
+        # 执行简化检测
+        result = detect_ai_content(text, detailed=False)
+
+        # 免费版不返回详细信息
+        if result.get('success'):
+            return jsonify({
+                'success': True,
+                'ai_probability': result.get('ai_probability'),
+                'verdict': result.get('verdict'),
+                'verdict_level': result.get('verdict_level'),
+                'language': result.get('language'),
+                'is_free': True,
+                'message': '免费版检测完成，登录后可使用详细分析功能'
+            })
+
+        return jsonify(result)
+
+    except Exception as e:
+        app.logger.error(f"免费AI检测失败: {e}")
+        return jsonify({'success': False, 'message': f'检测失败: {str(e)}'})
+
+
+@app.route('/api/detect-ai-report', methods=['POST'])
+def api_detect_ai_report():
+    """生成AI检测报告 - 逐句分析并返回统计摘要"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+
+        if not text:
+            return jsonify({'success': False, 'message': '请输入待检测的文本'})
+
+        if len(text) < 50:
+            return jsonify({'success': False, 'message': '文本太短，至少需要50个字符'})
+
+        max_len = 50000 if 'user_id' in session else 1000
+        if len(text) > max_len:
+            return jsonify({
+                'success': False,
+                'message': f'文本太长，最多支持{max_len}字符',
+                'need_login': 'user_id' not in session
+            })
+
+        # 执行逐句检测
+        detector = get_detector()
+        sentences = detector.detect_sentences(text)
+
+        # 如果逐句检测失败（可能模型未加载），使用简化版
+        if not sentences:
+            # 使用简化方式分句和估算
+            import re
+            raw_sentences = re.split(r'[。！？.!?;；]+', text)
+            sentences = []
+            for i, sent in enumerate(raw_sentences):
+                sent = sent.strip()
+                if len(sent) > 5:
+                    # 基于句子特征简单估算AI概率
+                    ai_prob = estimate_sentence_ai_prob(sent)
+                    sentences.append({
+                        'index': i,
+                        'sentence': sent,
+                        'ai_probability': ai_prob
+                    })
+
+        # 计算统计摘要
+        total = len(sentences)
+        high_count = sum(1 for s in sentences if s['ai_probability'] >= 80)
+        medium_count = sum(1 for s in sentences if 60 <= s['ai_probability'] < 80)
+        low_count = sum(1 for s in sentences if s['ai_probability'] < 60)
+
+        return jsonify({
+            'success': True,
+            'sentences': sentences,
+            'summary': {
+                'total': total,
+                'high': high_count,
+                'medium': medium_count,
+                'low': low_count
+            }
+        })
+
+    except Exception as e:
+        app.logger.error(f"生成AI检测报告失败: {e}")
+        return jsonify({'success': False, 'message': f'生成报告失败: {str(e)}'})
+
+
+def estimate_sentence_ai_prob(sentence):
+    """简化版句子AI概率估算（当模型不可用时）"""
+    import re
+
+    ai_markers = [
+        '综上所述', '总而言之', '由此可见', '基于以上', '值得注意',
+        '首先', '其次', '再次', '最后', '此外', '进一步',
+        '具有重要意义', '具有深远影响', '不可否认',
+        'in conclusion', 'furthermore', 'moreover', 'additionally',
+        'it is worth noting', 'it should be noted'
+    ]
+
+    score = 30  # 基础分
+
+    # 检查AI标记词
+    for marker in ai_markers:
+        if marker in sentence.lower():
+            score += 15
+            break
+
+    # 句子长度均匀性（20-40字的句子更可能是AI）
+    length = len(sentence)
+    if 20 <= length <= 40:
+        score += 10
+
+    # 检查过于工整的结构
+    if re.search(r'[，,].*[，,].*[，,]', sentence):  # 多个逗号，结构工整
+        score += 10
+
+    return min(score, 95)
+
+
+@app.route('/api/export-ai-report', methods=['POST'])
+def api_export_ai_report():
+    """导出AI检测报告为Word文档"""
+    try:
+        # 检查登录
+        if 'user_id' not in session:
+            return jsonify({'success': False, 'message': '请登录后使用导出功能'}), 401
+
+        data = request.get_json()
+        text = data.get('text', '')
+        report_data = data.get('report_data', {})
+        export_format = data.get('format', 'word')
+
+        if not report_data:
+            return jsonify({'success': False, 'message': '报告数据不能为空'})
+
+        # 生成Word文档
+        from docx import Document
+        from docx.shared import Inches, Pt, RGBColor
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        from io import BytesIO
+
+        doc = Document()
+
+        # 标题
+        title = doc.add_heading('AI内容检测报告', 0)
+        title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # 检测时间
+        from datetime import datetime
+        doc.add_paragraph(f'检测时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        doc.add_paragraph(f'文本长度: {len(text)} 字符')
+        doc.add_paragraph('')
+
+        # 整体结果
+        overall = report_data.get('overall', {})
+        doc.add_heading('一、整体检测结果', level=1)
+
+        result_para = doc.add_paragraph()
+        result_para.add_run(f'AI概率: ').bold = True
+        prob = overall.get('ai_probability', 0)
+        prob_run = result_para.add_run(f'{prob}%')
+        prob_run.bold = True
+        if prob >= 80:
+            prob_run.font.color.rgb = RGBColor(239, 68, 68)  # 红色
+        elif prob >= 60:
+            prob_run.font.color.rgb = RGBColor(245, 158, 11)  # 黄色
+        else:
+            prob_run.font.color.rgb = RGBColor(16, 185, 129)  # 绿色
+
+        doc.add_paragraph(f'判定结果: {overall.get("verdict", "")}')
+        doc.add_paragraph('')
+
+        # 统计摘要
+        summary = report_data.get('summary', {})
+        doc.add_heading('二、统计摘要', level=1)
+
+        table = doc.add_table(rows=2, cols=4)
+        table.style = 'Table Grid'
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = '总句数'
+        hdr_cells[1].text = '高风险句(≥80%)'
+        hdr_cells[2].text = '中风险句(60-79%)'
+        hdr_cells[3].text = '低风险句(<60%)'
+
+        data_cells = table.rows[1].cells
+        data_cells[0].text = str(summary.get('total', 0))
+        data_cells[1].text = str(summary.get('high', 0))
+        data_cells[2].text = str(summary.get('medium', 0))
+        data_cells[3].text = str(summary.get('low', 0))
+
+        doc.add_paragraph('')
+
+        # 逐句分析
+        doc.add_heading('三、逐句分析详情', level=1)
+
+        sentences = report_data.get('sentences', [])
+        for i, item in enumerate(sentences):
+            prob = item.get('ai_probability', 0)
+            sent = item.get('sentence', '')
+
+            # 确定风险等级标记
+            if prob >= 80:
+                level_mark = '[高风险]'
+                color = RGBColor(239, 68, 68)
+            elif prob >= 60:
+                level_mark = '[中风险]'
+                color = RGBColor(245, 158, 11)
+            else:
+                level_mark = '[低风险]'
+                color = RGBColor(16, 185, 129)
+
+            para = doc.add_paragraph()
+            run = para.add_run(f'{i+1}. {level_mark} {prob}% ')
+            run.font.color.rgb = color
+            run.bold = True
+            para.add_run(sent)
+
+        doc.add_paragraph('')
+
+        # 免责声明
+        doc.add_heading('免责声明', level=1)
+        disclaimer = doc.add_paragraph(
+            '本报告由AI内容检测工具自动生成，检测准确率约60-75%，存在误判可能。'
+            '检测结果不能作为学术不端的唯一判定依据，建议结合人工判断综合评估。'
+        )
+        disclaimer.runs[0].font.size = Pt(10)
+        disclaimer.runs[0].font.color.rgb = RGBColor(107, 114, 128)
+
+        # 保存到内存
+        file_stream = BytesIO()
+        doc.save(file_stream)
+        file_stream.seek(0)
+
+        return send_file(
+            file_stream,
+            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            as_attachment=True,
+            download_name=f'AI检测报告_{datetime.now().strftime("%Y%m%d_%H%M%S")}.docx'
+        )
+
+    except Exception as e:
+        app.logger.error(f"导出AI检测报告失败: {e}")
+        return jsonify({'success': False, 'message': f'导出失败: {str(e)}'}), 500
+
+
+# Word文档上传检测功能
+from word_ai_detector import (
+    WordAIDetector,
+    process_word_document,
+    generate_annotated_word,
+    generate_report_document
+)
+
+# 存储上传的文档（实际应用中应使用数据库或文件系统）
+uploaded_documents = {}
+
+
+@app.route('/api/upload-word-detect', methods=['POST'])
+def api_upload_word_detect():
+    """
+    上传Word文档进行AI检测
+    返回检测结果，不直接返回文件
+    """
+    try:
+        # 检查文件
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'message': '请选择要上传的Word文档'})
+
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': '请选择要上传的Word文档'})
+
+        # 检查文件类型
+        if not file.filename.lower().endswith(('.docx', '.doc')):
+            return jsonify({'success': False, 'message': '只支持.docx或.doc格式的Word文档'})
+
+        # 检查文件大小（最大10MB）
+        file_content = file.read()
+        if len(file_content) > 10 * 1024 * 1024:
+            return jsonify({'success': False, 'message': '文件太大，最大支持10MB'})
+
+        # 检查用户登录状态
+        is_logged_in = 'user_id' in session
+        if not is_logged_in:
+            # 免费用户限制
+            if len(file_content) > 100 * 1024:  # 100KB限制
+                return jsonify({
+                    'success': False,
+                    'message': '免费用户文件大小限制100KB，请登录后使用完整版',
+                    'need_login': True
+                })
+
+        # 登录用户扣费
+        if is_logged_in:
+            cost = user_manager.get_system_config('word_detect_cost', 2.0)
+            user_info = user_manager.get_user_info(session['user_id'])
+            if user_info and user_info['balance'] < cost:
+                return jsonify({
+                    'success': False,
+                    'message': f'余额不足，Word文档检测需要 {cost} 元，当前余额 {user_info["balance"]} 元'
+                })
+
+        # 获取AI检测器
+        try:
+            detector = get_detector()
+        except Exception:
+            detector = None
+
+        # 处理文档
+        word_detector = WordAIDetector(detector)
+        result = word_detector.process_uploaded_document(file_content)
+
+        if not result['success']:
+            return jsonify(result)
+
+        # 登录用户扣费
+        if is_logged_in:
+            consume_result = user_manager.consume_balance(
+                session['user_id'],
+                cost,
+                'word_detect',
+                f'Word文档AI检测 - {file.filename}'
+            )
+            if not consume_result['success']:
+                return jsonify(consume_result)
+
+        # 生成文档ID，用于后续下载
+        doc_id = str(uuid.uuid4())
+        uploaded_documents[doc_id] = {
+            'original_content': file_content,
+            'filename': file.filename,
+            'detection_result': result,
+            'upload_time': datetime.now(),
+            'user_id': session.get('user_id')
+        }
+
+        # 清理过期文档（超过1小时）
+        cleanup_old_documents()
+
+        # 返回结果
+        return jsonify({
+            'success': True,
+            'doc_id': doc_id,
+            'filename': file.filename,
+            'text_length': result.get('text_length', 0),
+            'overall_probability': result.get('overall_probability', 0),
+            'overall_level': result.get('overall_level', 'low'),
+            'summary': result.get('summary', {}),
+            'sentences': result.get('sentences', [])
+        })
+
+    except Exception as e:
+        app.logger.error(f"Word文档上传检测失败: {e}")
+        return jsonify({'success': False, 'message': f'处理失败: {str(e)}'})
+
+
+@app.route('/api/download-annotated-word/<doc_id>')
+def api_download_annotated_word(doc_id):
+    """
+    下载带标注的Word文档（保持原格式）
+    """
+    try:
+        # 检查登录
+        if 'user_id' not in session:
+            return jsonify({'success': False, 'message': '请登录后下载'}), 401
+
+        # 检查文档是否存在
+        if doc_id not in uploaded_documents:
+            return jsonify({'success': False, 'message': '文档不存在或已过期'}), 404
+
+        doc_data = uploaded_documents[doc_id]
+
+        # 检查权限
+        if doc_data.get('user_id') != session['user_id']:
+            return jsonify({'success': False, 'message': '无权访问此文档'}), 403
+
+        # 生成带标注的文档
+        annotated_doc = generate_annotated_word(
+            doc_data['original_content'],
+            doc_data['detection_result'],
+            mode='highlight'
+        )
+
+        # 生成文件名
+        original_name = doc_data['filename']
+        base_name = original_name.rsplit('.', 1)[0]
+        download_name = f'{base_name}_AI检测标注.docx'
+
+        return send_file(
+            annotated_doc,
+            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            as_attachment=True,
+            download_name=download_name
+        )
+
+    except Exception as e:
+        app.logger.error(f"下载标注文档失败: {e}")
+        return jsonify({'success': False, 'message': f'下载失败: {str(e)}'}), 500
+
+
+@app.route('/api/download-detection-report/<doc_id>')
+def api_download_detection_report(doc_id):
+    """
+    下载详细检测报告（独立报告文档）
+    """
+    try:
+        # 检查登录
+        if 'user_id' not in session:
+            return jsonify({'success': False, 'message': '请登录后下载'}), 401
+
+        # 检查文档是否存在
+        if doc_id not in uploaded_documents:
+            return jsonify({'success': False, 'message': '文档不存在或已过期'}), 404
+
+        doc_data = uploaded_documents[doc_id]
+
+        # 检查权限
+        if doc_data.get('user_id') != session['user_id']:
+            return jsonify({'success': False, 'message': '无权访问此文档'}), 403
+
+        # 生成报告文档
+        report_doc = generate_report_document(
+            doc_data['original_content'],
+            doc_data['detection_result']
+        )
+
+        # 生成文件名
+        original_name = doc_data['filename']
+        base_name = original_name.rsplit('.', 1)[0]
+        download_name = f'{base_name}_AI检测报告.docx'
+
+        return send_file(
+            report_doc,
+            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            as_attachment=True,
+            download_name=download_name
+        )
+
+    except Exception as e:
+        app.logger.error(f"下载检测报告失败: {e}")
+        return jsonify({'success': False, 'message': f'下载失败: {str(e)}'}), 500
+
+
+def cleanup_old_documents():
+    """清理超过1小时的临时文档"""
+    current_time = datetime.now()
+    expired_ids = []
+
+    for doc_id, doc_data in uploaded_documents.items():
+        upload_time = doc_data.get('upload_time')
+        if upload_time and (current_time - upload_time).total_seconds() > 3600:
+            expired_ids.append(doc_id)
+
+    for doc_id in expired_ids:
+        del uploaded_documents[doc_id]
+
+    if expired_ids:
+        app.logger.info(f"清理了 {len(expired_ids)} 个过期文档")
 
 
 
@@ -608,12 +1194,80 @@ def register():
 def profile():
     """个人中心"""
     user_info = user_manager.get_user_info(session['user_id'])
-    consumption_records = user_manager.get_consumption_records(session['user_id'])
-    recharge_records = user_manager.get_recharge_records(session['user_id'])
+    consumption_data = user_manager.get_consumption_records(session['user_id'], page=1, per_page=10)
+    recharge_data = user_manager.get_recharge_records(session['user_id'], page=1, per_page=10)
     return render_template('profile.html',
                         user_info=user_info,
-                        records=consumption_records,
-                        recharge_records=recharge_records)
+                        records=consumption_data['records'],
+                        consumption_total=consumption_data['total'],
+                        consumption_pages=consumption_data['total_pages'],
+                        recharge_records=recharge_data['records'],
+                        recharge_total=recharge_data['total'],
+                        recharge_pages=recharge_data['total_pages'])
+
+@app.route('/api/consumption-records')
+@login_required
+def api_consumption_records():
+    """获取消费记录API（分页）"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        per_page = min(per_page, 50)
+
+        data = user_manager.get_consumption_records(session['user_id'], page=page, per_page=per_page)
+
+        records = []
+        for record in data['records']:
+            records.append({
+                'created_at': record['created_at'].strftime('%Y-%m-%d %H:%M:%S'),
+                'service_type': record['service_type'],
+                'amount': float(record['amount']),
+                'description': record['description'] or '-'
+            })
+
+        return jsonify({
+            'success': True,
+            'records': records,
+            'total': data['total'],
+            'page': data['page'],
+            'per_page': data['per_page'],
+            'total_pages': data['total_pages']
+        })
+    except Exception as e:
+        logger.error(f"获取消费记录失败: {e}")
+        return jsonify({'success': False, 'message': '获取记录失败'})
+
+@app.route('/api/recharge-records')
+@login_required
+def api_recharge_records():
+    """获取充值记录API（分页）"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        per_page = min(per_page, 50)
+
+        data = user_manager.get_recharge_records(session['user_id'], page=page, per_page=per_page)
+
+        records = []
+        for record in data['records']:
+            records.append({
+                'created_at': record['created_at'].strftime('%Y-%m-%d %H:%M:%S'),
+                'payment_method': record['payment_method'],
+                'amount': float(record['amount']),
+                'description': record['description'] or '-'
+            })
+
+        return jsonify({
+            'success': True,
+            'records': records,
+            'total': data['total'],
+            'page': data['page'],
+            'per_page': data['per_page'],
+            'total_pages': data['total_pages']
+        })
+    except Exception as e:
+        logger.error(f"获取充值记录失败: {e}")
+        return jsonify({'success': False, 'message': '获取记录失败'})
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
@@ -654,7 +1308,8 @@ def api_register():
             username=username if username else None,
             email=email if email else None,
             password=password,
-            invite_code=invite_code if invite_code else None
+            invite_code=invite_code if invite_code else None,
+            ip_address=request.remote_addr  # 传递IP用于防刷检查
         )
         return jsonify(result)
 
@@ -788,11 +1443,36 @@ def api_recharge():
             flash('当前仅支持支付宝支付', 'danger')
             return redirect('/profile')
 
-        if amount <= 0:
-            flash('充值金额必须大于0', 'danger')
+        # 金额验证：最小0.01元，最大10000元
+        if amount < 0.01:
+            flash('充值金额不能小于0.01元', 'danger')
             return redirect('/profile')
 
-        # 创建虎皮椒支付实例
+        if amount > 10000:
+            flash('单次充值金额不能超过10000元', 'danger')
+            return redirect('/profile')
+
+        # 金额精度处理：保留两位小数
+        amount = round(amount, 2)
+
+        # 1. 先创建待支付订单
+        order_result = user_manager.create_pending_order(
+            user_id=session['user_id'],
+            amount=amount,
+            payment_method=payment_method
+        )
+
+        if not order_result['success']:
+            app.logger.error(f"创建订单失败: {order_result['message']}")
+            flash('订单创建失败，请稍后重试', 'danger')
+            return redirect('/profile')
+
+        trade_order_id = order_result['trade_order_id']
+        order_no = order_result['order_no']
+
+        app.logger.info(f"创建待支付订单成功: order_no={order_no}, trade_order_id={trade_order_id}")
+
+        # 2. 创建虎皮椒支付实例
         try:
             hupi = Hupi()
         except Exception as e:
@@ -800,18 +1480,15 @@ def api_recharge():
             flash('支付系统初始化失败，请稍后重试', 'danger')
             return redirect('/profile')
 
-        # 生成订单号
-        trade_order_id = f"{session['user_id']}_{int(time.time())}"
-
-        # 调用虎皮椒支付接口
+        # 3. 调用虎皮椒支付接口
         try:
-            app.logger.info(f"发起支付请求: 用户{session['user_id']}, 金额{amount}, 支付方式{payment_method}")
+            app.logger.info(f"发起支付请求: 用户{session['user_id']}, 金额{amount}, 订单号{trade_order_id}")
 
             response = hupi.Pay(
                 trade_order_id=trade_order_id,
-                payment=payment_method,  # 只支持 alipay
+                payment=payment_method,
                 total_fee=amount,
-                title=f"用户充值 - {session.get('username', 'Unknown')}",
+                title=f"账户充值 - ¥{amount}",
                 attach=f"user_{session['user_id']}"
             )
 
@@ -821,7 +1498,10 @@ def api_recharge():
                     app.logger.info(f"支付接口返回: {result}")
 
                     if result.get('errcode') == 0:
-                        # 支付请求成功，跳转到支付页面
+                        # 支付请求成功，保存订单号到session用于成功页面展示
+                        session['last_order_no'] = order_no
+                        session['last_order_amount'] = amount
+
                         pay_url = result.get('url')
                         if pay_url:
                             app.logger.info(f"跳转到支付页面: {pay_url}")
@@ -858,7 +1538,18 @@ def payment_success():
     """支付成功回调页面"""
     app.logger.info("用户访问支付成功页面")
     try:
-        return render_template('payment_success.html')
+        # 从session获取订单信息
+        order_no = session.pop('last_order_no', None)
+        order_amount = session.pop('last_order_amount', None)
+
+        order_info = None
+        if order_no:
+            order_info = user_manager.get_order_by_order_no(order_no)
+
+        return render_template('payment_success.html',
+                             order_info=order_info,
+                             order_no=order_no,
+                             order_amount=order_amount)
     except Exception as e:
         app.logger.error(f"渲染支付成功页面失败: {e}")
         return f"<h1>支付成功！</h1><p>恭喜您，充值已成功完成！</p><a href='/profile'>查看余额</a>", 200
@@ -866,13 +1557,13 @@ def payment_success():
 @app.route('/payment/callback')
 @app.route('/payment/callback/')
 def payment_callback():
-    """支付失败回调页面"""
-    app.logger.info("用户访问支付失败页面")
+    """支付失败/取消回调页面"""
+    app.logger.info("用户访问支付失败/取消页面")
     try:
         return render_template('payment_callback.html')
     except Exception as e:
         app.logger.error(f"渲染支付失败页面失败: {e}")
-        return f"<h1>支付失败</h1><p>很抱歉，支付未能成功完成。</p><a href='/profile'>重新充值</a>", 200
+        return f"<h1>支付未完成</h1><p>您取消了支付或支付未能成功完成。</p><a href='/profile'>返回个人中心</a>", 200
 
 @app.route('/notify_url/', methods=['POST'])
 def payment_notify():
@@ -902,32 +1593,18 @@ def payment_notify():
         app.logger.info(f"支付通知详情: 订单号={trade_order_id}, 金额={total_fee}, 状态={status}, 交易号={transaction_id}")
 
         if status == 'OD':  # 已支付
-            try:
-                # 从订单号中提取用户ID
-                user_id = int(trade_order_id.split('_')[0])
+            # 使用新的complete_order方法，包含订单验证和金额核对
+            result = user_manager.complete_order(
+                trade_order_id=trade_order_id,
+                transaction_id=transaction_id,
+                callback_amount=total_fee
+            )
 
-                # 检查订单是否已经处理过（防重复处理）
-                # 这里可以添加订单状态检查逻辑
-
-                # 增加用户余额 - 使用完善版方法
-                success = user_manager.add_balance(
-                    user_id=user_id,
-                    amount=total_fee,
-                    method='alipay',
-                    transaction_id=transaction_id,
-                    trade_order_id=trade_order_id,
-                    description=f"虎皮椒支付充值 - 交易号:{transaction_id}"
-                )
-
-                if success:
-                    app.logger.info(f"用户 {user_id} 充值成功，金额: {total_fee}")
-                    return "success"
-                else:
-                    app.logger.error(f"用户 {user_id} 余额更新失败")
-                    return "fail"
-
-            except (ValueError, IndexError) as e:
-                app.logger.error(f"订单号解析失败: {trade_order_id}, 错误: {e}")
+            if result['success']:
+                app.logger.info(f"支付处理成功: {trade_order_id}, {result['message']}")
+                return "success"
+            else:
+                app.logger.error(f"支付处理失败: {trade_order_id}, {result['message']}")
                 return "fail"
         else:
             app.logger.info(f"支付状态非成功: {status}")
@@ -950,6 +1627,43 @@ def api_user_info():
     except Exception as e:
         app.logger.error(f"获取用户信息失败: {e}")
         return jsonify({'success': False, 'message': '获取用户信息失败'})
+
+
+@app.route('/api/get_translation_price', methods=['GET'])
+def api_get_translation_price():
+    """获取AI翻译的价格和用户余额信息"""
+    try:
+        # 获取AI翻译费用配置
+        ai_translation_cost = float(user_manager.get_system_config('ai_translation_cost', 2.00))
+        
+        # 检查用户是否登录
+        if 'user_id' not in session:
+            return jsonify({
+                'success': True,
+                'cost': ai_translation_cost,
+                'logged_in': False,
+                'balance': 0,
+                'message': '请先登录后使用AI翻译功能'
+            })
+        
+        # 获取用户余额
+        user_info = user_manager.get_user_info(session['user_id'])
+        balance = float(user_info['balance']) if user_info else 0
+        
+        return jsonify({
+            'success': True,
+            'cost': ai_translation_cost,
+            'logged_in': True,
+            'balance': balance,
+            'sufficient': balance >= ai_translation_cost
+        })
+        
+    except Exception as e:
+        app.logger.error(f"获取翻译价格失败: {e}")
+        return jsonify({
+            'success': False,
+            'message': '获取价格信息失败'
+        }), 500
 
 
 @app.route('/api/parse_sql', methods=['POST'])
@@ -983,15 +1697,54 @@ def api_parse_sql():
         # 构建ER模型
         entities, relationships = build_er_model(tables)
 
-        # 如果启用翻译，使用AI翻译表名、字段名和关系名
+        # 如果启用翻译，需要检查用户登录状态和余额
         translation_success = False
+        translation_charged = False
         if enable_translation:
+            # 检查用户是否登录
+            if 'user_id' not in session:
+                return jsonify({
+                    'error': 'AI翻译功能需要登录后使用',
+                    'need_login': True
+                }), 401
+            
+            # 获取AI翻译费用配置
+            ai_translation_cost = float(user_manager.get_system_config('ai_translation_cost', 2.00))
+            
+            # 获取用户信息并检查余额
+            user_info = user_manager.get_user_info(session['user_id'])
+            if not user_info:
+                return jsonify({
+                    'error': '用户信息获取失败，请重新登录',
+                    'need_login': True
+                }), 401
+            
+            if user_info['balance'] < ai_translation_cost:
+                return jsonify({
+                    'error': f'余额不足，AI翻译需要 {ai_translation_cost:.2f} 元，当前余额 {user_info["balance"]:.2f} 元',
+                    'need_recharge': True,
+                    'cost': ai_translation_cost,
+                    'balance': float(user_info['balance'])
+                }), 400
+            
+            # 执行AI翻译
             try:
                 translation_success = translate_database_terms_with_ai(entities, relationships)
                 if translation_success:
-                    app.logger.info("AI翻译成功完成")
+                    # 翻译成功，扣除费用
+                    consume_result = user_manager.consume_balance(
+                        session['user_id'],
+                        ai_translation_cost,
+                        'ai_translation',
+                        f'SQL转ER图 - AI智能翻译（{len(tables)}个表）'
+                    )
+                    if consume_result['success']:
+                        translation_charged = True
+                        app.logger.info(f"AI翻译成功，已扣费 {ai_translation_cost} 元")
+                    else:
+                        app.logger.warning(f"AI翻译扣费失败: {consume_result['message']}")
                 else:
-                    app.logger.warning("AI翻译失败，使用原始名称")
+                    app.logger.warning("AI翻译失败，使用原始名称，不扣费")
             except Exception as e:
                 app.logger.error(f"翻译过程中出错: {e}")
 
@@ -999,7 +1752,8 @@ def api_parse_sql():
         result = {
             'entities': [],
             'relationships': [],
-            'translationApplied': translation_success  # 告知前端是否应用了翻译
+            'translationApplied': translation_success,  # 告知前端是否应用了翻译
+            'translationCharged': translation_charged   # 告知前端是否已扣费
         }
 
         # 处理实体
@@ -1438,6 +2192,34 @@ def api_test_deepseek():
 
 
 
+@app.route('/api/get_structure_cost', methods=['GET'])
+def api_get_structure_cost():
+    """获取AI生成结构图的费用信息"""
+    try:
+        cost = float(user_manager.get_system_config('paper_structure_cost', 4.00))
+        
+        if 'user_id' not in session:
+            return jsonify({
+                'is_logged_in': False,
+                'cost': cost,
+                'balance': 0,
+                'sufficient': False
+            })
+        
+        user_info = user_manager.get_user_info(session['user_id'])
+        balance = float(user_info['balance']) if user_info else 0
+        
+        return jsonify({
+            'is_logged_in': True,
+            'cost': cost,
+            'balance': balance,
+            'sufficient': balance >= cost
+        })
+    except Exception as e:
+        app.logger.error(f"获取结构图费用失败: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/generate-structure', methods=['POST'])
 def api_generate_structure():
     """AI生成系统结构图API"""
@@ -1448,13 +2230,54 @@ def api_generate_structure():
         if not description:
             return jsonify({'success': False, 'message': '请提供系统描述'}), 400
 
+        # 检查用户登录状态
+        if 'user_id' not in session:
+            return jsonify({
+                'success': False,
+                'message': 'AI生成功能需要登录后使用',
+                'need_login': True
+            }), 401
+        
+        # 获取费用并检查余额
+        cost = float(user_manager.get_system_config('paper_structure_cost', 4.00))
+        user_info = user_manager.get_user_info(session['user_id'])
+        
+        if not user_info or user_info['balance'] < cost:
+            return jsonify({
+                'success': False,
+                'message': f'余额不足，AI生成需要 {cost:.2f} 元，当前余额 {user_info["balance"]:.2f} 元',
+                'need_recharge': True,
+                'cost': cost,
+                'balance': float(user_info['balance']) if user_info else 0
+            }), 400
+
         # 调用AI生成系统结构
-        structure_data = generate_system_structure_with_ai(description)
+        structure_data, is_ai_success = generate_system_structure_with_ai(description)
+
+        # 只有AI真正成功才扣费
+        charged = False
+        if is_ai_success:
+            consume_result = user_manager.consume_balance(
+                session['user_id'],
+                cost,
+                'paper_structure',
+                f'AI生成系统结构图'
+            )
+            charged = consume_result['success']
+            if charged:
+                app.logger.info(f"AI生成结构图成功，已扣费 {cost} 元")
+            else:
+                app.logger.warning(f"AI生成结构图扣费失败: {consume_result['message']}")
+        else:
+            app.logger.warning("AI调用失败，使用备用方案，不扣费")
 
         return jsonify({
             'success': True,
             'data': structure_data,
-            'message': '系统结构图生成成功'
+            'message': '系统结构图生成成功' + ('' if is_ai_success else '（AI服务暂时不可用，已使用备用方案，未扣费）'),
+            'charged': charged,
+            'cost': cost,
+            'ai_success': is_ai_success
         })
 
     except Exception as e:
@@ -1483,6 +2306,34 @@ def api_generate_simplified_er():
         return jsonify({'error': f'生成失败: {str(e)}'}), 500
 
 
+@app.route('/api/get_test_case_cost', methods=['GET'])
+def api_get_test_case_cost():
+    """获取AI测试用例生成的费用信息"""
+    try:
+        cost = float(user_manager.get_system_config('ai_test_case_cost', 3.00))
+        
+        if 'user_id' not in session:
+            return jsonify({
+                'is_logged_in': False,
+                'cost': cost,
+                'balance': 0,
+                'sufficient': False
+            })
+        
+        user_info = user_manager.get_user_info(session['user_id'])
+        balance = float(user_info['balance']) if user_info else 0
+        
+        return jsonify({
+            'is_logged_in': True,
+            'cost': cost,
+            'balance': balance,
+            'sufficient': balance >= cost
+        })
+    except Exception as e:
+        app.logger.error(f"获取测试用例费用失败: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/generate-test-cases', methods=['POST'])
 def api_generate_test_cases():
     """生成测试用例API"""
@@ -1495,13 +2346,52 @@ def api_generate_test_cases():
         if not all([system_name, test_type, system_description]):
             return jsonify({'error': '请提供完整的系统信息'}), 400
 
+        # 检查用户登录状态
+        if 'user_id' not in session:
+            return jsonify({
+                'error': 'AI生成功能需要登录后使用',
+                'need_login': True
+            }), 401
+        
+        # 获取费用并检查余额
+        cost = float(user_manager.get_system_config('ai_test_case_cost', 3.00))
+        user_info = user_manager.get_user_info(session['user_id'])
+        
+        if not user_info or user_info['balance'] < cost:
+            return jsonify({
+                'error': f'余额不足，AI生成需要 {cost:.2f} 元，当前余额 {user_info["balance"]:.2f} 元',
+                'need_recharge': True,
+                'cost': cost,
+                'balance': float(user_info['balance']) if user_info else 0
+            }), 400
+
         # 调用AI生成测试用例
-        test_cases = generate_test_cases_with_ai(system_name, test_type, system_description)
+        test_cases, is_ai_success = generate_test_cases_with_ai(system_name, test_type, system_description)
+
+        # 只有AI真正成功才扣费
+        charged = False
+        if is_ai_success:
+            consume_result = user_manager.consume_balance(
+                session['user_id'],
+                cost,
+                'ai_test_case',
+                f'AI生成测试用例 - {system_name}'
+            )
+            charged = consume_result['success']
+            if charged:
+                app.logger.info(f"AI生成测试用例成功，已扣费 {cost} 元")
+            else:
+                app.logger.warning(f"AI生成测试用例扣费失败: {consume_result['message']}")
+        else:
+            app.logger.warning(f"AI调用失败，使用备用方案，不扣费")
 
         return jsonify({
             'success': True,
             'testCases': test_cases,
-            'message': f'成功生成 {len(test_cases)} 个测试用例'
+            'message': f'成功生成 {len(test_cases)} 个测试用例' + ('' if is_ai_success else '（AI服务暂时不可用，已使用备用方案，未扣费）'),
+            'charged': charged,
+            'cost': cost,
+            'ai_success': is_ai_success
         })
 
     except Exception as e:
@@ -1538,7 +2428,9 @@ def api_export_test_cases_word():
 
 
 def generate_system_structure_with_ai(description):
-    """使用AI生成系统功能结构图"""
+    """使用AI生成系统功能结构图
+    返回: (structure_data, is_ai_success) - 结构数据和是否AI成功的标志
+    """
     try:
         # 构建提示词
         prompt = f"""
@@ -1621,7 +2513,7 @@ def generate_system_structure_with_ai(description):
             "max_tokens": 3000
         }
 
-        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=60)
+        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=120)
 
         if response.status_code == 200:
             result = response.json()
@@ -1639,7 +2531,7 @@ def generate_system_structure_with_ai(description):
 
                     # 验证数据结构
                     if 'nodes' in structure_data and 'links' in structure_data:
-                        return structure_data
+                        return (structure_data, True)  # AI成功
                     else:
                         raise ValueError("AI返回的数据结构不完整")
                 else:
@@ -1648,14 +2540,14 @@ def generate_system_structure_with_ai(description):
             except (json.JSONDecodeError, ValueError) as e:
                 app.logger.error(f"AI返回数据解析失败: {e}")
                 # 返回默认结构
-                return generate_default_structure(description)
+                return (generate_default_structure(description), False)
         else:
             app.logger.error(f"DeepSeek API调用失败: {response.status_code}")
-            return generate_default_structure(description)
+            return (generate_default_structure(description), False)
 
     except Exception as e:
         app.logger.error(f"AI生成系统结构失败: {e}")
-        return generate_default_structure(description)
+        return (generate_default_structure(description), False)
 
 
 def generate_default_structure(description):
@@ -2123,7 +3015,9 @@ def get_chinese_name(english_name):
 
 
 def generate_test_cases_with_ai(system_name, test_type, system_description):
-    """使用DeepSeek AI生成测试用例"""
+    """使用DeepSeek AI生成测试用例
+    返回: (test_cases, is_ai_success) - 测试用例列表和是否AI成功的标志
+    """
     try:
         # 构建AI提示词
         prompt = f"""
@@ -2186,7 +3080,7 @@ def generate_test_cases_with_ai(system_name, test_type, system_description):
             "max_tokens": 4000
         }
 
-        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=60)
+        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=120)
 
         if response.status_code == 200:
             result = response.json()
@@ -2209,7 +3103,7 @@ def generate_test_cases_with_ai(system_name, test_type, system_description):
                             if field not in case:
                                 case[field] = ""
 
-                    return test_cases
+                    return (test_cases, True)  # AI成功
                 else:
                     raise ValueError("无法找到有效的JSON格式")
 
@@ -2217,15 +3111,15 @@ def generate_test_cases_with_ai(system_name, test_type, system_description):
                 app.logger.error(f"AI返回的JSON格式错误: {e}")
                 app.logger.error(f"AI响应内容: {ai_response}")
                 # 如果AI返回格式有问题，使用备用方案
-                return generate_fallback_test_cases(system_name, test_type, system_description)
+                return (generate_fallback_test_cases(system_name, test_type, system_description), False)
         else:
             app.logger.error(f"DeepSeek API调用失败: {response.status_code} - {response.text}")
-            return generate_fallback_test_cases(system_name, test_type, system_description)
+            return (generate_fallback_test_cases(system_name, test_type, system_description), False)
 
     except Exception as e:
         app.logger.error(f"AI生成测试用例时出错: {e}")
         # 出错时使用备用方案
-        return generate_fallback_test_cases(system_name, test_type, system_description)
+        return (generate_fallback_test_cases(system_name, test_type, system_description), False)
 
 
 def generate_fallback_test_cases(system_name, test_type, system_description):
@@ -2501,552 +3395,381 @@ def generate_test_cases_word(test_cases, system_name, test_type):
     return doc_buffer
 
 
+# ============== AI检测率预估功能 ==============
 
+def calculate_ai_detection_score(text):
+    """
+    计算文本的AI检测率预估分数
+    基于Perplexity（困惑度）和Burstiness（突发性）原理
 
-@app.route('/api/generate-intelligent-outline', methods=['POST'])
-def api_generate_intelligent_outline():
-    """智能生成论文目录结构API - 根据用户描述自动分析生成"""
-    try:
-        data = request.get_json()
+    返回：
+    - ai_score: AI检测率预估 (0-100)
+    - details: 详细分析结果
+    """
+    import math
+    import statistics
 
-        # 获取所有用户输入信息
-        title = data.get('title', '')  # 论文题目
-        field = data.get('field', '')  # 研究领域
-        paper_type = data.get('paper_type', '本科毕业论文')  # 论文类型
-        total_words = data.get('total_words', 12000)  # 目标字数
-        abstract = data.get('abstract', '')  # 论文摘要
-        keywords = data.get('keywords', '')  # 关键词
-        special_requirements = data.get('special_requirements', '')  # 特殊要求
-        outline_level = data.get('outline_level', 'two')  # 目录级别：two/three
-
-        # 验证必要字段
-        if not title:
-            return jsonify({'success': False, 'message': '请提供论文题目'}), 400
-        if not abstract:
-            return jsonify({'success': False, 'message': '请提供论文摘要'}), 400
-        if not field:
-            return jsonify({'success': False, 'message': '请选择研究领域'}), 400
-
-        # 生成任务ID
-        task_id = str(uuid.uuid4())
-
-        # 初始化任务状态
-        paper_generation_tasks[task_id] = {
-            'status': 'generating_outline',
-            'progress': 10,
-            'message': '正在分析论文需求，生成智能目录...',
-            'start_time': datetime.now(),
-            'outline': None
-        }
-
-        # 启动后台任务生成目录
-        def generate_outline_background():
-            try:
-                # 更新进度 - 开始分析
-                paper_generation_tasks[task_id].update({
-                    'progress': 10,
-                    'message': 'AI正在分析论文结构...'
-                })
-
-                # 更新进度 - 生成中
-                paper_generation_tasks[task_id].update({
-                    'progress': 30,
-                    'message': 'AI正在生成智能目录...'
-                })
-
-                # 调用AI生成智能目录结构
-                outline = generate_intelligent_outline_enhanced(
-                    title=title,
-                    field=field,
-                    paper_type=paper_type,
-                    total_words=total_words,
-                    abstract=abstract,
-                    keywords=keywords,
-                    special_requirements=special_requirements,
-                    outline_level=outline_level
-                )
-
-                # 更新进度 - 处理结果
-                paper_generation_tasks[task_id].update({
-                    'progress': 80,
-                    'message': '正在处理生成结果...'
-                })
-
-                if outline and len(outline) > 0:
-                    # 更新任务状态为完成
-                    paper_generation_tasks[task_id].update({
-                        'status': 'completed',
-                        'progress': 100,
-                        'message': '目录生成完成！',
-                        'outline': outline
-                    })
-                    app.logger.info(f"目录生成成功，共{len(outline)}个章节")
-                else:
-                    # 生成失败
-                    paper_generation_tasks[task_id].update({
-                        'status': 'error',
-                        'progress': 0,
-                        'message': '目录生成失败，请检查输入信息后重试',
-                        'error': '无法生成目录结构'
-                    })
-                    app.logger.error("目录生成失败：返回空结果")
-
-            except Exception as e:
-                app.logger.error(f"目录生成后台任务失败: {e}")
-                paper_generation_tasks[task_id].update({
-                    'status': 'error',
-                    'progress': 0,
-                    'message': f'目录生成失败: {str(e)}',
-                    'error': str(e)
-                })
-
-        # 启动后台线程
-        thread = threading.Thread(target=generate_outline_background)
-        thread.daemon = True
-        thread.start()
-
-        return jsonify({
-            'success': True,
-            'task_id': task_id,
-            'message': '目录生成任务已启动'
-        })
-
-    except Exception as e:
-        app.logger.error(f"智能生成目录失败: {e}")
-        return jsonify({'success': False, 'message': f'智能生成目录失败: {str(e)}'}), 500
-
-
-@app.route('/api/generate-outline', methods=['POST'])
-def api_generate_outline():
-    """生成论文目录结构API"""
-    try:
-        data = request.get_json()
-        title = data.get('title', '')
-        field = data.get('field', '')
-        paper_type = data.get('type', '本科毕业论文')
-        target_words = data.get('words', 12000)
-        use_three_level = data.get('use_three_level', False)
-
-        if not all([title, field]):
-            return jsonify({'success': False, 'message': '请提供完整的论文信息'}), 400
-
-        # 根据用户选择生成目录结构
-        if use_three_level:
-            sections = generate_three_level_sections(target_words)
-        else:
-            sections = generate_two_level_sections(target_words)
-
-        return jsonify({
-            'success': True,
-            'outline': sections,
-            'total_words': sum(section.get('words', 0) for section in sections),
-            'total_sections': len(sections)
-        })
-
-    except Exception as e:
-        app.logger.error(f"生成目录失败: {e}")
-        return jsonify({'success': False, 'message': f'生成目录失败: {str(e)}'}), 500
-
-
-@app.route('/api/generate-paper-with-citations', methods=['POST'])
-def api_generate_paper_with_citations():
-    """AI论文生成API - 带文献搜索和引用功能"""
-    try:
-        data = request.get_json()
-        title = data.get('title', '')
-        field = data.get('field', '')
-        paper_type = data.get('type', '本科毕业论文')
-        abstract = data.get('abstract', '')
-        keywords = data.get('keywords', '')
-        requirements = data.get('requirements', '')
-        custom_outline = data.get('outline', [])
-        enable_citations = data.get('enable_citations', True)  # 是否启用文献引用
-
-        if not all([title, field]):
-            return jsonify({'success': False, 'message': '请提供完整的论文信息'}), 400
-
-        if not custom_outline:
-            return jsonify({'success': False, 'message': '请提供论文目录结构'}), 400
-
-        # 生成任务ID
-        task_id = str(uuid.uuid4())
-
-        # 初始化任务状态，包含记忆系统
-        paper_generation_tasks[task_id] = {
-            'status': 'starting',
-            'progress': 0,
-            'message': '正在初始化论文生成任务...',
-            'title': title,
-            'field': field,
-            'enable_citations': enable_citations,
-            'memory': {
-                'global_context': {
-                    'title': title,
-                    'field': field,
-                    'paper_type': paper_type,
-                    'abstract': abstract,
-                    'keywords': keywords,
-                    'requirements': requirements,
-                    'tech_stack': '',
-                    'database_info': '',
-                    'key_features': '',
-                    'research_objectives': ''
-                },
-                'generated_sections': [],
-                'accumulated_content': '',
-                'key_terms': {},
-                'technical_decisions': [],
-                'logical_chain': []
+    if not text or len(text) < 50:
+        return {
+            'ai_score': 0,
+            'confidence': 'low',
+            'details': {
+                'text_length': len(text) if text else 0,
+                'error': '文本太短，无法进行准确检测（至少需要50字符）'
             }
         }
 
-        # 启动后台生成任务
-        if enable_citations:
-            # 启动带文献搜索的生成任务
-            threading.Thread(
-                target=generate_paper_with_citations_background,
-                args=(task_id, title, field, paper_type, abstract, keywords, requirements, custom_outline)
-            ).start()
-        else:
-            # 启动普通生成任务
-            threading.Thread(
-                target=generate_paper_background,
-                args=(task_id, title, field, paper_type, abstract, keywords, requirements, custom_outline)
-            ).start()
+    # 1. 句子分割
+    sentences = re.split(r'[。！？；\n]+', text)
+    sentences = [s.strip() for s in sentences if s.strip() and len(s.strip()) > 2]
+
+    if len(sentences) < 3:
+        return {
+            'ai_score': 0,
+            'confidence': 'low',
+            'details': {
+                'sentence_count': len(sentences),
+                'error': '句子数量太少，无法进行准确检测（至少需要3个句子）'
+            }
+        }
+
+    # 2. 计算Burstiness（句子长度突发性）
+    sentence_lengths = [len(s) for s in sentences]
+    avg_length = statistics.mean(sentence_lengths)
+    std_length = statistics.stdev(sentence_lengths) if len(sentence_lengths) > 1 else 0
+
+    # 突发性分数：标准差越大，越像人类写作
+    # AI文本通常std/avg < 0.3，人类文本通常 > 0.5
+    burstiness_ratio = std_length / avg_length if avg_length > 0 else 0
+
+    # 3. 计算句子长度分布的均匀性
+    # 人类写作：长短句交替，有变化
+    # AI写作：句子长度趋于均匀
+    length_variance = statistics.variance(sentence_lengths) if len(sentence_lengths) > 1 else 0
+
+    # 4. 检测AI特征词频率
+    ai_markers = [
+        # 结构性标记词
+        '首先', '其次', '再次', '最后', '另外',
+        '此外', '与此同时', '综上所述', '总而言之',
+        '值得注意的是', '具体而言', '由此可见',
+        # AI高频表达
+        '极大地', '具有重要意义', '发挥着重要作用',
+        '得到了广泛应用', '取得了显著成效',
+        '不难发现', '显而易见', '毋庸置疑',
+        # 过渡词
+        '因此', '所以', '故而', '从而', '进而',
+        '一方面', '另一方面', '在此基础上',
+        # AI特有句式
+        '是...的', '通过...可以', '对于...来说',
+    ]
+
+    marker_count = 0
+    for marker in ai_markers:
+        marker_count += text.count(marker)
+
+    # AI标记词密度（每100字符的标记词数量）
+    marker_density = (marker_count / len(text)) * 100
+
+    # 5. 检测"完美"句式比例
+    # AI倾向于写出结构完整、过于规范的句子
+    perfect_pattern_count = 0
+    perfect_patterns = [
+        r'首先.*其次.*最后',
+        r'一方面.*另一方面',
+        r'不仅.*而且',
+        r'虽然.*但是',
+    ]
+    for pattern in perfect_patterns:
+        if re.search(pattern, text, re.DOTALL):
+            perfect_pattern_count += 1
+
+    # 6. 检测段落结构一致性
+    paragraphs = text.split('\n')
+    paragraphs = [p.strip() for p in paragraphs if p.strip()]
+    para_lengths = [len(p) for p in paragraphs] if len(paragraphs) > 1 else [len(text)]
+    para_variance = statistics.variance(para_lengths) if len(para_lengths) > 1 else 0
+
+    # 7. 计算综合AI分数
+    # 各指标权重
+    score_components = {
+        'burstiness': 0,  # 突发性分数 (0-40)
+        'markers': 0,     # AI标记词分数 (0-30)
+        'patterns': 0,    # 完美句式分数 (0-20)
+        'uniformity': 0   # 均匀性分数 (0-10)
+    }
+
+    # Burstiness分数计算（权重40%）
+    # burstiness_ratio < 0.25 -> 高AI可能性
+    # burstiness_ratio > 0.6 -> 低AI可能性
+    if burstiness_ratio < 0.2:
+        score_components['burstiness'] = 40
+    elif burstiness_ratio < 0.3:
+        score_components['burstiness'] = 32
+    elif burstiness_ratio < 0.4:
+        score_components['burstiness'] = 24
+    elif burstiness_ratio < 0.5:
+        score_components['burstiness'] = 16
+    elif burstiness_ratio < 0.6:
+        score_components['burstiness'] = 8
+    else:
+        score_components['burstiness'] = 0
+
+    # AI标记词分数（权重30%）
+    # marker_density > 1.5 -> 高AI可能性
+    if marker_density > 2.0:
+        score_components['markers'] = 30
+    elif marker_density > 1.5:
+        score_components['markers'] = 24
+    elif marker_density > 1.0:
+        score_components['markers'] = 18
+    elif marker_density > 0.5:
+        score_components['markers'] = 12
+    elif marker_density > 0.2:
+        score_components['markers'] = 6
+    else:
+        score_components['markers'] = 0
+
+    # 完美句式分数（权重20%）
+    score_components['patterns'] = min(perfect_pattern_count * 7, 20)
+
+    # 均匀性分数（权重10%）
+    # 句子长度方差太小 -> 高AI可能性
+    normalized_variance = length_variance / (avg_length ** 2) if avg_length > 0 else 0
+    if normalized_variance < 0.1:
+        score_components['uniformity'] = 10
+    elif normalized_variance < 0.2:
+        score_components['uniformity'] = 7
+    elif normalized_variance < 0.3:
+        score_components['uniformity'] = 4
+    else:
+        score_components['uniformity'] = 0
+
+    # 总分
+    ai_score = sum(score_components.values())
+
+    # 确定置信度
+    if len(text) > 1000 and len(sentences) > 10:
+        confidence = 'high'
+    elif len(text) > 500 and len(sentences) > 5:
+        confidence = 'medium'
+    else:
+        confidence = 'low'
+
+    # 生成详细分析
+    details = {
+        'text_length': len(text),
+        'sentence_count': len(sentences),
+        'avg_sentence_length': round(avg_length, 1),
+        'sentence_length_std': round(std_length, 1),
+        'burstiness_ratio': round(burstiness_ratio, 3),
+        'ai_marker_count': marker_count,
+        'marker_density': round(marker_density, 3),
+        'perfect_patterns': perfect_pattern_count,
+        'score_breakdown': score_components,
+        'analysis': generate_analysis_text(ai_score, burstiness_ratio, marker_density, perfect_pattern_count)
+    }
+
+    return {
+        'ai_score': min(ai_score, 100),
+        'confidence': confidence,
+        'details': details
+    }
+
+
+def generate_analysis_text(ai_score, burstiness_ratio, marker_density, pattern_count):
+    """生成分析文本"""
+    analysis = []
+
+    # AI分数判断
+    if ai_score >= 70:
+        analysis.append("该文本具有较高的AI生成特征，建议进行深度优化。")
+    elif ai_score >= 50:
+        analysis.append("该文本存在一定的AI生成特征，建议进行适度优化。")
+    elif ai_score >= 30:
+        analysis.append("该文本AI特征较少，但仍有优化空间。")
+    else:
+        analysis.append("该文本AI特征不明显，接近人类写作风格。")
+
+    # 具体问题
+    if burstiness_ratio < 0.3:
+        analysis.append("• 句式突发性低：句子长度过于均匀，建议增加长短句交替。")
+    if marker_density > 1.0:
+        analysis.append("• AI标记词过多：存在较多'首先、其次、综上所述'等AI高频词，建议替换或删除。")
+    if pattern_count > 0:
+        analysis.append("• 结构过于规整：存在'首先...其次...最后'等AI典型结构，建议打散。")
+
+    return '\n'.join(analysis)
+
+
+@app.route('/api/estimate-ai-score', methods=['POST'])
+def api_estimate_ai_score():
+    """AI检测率预估API - 免费功能，无需登录（用于文本优化器）"""
+    try:
+        data = request.json
+        text = data.get('text', '').strip()
+
+        if not text:
+            return jsonify({'error': '请提供要检测的文本'}), 400
+
+        if len(text) > 100000:
+            return jsonify({'error': '文本长度超过限制（最大10万字符）'}), 400
+
+        # 计算AI检测分数
+        result = calculate_ai_detection_score(text)
 
         return jsonify({
             'success': True,
-            'task_id': task_id,
-            'message': '论文生成任务已启动'
+            'ai_score': result['ai_score'],
+            'confidence': result['confidence'],
+            'details': result['details'],
+            'recommendation': get_recommendation(result['ai_score'])
         })
 
     except Exception as e:
-        app.logger.error(f"启动论文生成任务失败: {e}")
-        return jsonify({'success': False, 'message': f'启动任务失败: {str(e)}'}), 500
+        print(f"AI检测API错误: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'检测失败: {str(e)}'}), 500
 
 
-@app.route('/api/generate-paper', methods=['POST'])
-def api_generate_paper():
-    """AI论文生成API - 根据用户确认的目录生成"""
-    try:
-        data = request.get_json()
-        title = data.get('title', '')
-        field = data.get('field', '')
-        paper_type = data.get('type', '本科毕业论文')
-        abstract = data.get('abstract', '')
-        keywords = data.get('keywords', '')
-        requirements = data.get('requirements', '')
-        custom_outline = data.get('outline', [])  # 用户自定义的目录结构
-
-        if not all([title, field]):
-            return jsonify({'success': False, 'message': '请提供完整的论文信息'}), 400
-
-        if not custom_outline:
-            return jsonify({'success': False, 'message': '请提供论文目录结构'}), 400
-
-        # 生成任务ID
-        task_id = f"{int(time.time())}_{uuid.uuid4().hex[:8]}"
-        
-        # 初始化任务进度
-        paper_generation_tasks[task_id] = {
-            'progress': 0,
-            'message': '正在初始化...',
-            'status': 'running',
-            'current_section': '',
-            'sections_completed': 0,
-            'total_sections': len(custom_outline),
-            'content': '',
-            'error': None,
-            'outline': custom_outline  # 存储用户自定义的目录
+def get_recommendation(ai_score):
+    """根据AI分数给出建议"""
+    if ai_score >= 70:
+        return {
+            'level': 'high',
+            'text': '高风险',
+            'suggestion': '建议使用"深度优化"模式，强度设为4-5级',
+            'color': '#ef4444'
+        }
+    elif ai_score >= 50:
+        return {
+            'level': 'medium',
+            'text': '中风险',
+            'suggestion': '建议使用"适度优化"模式，强度设为3-4级',
+            'color': '#f59e0b'
+        }
+    elif ai_score >= 30:
+        return {
+            'level': 'low',
+            'text': '低风险',
+            'suggestion': '可选择"轻度优化"或手动调整部分内容',
+            'color': '#3b82f6'
+        }
+    else:
+        return {
+            'level': 'safe',
+            'text': '安全',
+            'suggestion': '文本AI特征不明显，可直接使用',
+            'color': '#10b981'
         }
 
-        # 启动异步生成任务
-        def run_generation():
-            try:
-                generate_paper_with_custom_outline(
-                    task_id, title, field, paper_type,
-                    abstract, keywords, requirements, custom_outline
-                )
-            except Exception as e:
-                paper_generation_tasks[task_id].update({
-                    'status': 'error',
-                    'error': str(e),
-                    'message': f'生成失败: {str(e)}'
-                })
 
-        thread = threading.Thread(target=run_generation, daemon=True)
-        thread.start()
+@app.route('/api/text-optimize-cost', methods=['POST'])
+def api_text_optimize_cost():
+    """获取文本优化费用预估API"""
+    try:
+        data = request.json or {}
+        char_count = data.get('char_count', 0)
+
+        # 获取费用配置
+        base_cost = float(user_manager.get_system_config('text_optimize_base_cost', 1.00))
+        per_1000_chars_cost = float(user_manager.get_system_config('text_optimize_per_1000_cost', 0.50))
+
+        # 计算总费用
+        total_cost = base_cost + (char_count / 1000) * per_1000_chars_cost
+        total_cost = round(total_cost, 2)
+
+        # 获取用户余额
+        balance = 0
+        logged_in = 'user_id' in session
+        if logged_in:
+            user_info = user_manager.get_user_info(session['user_id'])
+            if user_info:
+                balance = float(user_info['balance'])
 
         return jsonify({
             'success': True,
-            'task_id': task_id,
-            'message': '论文生成任务已启动',
-            'total_sections': len(custom_outline)
+            'base_cost': base_cost,
+            'per_1000_cost': per_1000_chars_cost,
+            'total_cost': total_cost,
+            'char_count': char_count,
+            'balance': balance,
+            'logged_in': logged_in,
+            'sufficient': balance >= total_cost if logged_in else False
         })
 
     except Exception as e:
-        app.logger.error(f"Error starting paper generation: {e}")
-        return jsonify({'success': False, 'message': f'启动失败: {str(e)}'}), 500
-
-
-@app.route('/api/paper-progress/<task_id>')
-def api_paper_progress(task_id):
-    """查询论文生成进度"""
-    try:
-        if task_id not in paper_generation_tasks:
-            return jsonify({'success': False, 'message': '任务不存在'}), 404
-            
-        task_data = paper_generation_tasks[task_id]
-        
-        response_data = {
-            'success': True,
-            'progress': task_data.get('progress', 0),
-            'message': task_data.get('message', ''),
-            'status': task_data.get('status', 'pending'),
-            'current_section': task_data.get('current_section', ''),
-            'sections_completed': task_data.get('sections_completed', 0),
-            'total_sections': task_data.get('total_sections', 0)
-        }
-        
-        # 如果任务完成，返回生成的内容
-        if task_data.get('status') == 'completed':
-            response_data['content'] = task_data.get('content', '')
-            response_data['literature_list'] = task_data.get('literature_list', [])
-
-        # 如果有错误，返回错误信息
-        if task_data.get('status') == 'error':
-            response_data['error'] = task_data.get('error', '未知错误')
-            
-        return jsonify(response_data)
-
-    except Exception as e:
-        app.logger.error(f"Error getting paper progress: {e}")
-        return jsonify({'success': False, 'message': '查询进度失败'}), 500
-
-
-@app.route('/api/outline-progress/<task_id>')
-def api_outline_progress(task_id):
-    """查询目录生成进度"""
-    try:
-        if task_id not in paper_generation_tasks:
-            return jsonify({'success': False, 'message': '任务不存在'}), 404
-
-        task_data = paper_generation_tasks[task_id]
-
-        response_data = {
-            'success': True,
-            'progress': task_data.get('progress', 0),
-            'message': task_data.get('message', ''),
-            'status': task_data.get('status', 'pending'),
-            'outline': task_data.get('outline', None)
-        }
-
-        # 如果任务完成或失败，添加额外信息
-        if task_data.get('status') == 'completed':
-            response_data['outline'] = task_data.get('outline')
-        elif task_data.get('status') == 'error':
-            response_data['error'] = task_data.get('error', '未知错误')
-
-        return jsonify(response_data)
-
-    except Exception as e:
-        app.logger.error(f"Error getting outline progress: {e}")
-        return jsonify({'success': False, 'message': f'查询失败: {str(e)}'}), 500
-
-
-@app.route('/api/test-memory-system', methods=['POST'])
-def api_test_memory_system():
-    """测试记忆系统功能"""
-    try:
-        data = request.get_json()
-        requirements = data.get('requirements', '基于Spring Boot和Vue.js开发一个图书管理系统，使用MySQL数据库，实现图书借阅、归还、查询功能')
-        abstract = data.get('abstract', '本系统采用前后端分离架构，后端使用Spring Boot框架，前端使用Vue.js，数据库采用MySQL')
-        keywords = data.get('keywords', 'Spring Boot, Vue.js, MySQL, 图书管理')
-
-        # 测试用户要求提取
-        user_context = extract_user_requirements_context(requirements, abstract, keywords)
-
-        # 测试章节上下文提取
-        test_content = """
-        <h2>第2章 相关技术介绍</h2>
-        <p>本章主要介绍系统开发所采用的关键技术。Spring Boot作为后端开发框架，提供了自动配置和快速开发的能力。Vue.js作为前端框架，实现了响应式的用户界面。MySQL数据库负责数据持久化存储。</p>
-        <p>在系统架构设计中，采用了MVC设计模式，将业务逻辑、数据访问和用户界面分离。RESTful API设计确保了前后端的有效通信。</p>
-        """
-
-        section_context = extract_section_context(test_content, "第2章 相关技术介绍")
-
-        return jsonify({
-            'success': True,
-            'user_context': user_context,
-            'section_context': section_context,
-            'message': '记忆系统测试完成'
-        })
-
-    except Exception as e:
-        app.logger.error(f"记忆系统测试失败: {e}")
-        return jsonify({'success': False, 'message': f'测试失败: {str(e)}'}), 500
-
-
-# ==================== 论文生成API ====================
-
-
-@app.route('/api/save-paper', methods=['POST'])
-def api_save_paper():
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({'success': False, 'message': '请求数据为空'}), 400
-        
-        # 获取用户ID（如果已登录）
-        user_id = session.get('user_id')
-        
-        # 提取论文数据
-        title = data.get('title', '未命名论文')
-        field = data.get('field', '')
-        paper_type = data.get('type', '本科毕业论文')
-        target_words = data.get('target_words', 12000)
-        abstract = data.get('abstract', '')
-        keywords = data.get('keywords', '')
-        content = data.get('content', {})  # Quill Delta格式
-        html_content = data.get('html_content', '')  # HTML格式
-        
-        # 验证必要字段
-        if not title.strip():
-            return jsonify({'success': False, 'message': '论文标题不能为空'}), 400
-        
-        if not content and not html_content:
-            return jsonify({'success': False, 'message': '论文内容不能为空'}), 400
-        
-        # 使用用户管理器保存论文
-        paper_id = user_manager.save_paper(
-            user_id=user_id,
-            title=title,
-            field=field,
-            paper_type=paper_type,
-            target_words=target_words,
-            abstract=abstract,
-            keywords=keywords,
-            content=content,
-            html_content=html_content
-        )
-        
-        if paper_id:
-            app.logger.info(f"论文保存成功 - ID: {paper_id}, 标题: {title}, 用户: {user_id}")
-            return jsonify({
-                'success': True, 
-                'paper_id': paper_id,
-                'message': '论文保存成功'
-            })
-        else:
-            app.logger.error("论文保存失败 - 数据库操作失败")
-            return jsonify({'success': False, 'message': '保存失败'}), 500
-        
-    except Exception as e:
-        app.logger.error(f"保存论文时出错: {e}")
-        return jsonify({'success': False, 'message': f'保存失败: {str(e)}'}), 500
-
-
-@app.route('/api/papers')
-def api_get_papers():
-    """获取用户的论文列表"""
-    try:
-        # 获取用户ID（如果已登录）
-        user_id = session.get('user_id')
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 20))
-        
-        if user_id:
-            result = user_manager.get_user_papers(user_id, page, per_page)
-            if result:
-                return jsonify({'success': True, 'data': result})
-            else:
-                return jsonify({'success': True, 'data': {'papers': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0}})
-        else:
-            # 未登录用户返回空列表
-            return jsonify({'success': True, 'data': {'papers': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0}})
-            
-    except Exception as e:
-        app.logger.error(f"获取论文列表失败: {e}")
-        return jsonify({'success': False, 'message': '获取论文列表失败'}), 500
-
-
-@app.route('/api/paper/<int:paper_id>')
-def api_get_paper_detail(paper_id):
-    """获取论文详细内容"""
-    try:
-        user_id = session.get('user_id')
-        
-        paper = user_manager.get_paper_detail(user_id, paper_id)
-        
-        if paper:
-            return jsonify({'success': True, 'paper': paper})
-        else:
-            return jsonify({'success': False, 'message': '论文不存在'}), 404
-            
-    except Exception as e:
-        app.logger.error(f"获取论文详情失败: {e}")
-        return jsonify({'success': False, 'message': '获取论文详情失败'}), 500
-
-
-@app.route('/api/export-paper-word', methods=['POST'])
-def api_export_paper_word():
-    """导出论文到Word文档"""
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({'error': '请求数据为空'}), 400
-            
-        title = data.get('title', '未命名论文')
-        content = data.get('content', {})
-        references = data.get('references', [])
-
-        # 验证内容
-        if not content:
-            return jsonify({'error': '没有论文内容数据'}), 400
-
-        # 生成Word文档
-        doc_buffer = generate_paper_word_document(title, content, references)
-        
-        if doc_buffer is None:
-            return jsonify({'error': '文档生成失败，请稍后重试'}), 500
-
-        # 返回文件
-        return send_file(
-            doc_buffer,
-            as_attachment=True,
-            download_name=f'{title}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.docx',
-            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        )
-
-    except Exception as e:
-        app.logger.error(f"导出Word文档API失败: {e}")
-        return jsonify({'error': f'导出Word文档失败: {str(e)}'}), 500
+        app.logger.error(f"获取文本优化费用失败: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 @app.route('/api/optimize-text', methods=['POST'])
 @login_required
 def api_optimize_text():
-    """文本优化API接口"""
+    """文本优化API接口 - 支持多种优化模式和强度（收费功能）"""
     try:
         data = request.json
         text_content = data.get('text', '').strip()
-        
+
+        # 获取优化选项
+        options = data.get('options', {})
+        intensity = options.get('intensity', 3)  # 1-5，默认3
+        mode = options.get('mode', 'balanced')  # balanced/aggressive/conservative
+        preserve_terms = options.get('preserve_terms', True)
+        diversify_sentence = options.get('diversify_sentence', True)
+        natural_transition = options.get('natural_transition', True)
+        add_human_touch = options.get('add_human_touch', True)
+
         if not text_content:
             return jsonify({'error': '请输入要优化的文本'}), 400
-        
+
         if len(text_content) > 50000:  # 限制文本长度
             return jsonify({'error': '文本长度超限，请控制在5万字符以内'}), 400
-        
-        app.logger.info(f"开始优化文本，原文长度: {len(text_content)}")
-        
+
+        # === 收费逻辑 ===
+        user_id = session.get('user_id')
+
+        # 根据文本长度计算费用：基础费用 + 每1000字额外费用
+        base_cost = float(user_manager.get_system_config('text_optimize_base_cost', 1.00))
+        per_1000_chars_cost = float(user_manager.get_system_config('text_optimize_per_1000_cost', 0.50))
+
+        # 计算总费用：基础费 + (字数/1000) * 每千字费用
+        char_count = len(text_content)
+        total_cost = base_cost + (char_count / 1000) * per_1000_chars_cost
+        total_cost = round(total_cost, 2)  # 保留两位小数
+
+        # 检查用户余额
+        user_info = user_manager.get_user_info(user_id)
+        if not user_info:
+            return jsonify({'error': '获取用户信息失败，请重新登录'}), 401
+
+        if user_info['balance'] < total_cost:
+            return jsonify({
+                'error': f'余额不足，文本优化需要 {total_cost:.2f} 元，当前余额 {user_info["balance"]:.2f} 元',
+                'need_recharge': True,
+                'cost': total_cost,
+                'balance': float(user_info['balance'])
+            }), 400
+
+        app.logger.info(f"开始优化文本，原文长度: {len(text_content)}, 模式: {mode}, 强度: {intensity}, 费用: {total_cost}元")
+
         # 分段处理
         segments = split_text_intelligently(text_content)
         optimized_segments = []
-        
+
         app.logger.info(f"文本分为 {len(segments)} 个片段进行处理")
-        
+
+        # 构建优化配置
+        optimization_config = {
+            'intensity': intensity,
+            'mode': mode,
+            'preserve_terms': preserve_terms,
+            'diversify_sentence': diversify_sentence,
+            'natural_transition': natural_transition,
+            'add_human_touch': add_human_touch
+        }
+
         for i, segment in enumerate(segments):
             try:
                 # 提供上下文（前一段的结尾和后一段的开头）
@@ -3055,39 +3778,75 @@ def api_optimize_text():
                     context += f"前文：...{segments[i-1][-200:]}\n"
                 if i < len(segments) - 1:
                     context += f"后文：{segments[i+1][:200]}..."
-                
+
                 app.logger.info(f"正在优化第 {i+1}/{len(segments)} 个片段")
-                
-                optimized = optimize_text_with_deepseek(segment, context)
+
+                optimized = optimize_text_with_deepseek(segment, context, optimization_config)
                 if optimized:
                     optimized_segments.append(optimized)
                     app.logger.info(f"第 {i+1} 个片段优化成功")
                 else:
                     optimized_segments.append(segment)  # 失败时保留原文
                     app.logger.warning(f"第 {i+1} 个片段优化失败，保留原文")
-                
+
                 # 短暂延迟，避免API调用过于频繁
                 time.sleep(0.5)
-                
+
             except Exception as segment_error:
                 app.logger.error(f"优化第 {i+1} 个片段时出错: {segment_error}")
                 optimized_segments.append(segment)  # 出错时保留原文
-        
+
         # 组装最终结果
         final_result = '\n\n'.join(optimized_segments)
-        
+
+        # 检查是否有实际优化（至少有一个片段成功优化）
+        optimization_success = any(opt != orig for opt, orig in zip(optimized_segments, segments))
+
+        # 模式和强度名称映射
+        mode_names = {'balanced': '均衡模式', 'aggressive': '强力模式', 'conservative': '保守模式', 'moderate': '适度模式', 'rewrite': '完全重写'}
+        intensity_names = {1: '轻微', 2: '适度', 3: '中等', 4: '深度', 5: '极限'}
+
+        # === 扣费逻辑：只有优化成功才扣费 ===
+        charged = False
+        if optimization_success:
+            consume_result = user_manager.consume_balance(
+                user_id,
+                total_cost,
+                'text_optimize',
+                f'AI文本优化 - {char_count}字 | {mode_names.get(mode, "均衡模式")}'
+            )
+            charged = consume_result['success']
+            if charged:
+                app.logger.info(f"文本优化成功，已扣费 {total_cost} 元")
+            else:
+                app.logger.warning(f"文本优化扣费失败: {consume_result.get('message', '未知错误')}")
+        else:
+            app.logger.warning("文本优化失败，未扣费")
+
+        # 生成优化报告
+        processing_info = f'共处理 {len(segments)} 个文本片段 | {mode_names.get(mode, "均衡模式")} | {intensity_names.get(intensity, "中等")}优化'
+
         app.logger.info(f"文本优化完成，优化后长度: {len(final_result)}")
-        
+
+        # 获取扣费后的最新余额
+        updated_user_info = user_manager.get_user_info(user_id)
+        new_balance = float(updated_user_info['balance']) if updated_user_info else 0
+
         return jsonify({
             'success': True,
             'original': text_content,
             'optimized': final_result,
             'segments_count': len(segments),
-            'processing_info': f'共处理 {len(segments)} 个文本片段',
+            'processing_info': processing_info,
             'original_length': len(text_content),
-            'optimized_length': len(final_result)
+            'optimized_length': len(final_result),
+            'optimization_mode': mode,
+            'optimization_intensity': intensity,
+            'charged': charged,
+            'cost': total_cost,
+            'new_balance': new_balance
         })
-        
+
     except Exception as e:
         app.logger.error(f"文本优化API错误: {e}")
         return jsonify({'error': f'优化失败: {str(e)}'}), 500
@@ -3390,7 +4149,7 @@ def generate_intelligent_outline(description, total_words, field, paper_type):
         }
 
         try:
-            response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload, timeout=60)
+            response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload, timeout=120)
 
             if response.status_code == 200:
                 result = response.json()
@@ -5248,7 +6007,7 @@ def call_deepseek_api(prompt, max_tokens=3000):
             try:
                 app.logger.info(f"API调用尝试 {attempt + 1}/3，max_tokens: {max_tokens}")
                 
-                response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload, timeout=60)
+                response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload, timeout=120)
                 
                 if response.status_code == 200:
                     result = response.json()
@@ -5389,57 +6148,378 @@ def split_text_intelligently(text, max_length=2000):
     return segments
 
 
-def optimize_text_with_deepseek(text_segment, context=""):
+def optimize_text_with_deepseek(text_segment, context="", config=None):
     """
-    使用DeepSeek优化单个文本片段
-    
+    使用DeepSeek优化单个文本片段 - 基于AI检测原理的深度优化
+
+    核心原理：
+    1. Perplexity（困惑度）：AI文本词汇选择高度可预测，需要增加词汇随机性
+    2. Burstiness（突发性）：AI文本句式均匀，人类写作长短句交替、节奏变化
+    3. 模式识别：AI有固定的连接词、句式结构，需要打破这些模式
+
     参数:
     - text_segment: 要优化的文本片段
     - context: 上下文信息
-    
+    - config: 优化配置
+
     返回:
     - 优化后的文本
     """
-    system_prompt = """请帮我将以下文本进行人性化改写，降低AIGC检测率。**重要前提：必须严格保持原文的核心观点、关键信息和学术价值完全不变，只改变表达方式。**
+    if config is None:
+        config = {
+            'intensity': 3,
+            'mode': 'balanced',
+            'preserve_terms': True,
+            'diversify_sentence': True,
+            'natural_transition': True,
+            'add_human_touch': True
+        }
 
-## 核心改写原则：
-1. **保持原意100%不变**：这是最高优先级，任何改写都不能改变原文的核心观点、数据、结论或逻辑关系
-2. **打破AI标准句式**：避免"此外"、"值得注意的是"、"综上所述"、"研究表明"等AI常用过渡词
-3. **增加表达多样性**：同一意思用不同句式表达，长短句结合，避免句式过于规律
-4. **调整语言风格**：使用更自然的表达方式，但保持学术严谨性
-5. **重组表达结构**：可以调整句子结构和表述顺序，但逻辑关系和含义必须完全一致
+    intensity = config.get('intensity', 3)
+    mode = config.get('mode', 'moderate')
+    text_type = config.get('text_type', 'academic')
+    preserve_terms = config.get('preserve_terms', True)
+    diversify_sentence = config.get('diversify_sentence', True)
+    natural_transition = config.get('natural_transition', False)
+    add_human_touch = config.get('add_human_touch', False)
+    keep_formal_style = config.get('keep_formal_style', True)
 
-## 具体操作要求：
-- **绝对不能改变**：专业术语、数据、引用、核心概念、研究结论
-- **可以调整**：句子结构、过渡方式、表达顺序、同义词替换（但保持准确性）
-- 将重复的句式结构打散重组，但保持逻辑关系
-- 用同义词替换时必须确保含义完全一致
-- 改变过渡词和连接方式，但逻辑脉络不变
-- **严禁**：添加原文没有的观点、数据或例子
-- **严禁**：删除或弱化原文的关键信息
+    # 新增的高级优化选项
+    increase_perplexity = config.get('increase_perplexity', True)  # 增加困惑度
+    add_burstiness = config.get('add_burstiness', True)  # 增加突发性
+    break_patterns = config.get('break_patterns', True)  # 打破AI模式
+    add_specificity = config.get('add_specificity', False)  # 增加具体细节
+    vary_paragraph = config.get('vary_paragraph', True)  # 段落结构变化
 
-## 注意事项：
-- **优先级1**：保持原文的核心观点和学术价值完全不变
-- **优先级2**：确保修改后的文本逻辑清晰、语言流畅
-- **优先级3**：降低AI检测率
-- 改写后必须能够传达与原文完全相同的信息
-- 如果某句话无法在保持原意的前提下改写，宁可保持原样
+    # 根据强度级别调整温度和改写程度描述
+    intensity_settings = {
+        1: {'temp': 0.6, 'degree': '轻微调整，仅修改最明显的AI痕迹，保持90%原文'},
+        2: {'temp': 0.7, 'degree': '适度改写，保持较高的原文相似度，改写约40%内容'},
+        3: {'temp': 0.8, 'degree': '中等强度改写，平衡原意保持和降AI率，改写约60%内容'},
+        4: {'temp': 0.9, 'degree': '深度改写，大幅调整表达方式，改写约80%内容'},
+        5: {'temp': 1.0, 'degree': '极限改写，最大限度重构表达，几乎完全重写'}
+    }
 
-## 输出要求：
-- 直接输出改写后的文本，绝对不要包含任何解释、说明、分析或标记
-- 不要输出"改写说明"、"优化要点"、"修改内容"等任何额外信息
-- 不要使用"---"、"**"等分隔符或格式标记
-- 只输出纯净的优化后文本内容
-- 保持原文的段落结构和层次关系
-- 确保专业术语和核心概念的准确性"""
+    # 根据模式设置不同的优化策略 - 基于AI检测原理优化
+    mode_strategies = {
+        'moderate': """## 适度优化模式 - 学术论文专用（推荐）
 
-    user_prompt = f"""请优化以下文本：
+### 基于AI检测原理的优化策略：
+
+**1. 降低可预测性(Perplexity优化)**
+- 替换30%的常用词为同义词或近义词
+- 避免使用AI偏好的"标准化"表达
+- 适当使用不那么"完美"的词语组合
+
+**2. 增加句式突发性(Burstiness优化)**
+- 在一个段落内混合使用：短句(10字以内)、中句(20字左右)、长句(40字以上)
+- 不要让每个段落都是4-5个相似长度的句子
+- 偶尔使用破折号、省略号制造停顿
+
+**3. 打破AI模式**
+- 消除"首先、其次、最后"的三段式
+- 替换所有AI高频连接词
+- 段落开头不总是主题句
+
+**4. 保持学术规范**
+- 专业术语、数据、引用保持原样
+- 保持学术论文的正式风格""",
+
+        'aggressive': """## 深度优化模式 - 最大化降AI率
+
+### 基于AI检测原理的深度优化：
+
+**1. 大幅降低可预测性**
+- 替换50%以上的词汇
+- 使用更多样化的同义表达
+- 引入一些学术领域的专业变体表达
+
+**2. 强化句式突发性**
+- 刻意制造句子长度的剧烈变化
+- 一个长句后跟2-3个短句，再来一个中等句
+- 打破每段句数的规律性（有的段3句，有的段7句）
+
+**3. 彻底打破AI模式**
+- 删除60%的连接词，用句号直接分隔
+- 调整论述顺序：可以先给结论再给论据
+- 段落结构完全打散重组
+
+**4. 增加人类写作痕迹**
+- 适当加入"本研究认为"、"笔者发现"等主观表达
+- 使用"相对而言"、"在一定程度上"等程度限定
+- 偶尔使用括号补充说明""",
+
+        'rewrite': """## 完全重写模式（激进）
+
+### 完全基于人类写作特征重写：
+
+**1. 最大化困惑度**
+- 几乎完全更换词汇表达
+- 使用更口语化但仍正式的表达方式
+- 引入该领域人类作者常用的特色表达
+
+**2. 模拟真实写作节奏**
+- 像人类一样"思考着写"：有时详细，有时简略
+- 制造"写作中的犹豫"：使用"或者说"、"换个角度看"
+- 段落长度差异明显
+
+**3. 完全消除AI痕迹**
+- 不使用任何AI高频词汇
+- 论述结构完全重组
+- 加入适当的个人化学术表达"""
+    }
+
+    # 构建动态特征替换规则 - 基于AI检测研究更新
+    ai_signature_rules = """
+## AI特征词替换规则（必须严格执行）
+
+### 知网/Turnitin等平台重点检测的AI特征：
+
+**第一类：结构性标记词（检测权重最高，必须替换）**
+| AI特征表达 | 替换方案（随机选一个或直接删除） |
+|-----------|------------------------------|
+| 首先/其次/再次/最后 | 完全删除，用句号分开；或只保留一个 |
+| 第一/第二/第三 | 删除序号，直接陈述；或用"一是...二是" |
+| 一方面...另一方面 | 从X角度看...就Y而言；或删除对仗 |
+| 综上所述/总而言之 | 从以上分析来看/基于上述内容/回顾前文 |
+| 因此/所以/故而 | 这使得/由此/这样一来（或直接删除） |
+
+**第二类：AI偏好的过渡词（检测权重高）**
+| AI特征表达 | 替换方案 |
+|-----------|---------|
+| 此外/另外/除此之外 | 还有/同时/而且（或删除，用句号） |
+| 值得注意的是 | 要说明的是/这里需要指出/特别是 |
+| 具体而言/具体来说 | 详细来看/说得细一点/展开来讲 |
+| 与此同时 | 同时/在此期间/这一时期 |
+| 在此基础上 | 基于此/由此/在这个基础上 |
+| 从某种程度上说 | 可以说/在一定程度上/相对来说 |
+
+**第三类：AI特有的"完美"表达（需要"弱化"）**
+| AI特征表达 | 替换为更"人类"的表达 |
+|-----------|-------------------|
+| 极大地促进了 | 促进了/推动了/有利于 |
+| 具有重要意义 | 有一定意义/有其价值/值得关注 |
+| 发挥着重要作用 | 有一定作用/起到作用/产生影响 |
+| 得到了广泛应用 | 应用较多/有所应用/被采用 |
+| 取得了显著成效 | 取得成效/有所成效/产生效果 |
+| 研究表明/研究发现 | 有研究指出/从研究来看/相关研究显示 |
+| 不难发现/可以发现 | 能够看出/分析显示/观察到 |
+| 显而易见 | 明显/显然/可以看出 |
+
+**第四类：句式结构（必须打破）**
+- "是...的"句式过多 → 减少使用，换成直接陈述
+- 每句话都很完整 → 偶尔使用省略、破折号补充
+- 句子长度均匀 → 刻意制造长短句交替
+- 段落都是总-分-总 → 有时先举例再总结，有时只分析不总结
+"""
+
+    # 构建可选的优化规则 - 基于Perplexity和Burstiness原理
+    optional_rules = ""
+
+    if diversify_sentence or add_burstiness:
+        optional_rules += """
+## 句式突发性优化（Burstiness Enhancement）
+
+AI检测器会分析句子长度的方差。人类写作的burstiness（突发性）更高，表现为：
+- 句子长度变化大：有很短的句子（5-10字），也有很长的句子（50字以上）
+- 节奏不规律：不是均匀地一句接一句
+- 情绪起伏：有时详细展开，有时简略带过
+
+**执行要求：**
+1. 每个段落必须包含至少一个短句（15字以内）和一个长句（35字以上）
+2. 相邻两句的长度差异要明显（不要都是20-25字的中等句）
+3. 使用破折号（——）、省略号（……）制造停顿和节奏变化
+4. 偶尔使用括号（）补充说明，模拟人类边写边想的状态
+"""
+
+    if increase_perplexity:
+        optional_rules += """
+## 降低可预测性（Perplexity Enhancement）
+
+AI检测器通过预测下一个词来判断文本。AI文本的perplexity（困惑度）低，因为词汇选择高度可预测。
+
+**执行要求：**
+1. 避免使用"最常见"的词语搭配，选择同样正确但稍微少见的表达
+2. 示例替换：
+   - "进行研究" → "开展研究工作" / "着手研究" / "投入研究"
+   - "取得进展" → "有所推进" / "获得进展" / "实现突破"
+   - "产生影响" → "带来影响" / "形成影响" / "造成影响"
+3. 不要每个概念都用最"标准"的表达，适当使用变体
+"""
+
+    if break_patterns:
+        optional_rules += """
+## 打破AI模式特征（Pattern Breaking）
+
+AI有明显的写作模式，检测器专门识别这些模式：
+
+**必须消除的模式：**
+1. 三段式结构："首先...其次...最后" → 删除或只保留一个
+2. 对仗结构："一方面...另一方面" → 改为不对称表达
+3. 因果链条过于清晰：不是每个论点都要"因为...所以..."
+4. 段落结构雷同：不要每段都是"主题句+论证+小结"
+5. 连接词过多：删除30-50%的连接词，直接用句号
+
+**替代方案：**
+- 用句号直接分隔，让读者自己理解逻辑关系
+- 调换句子顺序：有时先给结论，再解释原因
+- 段落长度要有变化：有的段落3句话，有的段落6句话
+"""
+
+    if natural_transition:
+        optional_rules += """
+## 过渡词自然化处理
+
+**删除或替换的目标：**
+- 删除30%的过渡词，用句号直接分隔
+- "此外" → 直接删除，新起一句
+- "值得注意的是" → "这里要提一下" 或直接删除
+- "具体而言" → "具体来看" 或删除
+"""
+
+    if add_human_touch and text_type != 'academic':
+        optional_rules += """
+## 人性化表达增强（仅非学术文本）
+- 适当加入语气词："其实"、"说实话"
+- 使用反问句增加表达力度
+- 偶尔使用"我认为"、"在我看来"
+"""
+
+    if preserve_terms:
+        optional_rules += """
+## 专业术语与数据保护（绝对不能改）
+- 所有专业术语必须100%保持原样
+- 数字、百分比、日期不得更改
+- 引用内容（引号内）保持原样
+- 人名、地名、机构名保持原样
+- 公式、代码保持原样
+"""
+
+    if vary_paragraph:
+        optional_rules += """
+## 段落结构变化
+- 段落长度要有明显差异：短段落2-3句，长段落5-7句
+- 不要每段开头都是总起句，可以先给例子再总结
+- 段落之间的过渡可以不那么"顺滑"
+"""
+
+    # 根据文本类型添加特定规则 - 基于知网AIGC检测算法优化
+    text_type_rules = ""
+    if text_type == 'academic' or keep_formal_style:
+        text_type_rules = """
+## 【核心任务】学术论文降AI率专用规则（基于知网AIGC检测原理）
+
+### 知网AIGC检测算法原理：
+知网采用"知识增强AIGC检测技术"，从两条链路检测：
+1. **语言模式链路**：检测句式规律性、词汇可预测性、连接词使用模式
+2. **语义逻辑链路**：检测论述结构、逻辑链条、段落组织方式
+
+### 为什么AI写作容易被检测？（必须理解）
+- **Perplexity过低**：AI选词太"标准"，人类会用更多样的表达
+- **Burstiness过低**：AI句子长度均匀（都是20-30字），人类长短句交替
+- **模式化严重**：AI总是"首先、其次、最后"，人类不会这么规整
+- **表达过于完美**：AI不会有冗余、犹豫、补充，人类写作有
+
+### 核心降AI策略（必须严格执行）
+
+**策略1：增加句式突发性（最重要，权重40%）**
+- 刻意制造长短句交替：短句（10字以内）→ 长句（40字以上）→ 中句
+- 示例改写：
+  - 原文："该系统采用了先进的技术架构，能够有效提升工作效率。"
+  - 改为："系统架构先进。它对工作效率的提升效果明显——实测数据显示，处理速度提高了约35%。"
+- 每段必须有长度差异明显的句子
+
+**策略2：打破AI连接模式（权重30%）**
+- 删除"首先、其次、最后"，直接用句号分隔
+- 删除"此外、另外、与此同时"，或换成"还有一点"
+- "综上所述"换成"从上面的分析来看"或"回顾本节内容"
+- 因果关系不要每次都用"因此、所以"，有时直接陈述结果
+
+**策略3：降低词汇可预测性（权重20%）**
+- 不用最"标准"的搭配，用同样正确的变体
+- "进行研究"→"开展研究"/"着手研究"
+- "取得成效"→"收到效果"/"产生成效"
+- "具有重要意义"→"有其研究价值"/"值得关注"
+
+**策略4：模拟人类写作痕迹（权重10%）**
+- 适当使用括号补充：（具体数据见表3-1）
+- 使用破折号连接：这一发现——虽然需要更多验证——为后续研究指明了方向
+- 偶尔使用"本研究认为"、"笔者发现"代替无主语句
+- 段落结构要变化：不是每段都"主题句+论证+总结"
+
+**必须保持的学术规范（底线）**
+- 章节编号、标题保持原样
+- 专业术语、数据、引用100%不改
+- 保持第三人称或"本研究"表述
+- 禁止口语词汇：我觉得、挺好、蛮不错、啥
+- 保持学术论文的严谨性和专业性
+"""
+    elif text_type == 'article':
+        text_type_rules = """
+## 一般文章优化规则
+- 可以适度口语化，但保持文章的专业性
+- 句式变化可以更大胆
+- 可以加入更多个人观点表达
+- 保持文章的可读性和流畅性
+"""
+    else:
+        text_type_rules = """
+## 非正式内容优化规则
+- 可以使用口语化表达
+- 句式可以不那么完整
+- 可以加入语气词和感叹
+- 重点是自然、像真人在说话
+"""
+
+    # 组装最终的system prompt
+    system_prompt = f"""你是一个专业的文本人性化改写助手，专门针对知网、Turnitin、GPTZero等AI检测系统进行优化。
+
+你的核心任务是将AI生成的文本改写成更像人类书写的自然文本，从而降低AI检测率。
+
+{text_type_rules}
+
+## 核心改写原则（基于AI检测算法原理）
+
+### 1. 增加Perplexity（困惑度）
+AI检测器通过预测下一个词来判断。AI文本词汇选择高度可预测，需要：
+- 使用同义词变体，不总是用"最标准"的表达
+- 避免AI偏好的固定搭配
+
+### 2. 增加Burstiness（突发性）
+AI文本句式均匀，人类写作有节奏变化：
+- 制造长短句交替
+- 段落长度要有变化
+- 不要每段都是4-5个相似长度的句子
+
+### 3. 打破模式特征
+消除AI的规律性模式：
+- 删除或替换"首先、其次、最后"
+- 不要每段都是"总-分-总"结构
+- 减少过渡词的使用
+
+{mode_strategies.get(mode, mode_strategies['moderate'])}
+
+## 当前优化强度：{intensity}/5
+{intensity_settings.get(intensity, intensity_settings[3])['degree']}
+
+{ai_signature_rules}
+
+{optional_rules}
+
+## 输出要求（极其重要）
+- 直接输出改写后的文本，不要任何解释、标记或说明
+- 不要输出"改写说明"、"优化要点"等额外信息
+- 不要使用分隔符、标题或格式标记
+- 保持原文的段落结构
+- 只输出纯净的优化后文本"""
+
+    user_prompt = f"""请对以下文本进行人性化改写优化：
 
 {text_segment}
 
 {f"上下文参考：{context}" if context else ""}
 
-请开始优化："""
+请直接输出改写后的文本："""
 
     try:
         headers = {
@@ -5447,30 +6527,44 @@ def optimize_text_with_deepseek(text_segment, context=""):
             'Content-Type': 'application/json'
         }
 
+        # 根据强度调整temperature
+        temperature = intensity_settings.get(intensity, intensity_settings[3])['temp']
+
         payload = {
             'model': 'deepseek-chat',
             'messages': [
                 {'role': 'system', 'content': system_prompt},
                 {'role': 'user', 'content': user_prompt}
             ],
-            'temperature': 0.7,
+            'temperature': temperature,
             'max_tokens': min(len(text_segment) * 3, 4000),
             'stream': False
         }
 
-        app.logger.info(f"开始优化文本片段，长度: {len(text_segment)}")
-        
-        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload, timeout=90)
-        
+        app.logger.info(f"开始优化文本片段，长度: {len(text_segment)}, 模式: {mode}, 强度: {intensity}, temperature: {temperature}")
+
+        response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload, timeout=120)
+
         if response.status_code == 200:
             result = response.json()
             content = result['choices'][0]['message']['content']
+
+            # 后处理：清理可能残留的格式标记
+            content = content.strip()
+            # 移除可能的markdown格式
+            if content.startswith('```'):
+                content = content.split('```')[1] if '```' in content[3:] else content
+            # 移除可能的标题行
+            lines = content.split('\n')
+            cleaned_lines = [line for line in lines if not line.startswith('#') and not line.startswith('**改写') and not line.startswith('---')]
+            content = '\n'.join(cleaned_lines).strip()
+
             app.logger.info(f"文本优化成功，优化后长度: {len(content)}")
-            return content.strip()
+            return content
         else:
             app.logger.error(f"文本优化API调用失败: {response.status_code}")
             return None
-            
+
     except Exception as e:
         app.logger.error(f"文本优化失败: {e}")
         return None
@@ -6414,6 +7508,33 @@ def create_error_document(title, error_message):
         return doc_buffer
     except:
         return None
+
+
+@app.route('/api/get_defense_cost')
+def api_get_defense_cost():
+    """获取答辩问题生成费用"""
+    try:
+        cost = float(user_manager.get_system_config('thesis_defense_cost', 5.00))
+        balance = 0
+        logged_in = 'user_id' in session
+        
+        if logged_in:
+            user_info = user_manager.get_user_info(session['user_id'])
+            if user_info:
+                balance = float(user_info['balance'])
+        
+        return jsonify({
+            'success': True,
+            'cost': cost,
+            'balance': balance,
+            'logged_in': logged_in
+        })
+    except Exception as e:
+        app.logger.error(f"获取答辩生成费用失败: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/generate-defense-questions', methods=['POST'])
 def api_generate_defense_questions():
     """生成论文答辩问题API"""
     try:
@@ -6442,42 +7563,81 @@ def api_generate_defense_questions():
         if not all([thesis_title, research_field, thesis_abstract]):
             return jsonify({'success': False, 'message': '请提供完整的论文基本信息'}), 400
 
-        # 功能免费使用，无需登录和余额检查
-        user_id = session.get('user_id', None)  # 如果未登录则为None
+        # 检查用户登录状态
+        if 'user_id' not in session:
+            return jsonify({
+                'success': False,
+                'message': 'AI功能需要登录后使用',
+                'need_login': True
+            }), 401
+        
+        user_id = session['user_id']
+        
+        # 获取费用并检查余额
+        cost = float(user_manager.get_system_config('thesis_defense_cost', 5.00))
+        user_info = user_manager.get_user_info(user_id)
+        
+        if not user_info or user_info['balance'] < cost:
+            return jsonify({
+                'success': False,
+                'message': f'余额不足，AI生成需要 {cost:.2f} 元，当前余额 {user_info["balance"]:.2f} 元',
+                'need_recharge': True,
+                'cost': cost,
+                'balance': float(user_info['balance']) if user_info else 0
+            }), 400
 
         # 调用AI生成答辩问题
-        questions = generate_defense_questions_with_ai(
+        questions, is_ai_success = generate_defense_questions_with_ai(
             thesis_title, research_field, thesis_abstract,
             system_name, tech_stack, system_description,
             question_count, difficulty_level, category  # 传递类别参数
         )
 
+        # 只有AI真正成功才扣费
+        charged = False
+        if is_ai_success:
+            consume_result = user_manager.consume_balance(
+                user_id,
+                cost,
+                'thesis_defense',
+                f'AI答辩问题生成 - {thesis_title[:30]}'
+            )
+            charged = consume_result['success']
+            if charged:
+                app.logger.info(f"AI答辩问题生成成功，已扣费 {cost} 元")
+            else:
+                app.logger.warning(f"AI答辩问题生成扣费失败: {consume_result['message']}")
+        else:
+            app.logger.warning("AI调用失败，使用备用方案，不扣费")
+
         # 计算生成时间
         generation_time = int(time.time() - generation_start_time)
 
-        # 保存到数据库历史记录（仅在用户已登录时）
+        # 保存到数据库历史记录
         history_id = None
-        if user_id:
-            try:
-                history_id = user_manager.save_defense_question_history(
-                    user_id=user_id,
-                    session_id=session_id,
-                    generation_mode='single' if not category else 'category',
-                    thesis_data=data,
-                    questions_data=questions,
-                    generation_time=generation_time
-                )
-                app.logger.info(f"历史记录已保存，ID: {history_id}")
-            except Exception as e:
-                app.logger.error(f"保存历史记录失败: {e}")
-                # 不影响主要功能，继续返回结果
+        try:
+            history_id = user_manager.save_defense_question_history(
+                user_id=user_id,
+                session_id=session_id,
+                generation_mode='single' if not category else 'category',
+                thesis_data=data,
+                questions_data=questions,
+                generation_time=generation_time
+            )
+            app.logger.info(f"历史记录已保存，ID: {history_id}")
+        except Exception as e:
+            app.logger.error(f"保存历史记录失败: {e}")
+            # 不影响主要功能，继续返回结果
 
         return jsonify({
             'success': True,
             'questions': questions,
-            'message': f'成功生成 {len(questions)} 个答辩问题',
+            'message': f'成功生成 {len(questions)} 个答辩问题' + ('' if is_ai_success else '（AI服务暂时不可用，已使用备用方案，未扣费）'),
             'session_id': session_id,
-            'history_id': history_id
+            'history_id': history_id,
+            'charged': charged,
+            'cost': cost,
+            'ai_success': is_ai_success
         })
 
     except Exception as e:
@@ -6756,7 +7916,9 @@ def generate_fragment_fallback_questions(thesis_title, research_field, fragment,
 def generate_defense_questions_with_ai(thesis_title, research_field, thesis_abstract,
                                      system_name, tech_stack, system_description,
                                      question_count, difficulty_level, category=None):
-    """使用DeepSeek AI生成论文答辩问题 - 优化版本"""
+    """使用DeepSeek AI生成论文答辩问题 - 优化版本
+    返回: (questions, is_ai_success) - 问题列表和是否AI成功的标志
+    """
     try:
         # 构建类别特定的提示词
         category_prompts = {
@@ -6871,7 +8033,7 @@ def generate_defense_questions_with_ai(thesis_title, research_field, thesis_abst
                                 question['answer'] = generate_fallback_answer(thesis_title, question.get('question', ''))
                         
                         app.logger.info(f"AI成功生成{len(questions)}个问题")
-                        return questions
+                        return (questions, True)  # AI成功
                         
                 elif response.status_code == 429:  # 速率限制
                     if attempt < 2:
@@ -6893,13 +8055,13 @@ def generate_defense_questions_with_ai(thesis_title, research_field, thesis_abst
         
         # 所有尝试都失败，返回智能备用方案
         app.logger.warning("DeepSeek API调用失败，使用智能备用方案")
-        return generate_smart_fallback_questions(thesis_title, research_field, thesis_abstract, 
-                                               system_name, question_count, difficulty_level, category)
+        return (generate_smart_fallback_questions(thesis_title, research_field, thesis_abstract, 
+                                               system_name, question_count, difficulty_level, category), False)
 
     except Exception as e:
         app.logger.error(f"生成答辩问题时出错: {e}")
-        return generate_smart_fallback_questions(thesis_title, research_field, thesis_abstract, 
-                                               system_name, question_count, difficulty_level, category)
+        return (generate_smart_fallback_questions(thesis_title, research_field, thesis_abstract, 
+                                               system_name, question_count, difficulty_level, category), False)
 
 
 def generate_category_specific_questions(thesis_title, research_field, thesis_abstract, 
@@ -7349,7 +8511,7 @@ def schema_data():
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "智能文档处理平台",
-        "description": "专业的学术工具集，提供SQL转ER图、论文生成、测试用例生成等功能",
+        "description": "专业的学术工具集，提供SQL转ER图、测试用例生成等功能",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Web Browser",
         "url": request.host_url,
@@ -7360,9 +8522,9 @@ def schema_data():
         },
         "featureList": [
             "SQL转ER图生成",
-            "AI论文写作助手",
             "测试用例自动生成",
             "论文答辩助手",
+            "AI文本优化",
             "数据库设计工具"
         ],
         "audience": {
@@ -8170,6 +9332,172 @@ Please output HTML format directly:
         return generate_simple_section_content(
             title, field, paper_type, section, abstract, keywords, requirements, 1
         )
+
+
+# ==================== AI流程图生成功能 ====================
+
+@app.route('/flowchart-generator')
+def flowchart_generator_page():
+    """AI流程图生成器页面"""
+    return render_template('flowchart-generator.html')
+
+
+@app.route('/api/get_flowchart_cost', methods=['GET'])
+def api_get_flowchart_cost():
+    """获取AI流程图生成的费用信息"""
+    try:
+        cost = float(user_manager.get_system_config('flowchart_generation_price', 1.0))
+
+        if 'user_id' not in session:
+            return jsonify({
+                'is_logged_in': False,
+                'cost': cost,
+                'balance': 0,
+                'sufficient': False
+            })
+
+        user_info = user_manager.get_user_info(session['user_id'])
+        balance = float(user_info['balance']) if user_info else 0
+
+        return jsonify({
+            'is_logged_in': True,
+            'cost': cost,
+            'balance': balance,
+            'sufficient': balance >= cost
+        })
+    except Exception as e:
+        app.logger.error(f"获取流程图费用失败: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/flowchart/generate', methods=['POST'])
+def generate_flowchart_api():
+    """AI生成流程图API"""
+    try:
+        # 检查用户是否登录
+        if 'user_id' not in session:
+            return jsonify({
+                'success': False,
+                'message': '请先登录后再使用此功能',
+                'need_login': True
+            })
+
+        # 获取流程图生成费用
+        cost = float(user_manager.get_system_config('flowchart_generation_price', 1.0))
+
+        # 获取用户信息并检查余额
+        user_info = user_manager.get_user_info(session['user_id'])
+        if not user_info:
+            return jsonify({
+                'success': False,
+                'message': '用户信息获取失败，请重新登录',
+                'need_login': True
+            })
+
+        if user_info['balance'] < cost:
+            return jsonify({
+                'success': False,
+                'message': f'余额不足，流程图生成需要 {cost:.2f} 元，当前余额 {user_info["balance"]:.2f} 元',
+                'need_recharge': True
+            })
+
+        data = request.get_json()
+        description = data.get('description', '').strip()
+        direction = data.get('direction', 'TD')
+
+        if not description:
+            return jsonify({'success': False, 'message': '请输入流程描述'})
+
+        # 系统流程图提示词
+        prompt = f"""你是一个专业的系统流程图设计专家。请将以下描述转换为紧凑的Mermaid流程图。
+
+用户描述：
+{description}
+
+【严格要求 - 紧凑布局】：
+1. 使用 flowchart {direction} 语法
+2. 节点文字要简短（不超过8个汉字），例如："验证格式"而不是"系统验证输入格式是否正确"
+3. 合并相似步骤，减少节点数量（整个流程图控制在8-12个节点）
+4. 判断分支的两个结果尽量在同一层级并排显示
+5. 节点类型：
+   - 开始/结束：([开始]) 或 ([结束])
+   - 处理步骤：[简短描述]
+   - 判断条件：{{条件?}}
+   - 输入/输出：[/数据/]
+
+【紧凑布局技巧】：
+- 判断节点的"是"和"否"分支指向的节点放在同一行
+- 多个结束情况可以合并为一个结束节点
+- 使用 & 符号让多个节点指向同一目标
+
+【输出示例】（紧凑版）：
+flowchart {direction}
+    A([开始]) --> B[/输入信息/]
+    B --> C{{格式有效?}}
+    C -->|否| B
+    C -->|是| D{{数据存在?}}
+    D -->|是| E[提示重复]
+    D -->|否| F[保存数据]
+    E --> G([结束])
+    F --> G
+
+只输出Mermaid代码，不要任何解释。"""
+
+        # 调用DeepSeek API
+        mermaid_code = call_deepseek_api(prompt, max_tokens=1500)
+
+        if not mermaid_code:
+            return jsonify({'success': False, 'message': 'AI生成失败，请重试'})
+
+        # 清理Mermaid代码
+        mermaid_code = clean_mermaid_code(mermaid_code)
+
+        # 生成成功后扣费
+        consume_result = user_manager.consume_balance(
+            session['user_id'],
+            cost,
+            'flowchart_generation',
+            f'AI流程图生成 - {len(description)}字描述'
+        )
+        if not consume_result:
+            app.logger.warning(f"流程图生成扣费失败: user_id={session['user_id']}, cost={cost}")
+
+        # 获取更新后的余额
+        updated_user_info = user_manager.get_user_info(session['user_id'])
+        new_balance = float(updated_user_info['balance']) if updated_user_info else 0
+
+        return jsonify({
+            'success': True,
+            'mermaid_code': mermaid_code,
+            'message': '生成成功',
+            'cost': cost,
+            'new_balance': new_balance
+        })
+
+    except Exception as e:
+        app.logger.error(f"流程图生成失败: {e}")
+        return jsonify({'success': False, 'message': f'生成失败: {str(e)}'})
+
+
+def clean_mermaid_code(code):
+    """清理AI返回的Mermaid代码"""
+    if not code:
+        return ''
+
+    # 移除markdown代码块标记
+    code = code.strip()
+    if code.startswith('```mermaid'):
+        code = code[10:]
+    elif code.startswith('```'):
+        code = code[3:]
+    if code.endswith('```'):
+        code = code[:-3]
+
+    # 移除多余的空行
+    lines = [line for line in code.strip().split('\n') if line.strip()]
+    code = '\n'.join(lines)
+
+    return code.strip()
 
 
 # ==================== 应用启动 ====================

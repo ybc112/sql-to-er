@@ -16,5 +16,9 @@
             "command": "extension.execute",
             "priority": 4
         }
-    ]
+    ],
+    "python.autoComplete.extraPaths": [
+        "c:/Users/39825/.vscode/extensions/rt-thread.rt-thread-micropython-1.0.11/microExamples/code-completion"
+    ],
+    "kiroAgent.configureMCP": "Disabled"
 }

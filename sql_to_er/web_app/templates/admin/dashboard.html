@@ -3,465 +3,817 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理员仪表盘 - SQL转ER图工具</title>
+    <title>仪表盘 - 管理后台</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.bootcdn.net/ajax/libs/Chart.js/3.9.1/chart.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        body {
-            background-color: #f8f9fa;
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #818cf8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
         }
-        
-        /* 侧边栏样式 */
+
+        body {
+            background-color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* 侧边栏 */
         .sidebar {
             position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
             z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #343a40;
             width: 250px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding-top: 0;
         }
-        
-        .sidebar-sticky {
-            position: sticky;
-            top: 48px;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        
+
+        .sidebar-header h5 {
+            color: white;
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .sidebar-header small {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
         .sidebar .nav-link {
+            color: #94a3b8;
+            padding: 12px 20px;
+            font-size: 14px;
             font-weight: 500;
-            color: #adb5bd;
-            padding: 10px 20px;
-            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
         }
-        
+
         .sidebar .nav-link:hover {
-            color: #fff;
-            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            background: rgba(255,255,255,0.05);
         }
-        
+
         .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #007bff;
+            color: white;
+            background: rgba(79, 70, 229, 0.2);
+            border-left-color: var(--primary);
         }
-        
+
         .sidebar .nav-link i {
-            margin-right: 10px;
             width: 20px;
-            text-align: center;
+            margin-right: 10px;
         }
-        
-        /* 主内容区域 */
+
+        /* 主内容区 */
         .main {
             margin-left: 250px;
-            padding: 20px;
+            padding: 24px;
+            min-height: 100vh;
         }
-        
-        /* 顶部导航栏 */
-        .navbar {
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,.08);
-            padding: 15px 20px;
-            margin-bottom: 30px;
+
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
+        .top-bar h4 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .current-time {
+            color: var(--gray-500);
+            font-size: 14px;
+        }
+
         /* 统计卡片 */
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
         .stat-card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.08);
-            transition: transform 0.3s;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,.15);
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
         }
-        
-        .stat-card .icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
+
+        .stat-card.primary::before { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+        .stat-card.success::before { background: linear-gradient(90deg, #16a34a, var(--success)); }
+        .stat-card.warning::before { background: linear-gradient(90deg, #d97706, var(--warning)); }
+        .stat-card.info::before { background: linear-gradient(90deg, #0891b2, var(--info)); }
+
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            color: white;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
-        
-        .stat-card.blue .icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .stat-card.green .icon { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-        .stat-card.orange .icon { background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); }
-        .stat-card.red .icon { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
-        
-        .stat-card h3 {
-            margin: 0;
-            font-size: 32px;
+
+        .stat-card.primary .stat-icon { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .stat-card.success .stat-icon { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .stat-card.warning .stat-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .stat-card.info .stat-icon { background: rgba(6, 182, 212, 0.1); color: var(--info); }
+
+        .stat-card .stat-icon i {
+            font-size: 22px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 28px;
             font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 4px;
         }
-        
-        .stat-card p {
-            margin: 0;
-            color: #666;
-            font-size: 14px;
+
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
         }
-        
-        .stat-card .change {
+
+        .stat-card .stat-change {
             font-size: 12px;
-            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        
-        .stat-card .change.positive { color: #28a745; }
-        .stat-card .change.negative { color: #dc3545; }
-        
+
+        .stat-card .stat-change.positive { color: var(--success); }
+        .stat-card .stat-change.negative { color: var(--danger); }
+        .stat-card .stat-change.neutral { color: var(--gray-500); }
+
         /* 图表卡片 */
         .chart-card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
-        
-        .chart-card h5 {
+
+        .chart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            color: #333;
         }
-        
-        /* 图表容器 */
+
+        .chart-card-header h5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-card-header h5 i {
+            color: var(--primary);
+        }
+
         .chart-container {
             position: relative;
-            height: 300px;
-            width: 100%;
+            height: 280px;
         }
-        
-        /* 表格样式 */
+
+        /* 概况卡片 */
+        .overview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .overview-card h5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .overview-card h5 i {
+            color: var(--primary);
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .overview-item {
+            text-align: center;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 10px;
+        }
+
+        .overview-item .value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .overview-item .value.primary { color: var(--primary); }
+        .overview-item .value.success { color: var(--success); }
+        .overview-item .value.warning { color: var(--warning); }
+        .overview-item .value.info { color: var(--info); }
+
+        .overview-item .label {
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+
+        /* 表格卡片 */
         .table-card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
-        
-        .table-card h5 {
-            margin-bottom: 20px;
-            color: #333;
+
+        .table-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
-        
-        .table thead {
-            background-color: #f8f9fa;
+
+        .table-card-header h5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
-        .badge {
-            padding: 5px 10px;
+
+        .table-card-header h5 i {
+            color: var(--primary);
+        }
+
+        .table-card-header a {
+            font-size: 13px;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .table-card-header a:hover {
+            text-decoration: underline;
+        }
+
+        .custom-table {
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .custom-table th {
+            background: var(--gray-50);
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-200);
+            text-align: left;
+        }
+
+        .custom-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .custom-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
             font-size: 12px;
+            font-weight: 500;
         }
-        
-        /* 加载动画 */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
+
+        .status-badge.success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-badge.failed {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* 快捷操作 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .quick-action-btn {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .quick-action-btn span {
+            display: block;
+            font-size: 13px;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        /* 系统状态 */
+        .system-status {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .system-status h5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .system-status h5 i {
+            color: var(--primary);
+        }
+
+        .status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--gray-50);
+            border-radius: 8px;
+        }
+
+        .status-item .label {
+            font-size: 13px;
+            color: var(--gray-700);
+        }
+
+        .status-item .value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .status-dot.online { background: var(--success); }
+        .status-dot.offline { background: var(--danger); }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .stat-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main {
+                margin-left: 0;
+            }
+            .stat-cards {
+                grid-template-columns: 1fr;
+            }
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <!-- 侧边栏 -->
     <nav class="sidebar">
-        <div class="sidebar-sticky">
-            <div class="text-center text-white mb-4">
-                <i class="fas fa-user-shield fa-3x mb-2"></i>
-                <h5>管理员后台</h5>
-                <small>{{ admin_info.username }}</small>
+        <div class="sidebar-header">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-user-shield fa-2x text-white"></i>
+                <div>
+                    <h5>管理后台</h5>
+                    <small>{{ admin_info.username }}</small>
+                </div>
             </div>
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">
-                        <i class="fas fa-tachometer-alt"></i>
-                        仪表盘
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.users') }}">
-                        <i class="fas fa-users"></i>
-                        用户管理
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.announcements') }}">
-                        <i class="fas fa-bullhorn"></i>
-                        公告管理
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.settings') }}">
-                        <i class="fas fa-cog"></i>
-                        系统设置
-                    </a>
-                </li>
-            </ul>
-            
-            <hr class="text-white">
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('homepage') }}">
-                        <i class="fas fa-home"></i>
-                        返回首页
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.logout') }}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        退出登录
-                    </a>
-                </li>
-            </ul>
         </div>
+
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>仪表盘
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.users') }}">
+                    <i class="fas fa-users"></i>用户管理
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.announcements') }}">
+                    <i class="fas fa-bullhorn"></i>公告管理
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.settings') }}">
+                    <i class="fas fa-cog"></i>系统设置
+                </a>
+            </li>
+        </ul>
+
+        <hr class="mx-3" style="border-color: rgba(255,255,255,0.1);">
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('homepage') }}">
+                    <i class="fas fa-home"></i>返回首页
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>退出登录
+                </a>
+            </li>
+        </ul>
     </nav>
-    
-    <!-- 主内容区域 -->
+
+    <!-- 主内容区 -->
     <main class="main">
-        <!-- 顶部导航 -->
-        <nav class="navbar">
-            <div class="d-flex justify-content-between align-items-center w-100">
-                <h4 class="mb-0">仪表盘</h4>
-                <div class="text-muted">
-                    <i class="far fa-clock me-1"></i>
-                    <span id="current-time"></span>
-                </div>
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <h4><i class="fas fa-tachometer-alt me-2"></i>仪表盘</h4>
+            <div class="current-time">
+                <i class="far fa-clock me-1"></i>
+                <span id="currentTime"></span>
             </div>
-        </nav>
-        
+        </div>
+
         <!-- 统计卡片 -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card blue">
-                    <div class="icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3 id="total-users">{{ stats.users.total_users }}</h3>
-                    <p>总用户数</p>
-                    <div class="change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        今日新增 {{ stats.users.today_new_users }}
-                    </div>
+        <div class="stat-cards">
+            <div class="stat-card primary">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-value" id="totalUsers">{{ stats.users.total_users }}</div>
+                <div class="stat-label">总用户数</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    今日新增 {{ stats.users.today_new_users }}
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card green">
-                    <div class="icon">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <h3>¥{{ "%.2f"|format(stats.finance.total_revenue) }}</h3>
-                    <p>总收入</p>
-                    <div class="change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        今日 ¥{{ "%.2f"|format(stats.finance.today_revenue) }}
-                    </div>
+
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-yen-sign"></i>
+                </div>
+                <div class="stat-value">¥{{ "%.2f"|format(stats.finance.total_revenue) }}</div>
+                <div class="stat-label">总收入</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    今日 ¥{{ "%.2f"|format(stats.finance.today_revenue) }}
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card orange">
-                    <div class="icon">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <h3>{{ stats.users.active_users }}</h3>
-                    <p>活跃用户</p>
-                    <div class="change">
-                        最近7天登录
-                    </div>
+
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-value">{{ stats.users.active_users }}</div>
+                <div class="stat-label">活跃用户</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-info-circle"></i>
+                    最近7天登录
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card red">
-                    <div class="icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>{{ stats.services.today_usage }}</h3>
-                    <p>今日服务调用</p>
-                    <div class="change">
-                        <i class="fas fa-info-circle"></i>
-                        在线 {{ stats.activity.online_users }} 人
-                    </div>
+
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-value">{{ stats.services.today_usage }}</div>
+                <div class="stat-label">今日服务调用</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-circle" style="font-size: 8px; color: var(--success);"></i>
+                    在线 {{ stats.activity.online_users }} 人
                 </div>
             </div>
         </div>
-        
+
+        <!-- 快捷操作 -->
+        <div class="quick-actions">
+            <a href="{{ url_for('admin.users') }}" class="quick-action-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>添加用户</span>
+            </a>
+            <a href="{{ url_for('admin.announcements') }}" class="quick-action-btn">
+                <i class="fas fa-bullhorn"></i>
+                <span>发布公告</span>
+            </a>
+            <a href="{{ url_for('admin.settings') }}" class="quick-action-btn">
+                <i class="fas fa-sliders-h"></i>
+                <span>系统配置</span>
+            </a>
+            <a href="#" onclick="refreshData()" class="quick-action-btn">
+                <i class="fas fa-sync-alt"></i>
+                <span>刷新数据</span>
+            </a>
+        </div>
+
         <!-- 图表区域 -->
         <div class="row">
-            <!-- 服务使用情况 -->
             <div class="col-md-6">
                 <div class="chart-card">
-                    <h5>服务使用统计</h5>
-                    <div class="chart-container">
-                        <canvas id="serviceChart"></canvas>
+                    <div class="chart-card-header">
+                        <h5><i class="fas fa-chart-bar"></i>最近7天收入趋势</h5>
                     </div>
-                </div>
-            </div>
-            
-            <!-- 收入趋势 -->
-            <div class="col-md-6">
-                <div class="chart-card">
-                    <h5>最近7天收入统计</h5>
                     <div class="chart-container">
                         <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- 额外统计信息 -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="table-card">
-                    <h5>收入概况</h5>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-primary">¥{{ "%.2f"|format(stats.finance.total_consumption) }}</h4>
-                                <p class="text-muted mb-0">总消费额</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-success">¥{{ "%.2f"|format(stats.finance.month_revenue) }}</h4>
-                                <p class="text-muted mb-0">本月收入</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-info">{{ stats.users.month_new_users }}</h4>
-                                <p class="text-muted mb-0">本月新用户</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-warning">{{ "%.1f"|format((stats.users.active_users / stats.users.total_users * 100) if stats.users.total_users > 0 else 0) }}%</h4>
-                                <p class="text-muted mb-0">用户活跃率</p>
-                            </div>
-                        </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h5><i class="fas fa-chart-pie"></i>服务使用分布</h5>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="serviceChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-        
+
+        <!-- 收入概况 -->
+        <div class="overview-card">
+            <h5><i class="fas fa-wallet"></i>财务概况</h5>
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <div class="value primary">¥{{ "%.2f"|format(stats.finance.total_consumption) }}</div>
+                    <div class="label">总消费额</div>
+                </div>
+                <div class="overview-item">
+                    <div class="value success">¥{{ "%.2f"|format(stats.finance.month_revenue) }}</div>
+                    <div class="label">本月收入</div>
+                </div>
+                <div class="overview-item">
+                    <div class="value warning">{{ stats.users.month_new_users }}</div>
+                    <div class="label">本月新用户</div>
+                </div>
+                <div class="overview-item">
+                    <div class="value info">{{ "%.1f"|format((stats.users.active_users / stats.users.total_users * 100) if stats.users.total_users > 0 else 0) }}%</div>
+                    <div class="label">用户活跃率</div>
+                </div>
+            </div>
+        </div>
+
         <!-- 表格区域 -->
         <div class="row">
-            <!-- 最近交易 -->
             <div class="col-md-6">
                 <div class="table-card">
-                    <h5>最近充值记录</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>用户</th>
-                                    <th>金额</th>
-                                    <th>状态</th>
-                                    <th>时间</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for trans in stats.recent_transactions %}
-                                <tr>
-                                    <td>{{ trans.username or '未知' }}</td>
-                                    <td>¥{{ "%.2f"|format(trans.amount) }}</td>
-                                    <td>
-                                        {% if trans.status == 'success' %}
-                                            <span class="badge bg-success">成功</span>
-                                        {% elif trans.status == 'pending' %}
-                                            <span class="badge bg-warning">待支付</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">失败</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ trans.paid_at.strftime('%m-%d %H:%M') if trans.paid_at else '-' }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="table-card-header">
+                        <h5><i class="fas fa-receipt"></i>最近充值记录</h5>
+                        <a href="{{ url_for('admin.users') }}">查看全部</a>
                     </div>
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>用户</th>
+                                <th>金额</th>
+                                <th>状态</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for trans in stats.recent_transactions %}
+                            <tr>
+                                <td>{{ trans.username or '未知' }}</td>
+                                <td><strong>¥{{ "%.2f"|format(trans.amount) }}</strong></td>
+                                <td>
+                                    {% if trans.status == 'success' or trans.status == 'paid' or trans.status == '1' %}
+                                        <span class="status-badge success">成功</span>
+                                    {% elif trans.status == 'pending' %}
+                                        <span class="status-badge pending">待支付</span>
+                                    {% else %}
+                                        <span class="status-badge failed">失败</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ trans.paid_at.strftime('%m-%d %H:%M') if trans.paid_at else '-' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">暂无充值记录</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            
-            <!-- 最近用户 -->
             <div class="col-md-6">
                 <div class="table-card">
-                    <h5>最近注册用户</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>用户名</th>
-                                    <th>邮箱</th>
-                                    <th>余额</th>
-                                    <th>注册时间</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in stats.recent_users %}
-                                <tr>
-                                    <td>{{ user.username or '未设置' }}</td>
-                                    <td>{{ user.email or '-' }}</td>
-                                    <td>¥{{ "%.2f"|format(user.balance) }}</td>
-                                    <td>{{ user.created_at.strftime('%m-%d %H:%M') }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="table-card-header">
+                        <h5><i class="fas fa-user-plus"></i>最近注册用户</h5>
+                        <a href="{{ url_for('admin.users') }}">查看全部</a>
                     </div>
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>邮箱</th>
+                                <th>余额</th>
+                                <th>注册时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in stats.recent_users %}
+                            <tr>
+                                <td><strong>{{ user.username or '未设置' }}</strong></td>
+                                <td>{{ user.email or '-' }}</td>
+                                <td>¥{{ "%.2f"|format(user.balance) }}</td>
+                                <td>{{ user.created_at.strftime('%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">暂无注册用户</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        
-        <!-- 系统信息 -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="table-card">
-                    <h5>系统概况</h5>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <p><strong>论文生成总数：</strong> {{ stats.services.total_papers }}</p>
+
+        <!-- 系统概况 -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="overview-card">
+                    <h5><i class="fas fa-chart-line"></i>服务统计</h5>
+                    <div class="overview-grid">
+                        <div class="overview-item">
+                            <div class="value primary">{{ stats.services.total_papers }}</div>
+                            <div class="label">论文生成总数</div>
                         </div>
-                        <div class="col-md-3">
-                            <p><strong>答辩问题总数：</strong> {{ stats.services.total_defense_questions }}</p>
+                        <div class="overview-item">
+                            <div class="value success">{{ stats.services.total_defense_questions }}</div>
+                            <div class="label">答辩问题总数</div>
                         </div>
-                        <div class="col-md-3">
-                            <p><strong>今日登录次数：</strong> {{ stats.activity.today_logins }}</p>
+                        <div class="overview-item">
+                            <div class="value warning">{{ stats.activity.today_logins }}</div>
+                            <div class="label">今日登录次数</div>
                         </div>
-                        <div class="col-md-3">
-                            <p><strong>用户总余额：</strong> ¥{{ "%.2f"|format(stats.finance.total_balance) }}</p>
+                        <div class="overview-item">
+                            <div class="value info">¥{{ "%.2f"|format(stats.finance.total_balance) }}</div>
+                            <div class="label">用户总余额</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="system-status">
+                    <h5><i class="fas fa-server"></i>系统状态</h5>
+                    <div class="status-list">
+                        <div class="status-item">
+                            <span class="label">
+                                <span class="status-dot online"></span>
+                                系统状态
+                            </span>
+                            <span class="value" style="color: var(--success);">正常运行</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">
+                                <span class="status-dot online"></span>
+                                数据库
+                            </span>
+                            <span class="value" style="color: var(--success);">已连接</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">在线用户</span>
+                            <span class="value">{{ stats.activity.online_users }} 人</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">版本</span>
+                            <span class="value">v2.0.0</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-    
+
     <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
-        // 显示当前时间
+        // 更新时间
         function updateTime() {
             const now = new Date();
             const timeString = now.toLocaleString('zh-CN', {
@@ -472,80 +824,31 @@
                 minute: '2-digit',
                 second: '2-digit'
             });
-            document.getElementById('current-time').textContent = timeString;
+            document.getElementById('currentTime').textContent = timeString;
         }
-        
+
         updateTime();
         setInterval(updateTime, 1000);
-        
-        // 保存图表实例
-        let serviceChart = null;
+
+        // 图表实例
         let revenueChart = null;
-        
+        let serviceChart = null;
+
         // 初始化图表
         function initCharts() {
             // 销毁旧图表
-            if (serviceChart) {
-                serviceChart.destroy();
-            }
-            if (revenueChart) {
-                revenueChart.destroy();
-            }
-            
-            // 服务使用图表
-            const serviceData = {{ stats.services.service_usage | tojson }};
-            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-            serviceChart = new Chart(serviceCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: serviceData.map(s => {
-                        const names = {
-                            'sql_to_er': 'SQL转ER图',
-                            'defense_questions': '答辩问题',
-                            'paper_generation': '论文生成',
-                            'ai_translation': 'AI翻译',
-                            'er_optimization': 'ER优化',
-                            'database_design': '数据库设计'
-                        };
-                        return names[s.service_type] || s.service_type;
-                    }),
-                    datasets: [{
-                        data: serviceData.map(s => s.count),
-                        backgroundColor: [
-                            '#667eea',
-                            '#764ba2',
-                            '#f093fb',
-                            '#f5576c',
-                            '#feca57',
-                            '#48dbfb'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-            
-            // 收入趋势图表 - 使用最近7天的真实数据
+            if (revenueChart) revenueChart.destroy();
+            if (serviceChart) serviceChart.destroy();
+
+            // 收入趋势图
             const revenueData = {{ stats.finance.daily_revenue | tojson }};
             const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            
-            // 生成最近7天的日期
-            const last7Days = [];
+
             const revenueMap = {};
-            
-            // 将数据转换为map便于查找
             revenueData.forEach(item => {
-                revenueMap[item.date] = item.revenue;
+                revenueMap[item.date] = parseFloat(item.revenue);
             });
-            
-            // 生成最近7天的日期和数据
+
             const labels = [];
             const data = [];
             for (let i = 6; i >= 0; i--) {
@@ -556,7 +859,7 @@
                 labels.push(monthDay);
                 data.push(revenueMap[dateStr] || 0);
             }
-            
+
             revenueChart = new Chart(revenueCtx, {
                 type: 'bar',
                 data: {
@@ -564,18 +867,17 @@
                     datasets: [{
                         label: '收入金额',
                         data: data,
-                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
-                        borderColor: '#667eea',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 1,
+                        borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -591,28 +893,91 @@
                                 callback: function(value) {
                                     return '¥' + value;
                                 }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
                             }
+                        },
+                        x: {
+                            grid: { display: false }
                         }
                     }
                 }
             });
+
+            // 服务使用图表
+            const serviceData = {{ stats.services.service_usage | tojson }};
+            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+
+            const serviceNames = {
+                'sql_to_er': 'SQL转ER图',
+                'defense_questions': '答辩问题',
+                'paper_generation': '论文生成',
+                'ai_translation': 'AI翻译',
+                'er_optimization': 'ER优化',
+                'database_design': '数据库设计',
+                'flowchart': '流程图',
+                'text_optimizer': '文本优化',
+                'ai_detector': 'AI检测',
+                'paper_structure': '论文结构'
+            };
+
+            serviceChart = new Chart(serviceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: serviceData.map(s => serviceNames[s.service_type] || s.service_type),
+                    datasets: [{
+                        data: serviceData.map(s => s.count),
+                        backgroundColor: [
+                            '#4f46e5',
+                            '#22c55e',
+                            '#f59e0b',
+                            '#06b6d4',
+                            '#ec4899',
+                            '#8b5cf6',
+                            '#f97316',
+                            '#14b8a6',
+                            '#ef4444',
+                            '#6366f1'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
         }
-        
-        // 页面加载时初始化图表
-        document.addEventListener('DOMContentLoaded', initCharts);
-        
+
+        // 刷新数据
+        function refreshData() {
+            location.reload();
+        }
+
         // 定时刷新数据
         setInterval(() => {
             fetch('/admin/api/stats')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // 更新统计数据
-                        document.getElementById('total-users').textContent = data.data.total_users || 0;
-                        // 可以更新其他数据...
+                        document.getElementById('totalUsers').textContent = data.data.total_users || 0;
                     }
                 });
-        }, 30000); // 30秒刷新一次
+        }, 60000);
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initCharts);
     </script>
 </body>
 </html>

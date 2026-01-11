@@ -782,6 +782,95 @@
             border-color: #ffccc7;
         }
 
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 24px 0 8px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 16px;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #64748b;
+            transition: all 0.2s ease;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .page-info span {
+            color: #3b82f6;
+            font-weight: 700;
+        }
+
+        .pagination-info {
+            text-align: center;
+            padding: 16px 0 8px;
+            color: #94a3b8;
+            font-size: 13px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 16px;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #recharge-table-container,
+        #consumption-table-container {
+            position: relative;
+            min-height: 200px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 16px;
@@ -911,63 +1000,105 @@
             </div>
 
             <div id="recharge-tab" class="tab-content active">
-                {% if recharge_records and recharge_records|length > 0 %}
-                    <table class="records-table">
-                        <thead>
-                            <tr>
-                                <th>交易时间</th>
-                                <th>交易类型</th>
-                                <th>交易金额</th>
-                                <th>备注</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in recharge_records %}
-                            <tr>
-                                <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                                <td>支付宝充值</td>
-                                <td class="amount-positive">+¥{{ "%.2f"|format(record.amount) }}</td>
-                                <td>{{ record.description or '-' }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-receipt"></i>
-                        <p>暂无充值记录</p>
-                    </div>
-                {% endif %}
+                <div id="recharge-table-container">
+                    {% if recharge_records and recharge_records|length > 0 %}
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th>交易时间</th>
+                                    <th>交易类型</th>
+                                    <th>交易金额</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recharge-tbody">
+                                {% for record in recharge_records %}
+                                <tr>
+                                    <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>支付宝充值</td>
+                                    <td class="amount-positive">+¥{{ "%.2f"|format(record.amount) }}</td>
+                                    <td>{{ record.description or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if recharge_pages > 1 %}
+                        <div class="pagination" id="recharge-pagination">
+                            <button class="page-btn" onclick="loadRechargeRecords(1)" {% if 1 == 1 %}disabled{% endif %}>
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <span class="page-info">第 <span id="recharge-current-page">1</span> / {{ recharge_pages }} 页，共 {{ recharge_total }} 条</span>
+                            <button class="page-btn" onclick="loadRechargeRecords(2)" {% if recharge_pages <= 1 %}disabled{% endif %}>
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="pagination-info">共 {{ recharge_total }} 条记录</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>暂无充值记录</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
 
             <div id="consumption-tab" class="tab-content">
-                {% if records and records|length > 0 %}
-                    <table class="records-table">
-                        <thead>
-                            <tr>
-                                <th>交易时间</th>
-                                <th>服务类型</th>
-                                <th>交易金额</th>
-                                <th>备注</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in records %}
-                            <tr>
-                                <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                                <td>{{ record.service_type }}</td>
-                                <td class="amount-negative">-¥{{ "%.2f"|format(record.amount) }}</td>
-                                <td>{{ record.description or '-' }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-receipt"></i>
-                        <p>暂无消费记录</p>
-                    </div>
-                {% endif %}
+                <div id="consumption-table-container">
+                    {% if records and records|length > 0 %}
+                        {% set service_type_map = {
+                            'flowchart_generation': '流程图生成',
+                            'ai_translation': 'AI智能翻译',
+                            'text_optimize': '文本优化',
+                            'ai_test_case': 'AI测试用例',
+                            'thesis_defense': '答辩问题生成',
+                            'paper_structure': '论文结构图',
+                            'sql_to_er': 'SQL转ER图',
+                            'doc_generation': '文档生成',
+                            'ai_detector': 'AI内容检测',
+                            'paper_generation': '论文生成'
+                        } %}
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th>交易时间</th>
+                                    <th>服务类型</th>
+                                    <th>交易金额</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody id="consumption-tbody">
+                                {% for record in records %}
+                                <tr>
+                                    <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>{{ service_type_map.get(record.service_type, record.service_type) }}</td>
+                                    <td class="amount-negative">-¥{{ "%.2f"|format(record.amount) }}</td>
+                                    <td>{{ record.description or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if consumption_pages > 1 %}
+                        <div class="pagination" id="consumption-pagination">
+                            <button class="page-btn" onclick="loadConsumptionRecords(1)" {% if 1 == 1 %}disabled{% endif %}>
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <span class="page-info">第 <span id="consumption-current-page">1</span> / {{ consumption_pages }} 页，共 {{ consumption_total }} 条</span>
+                            <button class="page-btn" onclick="loadConsumptionRecords(2)" {% if consumption_pages <= 1 %}disabled{% endif %}>
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="pagination-info">共 {{ consumption_total }} 条记录</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>暂无消费记录</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -1100,8 +1231,31 @@
 
             const value = parseFloat(amount.value);
 
-            if (isNaN(value) || value <= 0) {
+            // 验证是否为有效数字
+            if (isNaN(value)) {
                 alert('请输入有效的充值金额');
+                amount.focus();
+                return false;
+            }
+
+            // 最小金额验证
+            if (value < 0.01) {
+                alert('充值金额不能小于0.01元');
+                amount.focus();
+                return false;
+            }
+
+            // 最大金额验证
+            if (value > 10000) {
+                alert('单次充值金额不能超过10000元');
+                amount.focus();
+                return false;
+            }
+
+            // 小数位数验证（最多2位）
+            const decimalPart = amount.value.split('.')[1];
+            if (decimalPart && decimalPart.length > 2) {
+                alert('充值金额最多保留2位小数');
                 amount.focus();
                 return false;
             }
@@ -1136,6 +1290,190 @@
                 });
             }
         });
+
+        // ========== 分页功能 ==========
+        // 服务类型映射
+        const serviceTypeMap = {
+            'flowchart_generation': '流程图生成',
+            'ai_translation': 'AI智能翻译',
+            'text_optimize': '文本优化',
+            'ai_test_case': 'AI测试用例',
+            'thesis_defense': '答辩问题生成',
+            'paper_structure': '论文结构图',
+            'sql_to_er': 'SQL转ER图',
+            'doc_generation': '文档生成',
+            'ai_detector': 'AI内容检测',
+            'paper_generation': '论文生成'
+        };
+
+        // 当前页码
+        let rechargeCurrentPage = 1;
+        let rechargeTotalPages = {{ recharge_pages|default(1) }};
+        let consumptionCurrentPage = 1;
+        let consumptionTotalPages = {{ consumption_pages|default(1) }};
+
+        // 显示加载中
+        function showLoading(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container.querySelector('.loading-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'loading-overlay';
+                overlay.innerHTML = '<div class="loading-spinner"></div>';
+                container.appendChild(overlay);
+            }
+        }
+
+        // 隐藏加载中
+        function hideLoading(containerId) {
+            const container = document.getElementById(containerId);
+            const overlay = container.querySelector('.loading-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        // 加载充值记录
+        function loadRechargeRecords(page) {
+            if (page < 1 || page > rechargeTotalPages) return;
+
+            showLoading('recharge-table-container');
+
+            fetch(`/api/recharge-records?page=${page}&per_page=10`)
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading('recharge-table-container');
+
+                    if (data.success) {
+                        rechargeCurrentPage = data.page;
+                        rechargeTotalPages = data.total_pages;
+                        renderRechargeRecords(data.records, data.total, data.total_pages);
+                    }
+                })
+                .catch(error => {
+                    hideLoading('recharge-table-container');
+                    console.error('加载充值记录失败:', error);
+                });
+        }
+
+        // 渲染充值记录
+        function renderRechargeRecords(records, total, totalPages) {
+            const tbody = document.getElementById('recharge-tbody');
+            const container = document.getElementById('recharge-table-container');
+
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>暂无充值记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = records.map(record => `
+                <tr>
+                    <td>${record.created_at}</td>
+                    <td>支付宝充值</td>
+                    <td class="amount-positive">+¥${record.amount.toFixed(2)}</td>
+                    <td>${record.description}</td>
+                </tr>
+            `).join('');
+
+            // 更新分页
+            updatePagination('recharge', rechargeCurrentPage, totalPages, total);
+        }
+
+        // 加载消费记录
+        function loadConsumptionRecords(page) {
+            if (page < 1 || page > consumptionTotalPages) return;
+
+            showLoading('consumption-table-container');
+
+            fetch(`/api/consumption-records?page=${page}&per_page=10`)
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading('consumption-table-container');
+
+                    if (data.success) {
+                        consumptionCurrentPage = data.page;
+                        consumptionTotalPages = data.total_pages;
+                        renderConsumptionRecords(data.records, data.total, data.total_pages);
+                    }
+                })
+                .catch(error => {
+                    hideLoading('consumption-table-container');
+                    console.error('加载消费记录失败:', error);
+                });
+        }
+
+        // 渲染消费记录
+        function renderConsumptionRecords(records, total, totalPages) {
+            const tbody = document.getElementById('consumption-tbody');
+            const container = document.getElementById('consumption-table-container');
+
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>暂无消费记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = records.map(record => `
+                <tr>
+                    <td>${record.created_at}</td>
+                    <td>${serviceTypeMap[record.service_type] || record.service_type}</td>
+                    <td class="amount-negative">-¥${record.amount.toFixed(2)}</td>
+                    <td>${record.description}</td>
+                </tr>
+            `).join('');
+
+            // 更新分页
+            updatePagination('consumption', consumptionCurrentPage, totalPages, total);
+        }
+
+        // 更新分页控件
+        function updatePagination(type, currentPage, totalPages, total) {
+            const paginationEl = document.getElementById(`${type}-pagination`);
+            if (!paginationEl) return;
+
+            const currentPageSpan = document.getElementById(`${type}-current-page`);
+            if (currentPageSpan) {
+                currentPageSpan.textContent = currentPage;
+            }
+
+            // 更新分页按钮
+            const buttons = paginationEl.querySelectorAll('.page-btn');
+            if (buttons.length >= 2) {
+                // 上一页按钮
+                buttons[0].disabled = currentPage <= 1;
+                buttons[0].onclick = () => {
+                    if (type === 'recharge') {
+                        loadRechargeRecords(currentPage - 1);
+                    } else {
+                        loadConsumptionRecords(currentPage - 1);
+                    }
+                };
+
+                // 下一页按钮
+                buttons[1].disabled = currentPage >= totalPages;
+                buttons[1].onclick = () => {
+                    if (type === 'recharge') {
+                        loadRechargeRecords(currentPage + 1);
+                    } else {
+                        loadConsumptionRecords(currentPage + 1);
+                    }
+                };
+            }
+
+            // 更新页面信息
+            const pageInfo = paginationEl.querySelector('.page-info');
+            if (pageInfo) {
+                pageInfo.innerHTML = `第 <span>${currentPage}</span> / ${totalPages} 页，共 ${total} 条`;
+            }
+        }
     </script>
 </body>
 </html>
